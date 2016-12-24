@@ -3,22 +3,26 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/menu_item0"
+            android:icon="@android:drawable/ic_menu_gallery"
+            android:title="本日の予定" />
+        <item
+            android:id="@+id/menu_item1"
             android:icon="@android:drawable/ic_menu_my_calendar"
             android:title="予定の確認" />
         <item
-            android:id="@+id/menu_item1"
+            android:id="@+id/menu_item2"
             android:icon="@android:drawable/ic_menu_slideshow"
             android:title="予定の追加" />
         <item
-            android:id="@+id/menu_item2"
-            android:icon="@android:drawable/ic_menu_gallery"
+            android:id="@+id/menu_item3"
+            android:icon="@android:drawable/ic_menu_search"
             android:title="分析" />
         <item
-            android:id="@+id/menu_item3"
+            android:id="@+id/menu_item4"
             android:icon="@android:drawable/ic_menu_manage"
             android:title="設定" />
         <item
-            android:id="@+id/menu_item4"
+            android:id="@+id/menu_item5"
             android:icon="@android:drawable/ic_menu_manage"
             android:title="ローカルファイル編集" />
     </group>

@@ -3,6 +3,8 @@ package com.example.yukinaito.schedule_xp;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,6 +33,11 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        TodayPlanFragment fragment = new TodayPlanFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.content_main, fragment);
+        transaction.commit();
     }
 
     @Override
@@ -48,14 +55,23 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         if (id == R.id.menu_item0) {
+            TodayPlanFragment fragment = new TodayPlanFragment();
+            transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item1) {
         } else if (id == R.id.menu_item2) {
+            AddPlanFragment fragment = new AddPlanFragment();
+            transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item3) {
         } else if (id == R.id.menu_item4) {
+        } else if (id == R.id.menu_item5) {
+            LocalfileFragment fragment = new LocalfileFragment();
+            transaction.replace(R.id.content_main, fragment);
         }
 
+        transaction.commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
