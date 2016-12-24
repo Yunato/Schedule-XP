@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity
             transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item3) {
         } else if (id == R.id.menu_item4) {
+            SettingFragment fragment = new SettingFragment();
+            transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item5) {
             LocalfileFragment fragment = new LocalfileFragment();
             transaction.replace(R.id.content_main, fragment);

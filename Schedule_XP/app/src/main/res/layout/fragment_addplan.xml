@@ -17,7 +17,8 @@
         android:paddingBottom="60px"
         android:tag ="ACTION"
         android:onClick="onClick"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="@drawable/button_state" />
 
     <Button
         android:id="@+id/button_2"
@@ -34,7 +35,8 @@
         android:paddingBottom="60px"
         android:tag ="WANTACTION"
         android:onClick="onClick"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="@drawable/button_state" />
 
     <Button
         android:id="@+id/button_3"
@@ -50,5 +52,6 @@
         android:paddingBottom="60px"
         android:tag ="EXCEPTION"
         android:onClick="onClick"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:background="@drawable/button_state" />
 </LinearLayout>

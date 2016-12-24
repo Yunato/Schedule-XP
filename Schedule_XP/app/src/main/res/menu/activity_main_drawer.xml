@@ -20,7 +20,7 @@
         <item
             android:id="@+id/menu_item4"
             android:icon="@android:drawable/ic_menu_manage"
-            android:title="設定" />
+            android:title="予定(ひな形)の編集" />
         <item
             android:id="@+id/menu_item5"
             android:icon="@android:drawable/ic_menu_manage"
