@@ -33,4 +33,16 @@
         <item>帰省</item>
         -->
     </string-array>
+
+    <string name = "default_text">
+        <![CDATA[
+            0 0 日曜日・祝日
+            \n1 0 月曜日
+            \n2 0 火曜日
+            \n3 0 水曜日
+            \n4 0 木曜日
+            \n5 0 金曜日
+            \n6 0 土曜日
+            \n]]>
+    </string>
 </resources>

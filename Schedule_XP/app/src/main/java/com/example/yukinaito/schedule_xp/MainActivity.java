@@ -1,10 +1,13 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.SharedPreferencesCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,8 +18,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    public String ABCDEF = "OK";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +42,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        checkState();
 
         TodayPlanFragment fragment = new TodayPlanFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -77,5 +88,21 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void checkState(){
+        SharedPreferences preference = getSharedPreferences("Preference Name", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preference.edit();
+        if(preference.getBoolean("Launched", false) == false) {
+
+            try {
+                OutputStream out = openFileOutput("default.txt", MODE_PRIVATE | MODE_APPEND);
+                out.write((getResources().getString(R.string.default_text)).getBytes());
+                Log.d("text","OK1");
+            }catch(IOException e){
+            }
+            Log.d("text","OK2");
+            editor.putBoolean("Launched", true).commit();
+        }
     }
 }
