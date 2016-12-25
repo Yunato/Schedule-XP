@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class TodayPlanFragment extends ListFragment {
-    public static ArrayList<Card> cards;
+    public static ArrayList<PlanCard> cards;
     static public final String DATE_PATTERN = "HH:mm";
 /*
     @Override
@@ -35,7 +35,7 @@ public class TodayPlanFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        cards = new ArrayList<Card>();
+        cards = new ArrayList<PlanCard>();
         setListAdapter(new CardAdapter());
     }
 
@@ -46,7 +46,7 @@ public class TodayPlanFragment extends ListFragment {
         }
 
         @Override
-        public Card getItem(int pos){
+        public PlanCard getItem(int pos){
             return cards.get(pos);
         }
 
@@ -59,7 +59,7 @@ public class TodayPlanFragment extends ListFragment {
         public View getView(int pos, View view, ViewGroup parent){
             //Context context = getActivity();
             Context context = getActivity().getApplication();
-            Card card = cards.get(pos);
+            PlanCard card = cards.get(pos);
 
             //レイアウトの生成
             if(view == null){

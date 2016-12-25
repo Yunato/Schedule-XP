@@ -8,6 +8,7 @@ import android.support.v4.app.ListFragment;
 import android.os.Bundle;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.text.Layout;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,21 +21,28 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class SettingFragment extends ListFragment{
+    private static ArrayList<ModelSchedule> model;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        Bundle bundle = getArguments();
+        model = (ArrayList<ModelSchedule>)bundle.getSerializable("ModelSchedule");
         return inflater.inflate(R.layout.updatemodel, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        String[] day = getResources().getStringArray(R.array.day_array);
+        ArrayList<String> day = new ArrayList<String>();
+        for(int i = 0; i < model.size(); i++)
+            day.add(model.get(i).getName());
         setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.rowdata, day));
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int pos, long id){
         Intent intent = new Intent(getActivity(), SettingModelActivity.class);
+        intent.putExtra("day_of_week", model.get(pos));
         startActivity(intent);
     }
 }

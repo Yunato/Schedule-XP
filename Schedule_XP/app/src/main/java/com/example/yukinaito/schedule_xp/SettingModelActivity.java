@@ -1,12 +1,20 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class SettingModelActivity extends AppCompatActivity {
 
@@ -29,6 +37,9 @@ public class SettingModelActivity extends AppCompatActivity {
 
         SettingMainFragment fragment = new SettingMainFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("day_information", (ModelSchedule)getIntent().getSerializableExtra("day_of_week"));
+        fragment.setArguments(bundle);
         transaction.add(R.id.activity_setting_model, fragment);
         transaction.commit();
     }
