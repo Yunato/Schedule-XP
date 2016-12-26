@@ -1,6 +1,7 @@
 package com.example.yukinaito.schedule_xp;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -9,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,21 +24,28 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
+
 public class SettingMainFragment extends ListFragment {
-    private ArrayList<ModelSchedule.Card> cards;
+    private SchedlueApplication schedlueApplication;
     static public final String DATE_PATTERN = "HH:mm";
+    private static final int REQUEST_CODE = 1;
+    private CardAdapter cardAdapter;
+    private ArrayList<Card> cards;
+    private static int position;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         Bundle bundle = getArguments();
-        cards = ((ModelSchedule)bundle.getSerializable("day_information")).getCards();
+        schedlueApplication = (SchedlueApplication)getActivity().getApplication();
+        cards = schedlueApplication.getModelSchedule().get((int)bundle.getSerializable("position")).getCards();
         View view = inflater.inflate(R.layout.fragment_settingmain, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE);
             }
         });
         return view;
@@ -45,12 +54,36 @@ public class SettingMainFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        setListAdapter(new CardAdapter());
+        cardAdapter = new CardAdapter();
+        setListAdapter(cardAdapter);
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int pos, long id){
+        this.position = pos;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("モデルの操作");
+        builder.setMessage("モデルの内容を編集、またはモデルを削除しますか？");
+        builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                cards.remove(position);
+                updateListfragment();
+            }
+        });
+        builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
 
+            }
+        });
+        builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private class CardAdapter extends BaseAdapter {
@@ -60,7 +93,7 @@ public class SettingMainFragment extends ListFragment {
         }
 
         @Override
-        public ModelSchedule.Card getItem(int pos){
+        public Card getItem(int pos){
             return cards.get(pos);
         }
 
@@ -73,7 +106,7 @@ public class SettingMainFragment extends ListFragment {
         public View getView(int pos, View view, ViewGroup parent){
             //Context context = getActivity();
             Context context = getActivity().getApplication();
-            ModelSchedule.Card card = cards.get(pos);
+            Card card = cards.get(pos);
 
             //レイアウトの生成
             if(view == null){
@@ -97,14 +130,14 @@ public class SettingMainFragment extends ListFragment {
                 layout2.setOrientation(LinearLayout.VERTICAL);
 
                 TextView textView2 = new TextView(context);
-                textView2.setTag("place");
+                textView2.setTag("content");
                 textView2.setTextColor(Color.BLACK);
                 textView2.setPadding(10,10, 10, 10);
                 textView2.setTextSize(30.0f);
                 layout2.addView(textView2);
 
                 TextView textView3 = new TextView(context);
-                textView3.setTag("content");
+                textView3.setTag("place");
                 textView3.setTextColor(Color.BLACK);
                 textView3.setPadding(10, 10, 10, 10);
                 textView3.setTextSize(30.0f);
@@ -114,16 +147,35 @@ public class SettingMainFragment extends ListFragment {
             }
 
             TextView textView1 = (TextView)view.findViewWithTag("time");
-            textView1.setText(convertDate2String(card.calendar.getTime()));
-            TextView textView2 = (TextView)view.findViewWithTag("place");
-            textView2.setText(card.content);
-            TextView textView3 = (TextView)view.findViewWithTag("content");
-            textView3.setText(card.place);
+            textView1.setText(convertDate2String(card.getCalendar().getTime()));
+            TextView textView2 = (TextView)view.findViewWithTag("content");
+            textView2.setText(card.getContent());
+            TextView textView3 = (TextView)view.findViewWithTag("place");
+            textView3.setText(card.getPlace());
             return view;
         }
     }
 
     public String convertDate2String(java.util.Date date) {
         return (new SimpleDateFormat(DATE_PATTERN)).format(date);
+    }
+
+    public void updateListfragment(){
+        cardAdapter = new CardAdapter();
+        setListAdapter(cardAdapter);
+        cardAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                cards.add((Card)data.getSerializableExtra("Card"));
+                for(int i = 0; i < cards.size(); i++)
+                    Log.d("test",cards.get(i).getContent());
+                updateListfragment();
+            }
+        }
     }
 }

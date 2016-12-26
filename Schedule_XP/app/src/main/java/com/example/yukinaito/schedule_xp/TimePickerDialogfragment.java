@@ -45,7 +45,6 @@ public class TimePickerDialogfragment extends DialogFragment implements TimePick
             AddAtTimePlan callingActivity = (AddAtTimePlan) getActivity();
             callingActivity.onReturnValue(time, text, 2);
         }else if(activity_check == 2) {
-            Log.d("test","OK");
             AddModelActivity callingActivity = (AddModelActivity) getActivity();
             callingActivity.onReturnValue(time, text, 2);
         }else{

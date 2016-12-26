@@ -22,17 +22,18 @@ import java.util.ArrayList;
 
 public class SettingFragment extends ListFragment{
     private static ArrayList<ModelSchedule> model;
+    private SchedlueApplication schedlueApplication;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        Bundle bundle = getArguments();
-        model = (ArrayList<ModelSchedule>)bundle.getSerializable("ModelSchedule");
+        schedlueApplication = (SchedlueApplication)getActivity().getApplication();
         return inflater.inflate(R.layout.fragment_setting, container, false);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        model = schedlueApplication.getModelSchedule();
         ArrayList<String> day = new ArrayList<String>();
         for(int i = 0; i < model.size(); i++)
             day.add(model.get(i).getName());
@@ -42,7 +43,6 @@ public class SettingFragment extends ListFragment{
     @Override
     public void onListItemClick(ListView l, View v, int pos, long id){
         Intent intent = new Intent(getActivity(), SettingModelActivity.class);
-        intent.putExtra("day_of_week", model.get(pos));
         intent.putExtra("position", pos);
         startActivity(intent);
     }

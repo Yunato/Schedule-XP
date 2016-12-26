@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public String ABCDEF = "OK";
     private static ArrayList<ModelSchedule> model;
+    private SchedlueApplication schedlueApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        schedlueApplication = (SchedlueApplication)this.getApplication();
         checkState();
 
         TodayPlanFragment fragment = new TodayPlanFragment();
@@ -84,10 +86,7 @@ public class MainActivity extends AppCompatActivity
             transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item3) {
         } else if (id == R.id.menu_item4) {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("ModelSchedule", model);
             SettingFragment fragment = new SettingFragment();
-            fragment.setArguments(bundle);
             transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item5) {
             LocalfileFragment fragment = new LocalfileFragment();
@@ -121,11 +120,9 @@ public class MainActivity extends AppCompatActivity
         String tmp;
         char c;
         try{
-            Log.d("test","OK1");
             FileInputStream in = openFileInput("default.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
             while((tmp = reader.readLine())!=null) {
-                Log.d("test","OK2");
                 Arrays.fill(buffer, "");
                 for (int i = 0, j = 0; i < tmp.length(); i++) {
                     c = tmp.charAt(i);
@@ -137,11 +134,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 ModelSchedule modelSch = new ModelSchedule();
                 modelSch.setName(buffer[2]);
-                Log.d("test","OK3");
                 int count = Integer.parseInt(buffer[1]);
-                Log.d("test","OK3.5");
-                Log.d("test",tmp);
-                Log.d("test",Integer.toString(count));
                 for (int i = 0; i < count; i++) {
                     tmp = reader.readLine();
                     Arrays.fill(buffer, "");
@@ -153,14 +146,13 @@ public class MainActivity extends AppCompatActivity
                         }
                         buffer[k] += c;
                     }
-                    Log.d("text","OK5");
                     modelSch.setCardproperty(Integer.parseInt(buffer[0]),
                             Integer.parseInt(buffer[1]),
                             buffer[2], buffer[3]);
                 }
-                Log.d("test","OK6");
                 model.add(modelSch);
             }
+            schedlueApplication.setModelSchedule(model);
         }catch(IOException e){
         }
     }

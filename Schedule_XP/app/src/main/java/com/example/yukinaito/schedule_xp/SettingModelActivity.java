@@ -18,8 +18,11 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class SettingModelActivity extends AppCompatActivity {
     private boolean visible = false;
+    private SchedlueApplication schedlueApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +44,15 @@ public class SettingModelActivity extends AppCompatActivity {
 
         if((int)getIntent().getSerializableExtra("position") > 6)
             visible = true;
+
+        schedlueApplication = (SchedlueApplication)this.getApplication();
         SettingMainFragment fragment = new SettingMainFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("day_information", (ModelSchedule)getIntent().getSerializableExtra("day_of_week"));
+        ModelSchedule model = schedlueApplication.getModelSchedule().get((int)getIntent().getSerializableExtra("position"));
+
+        bundle.putSerializable("day_information", model);
+        bundle.putSerializable("position", (int)getIntent().getSerializableExtra("position"));
         fragment.setArguments(bundle);
         transaction.add(R.id.activity_setting_model, fragment);
         transaction.commit();

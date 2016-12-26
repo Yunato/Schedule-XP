@@ -1,5 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -7,16 +8,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.Calendar;
+
 public class AddModelActivity extends AppCompatActivity
     implements TextWatcher    {
-        private final static String HOURMINUTE = "HOURMINUTE";
-        private final static String ADD = "ADD";
-        private final static String CANCEL = "CANCEL";
-        private int plan_Time;
+    private final static String HOURMINUTE = "HOURMINUTE";
+    private final static String ADD = "ADD";
+    private final static String CANCEL = "CANCEL";
+    private Card card;
+    private int plan_Time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,16 @@ public class AddModelActivity extends AppCompatActivity
         findViewById(R.id.button_2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                Log.d("test",Integer.toString(plan_Time));
+                card.setInfo(plan_Time,
+                        Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
+                        ((EditText)findViewById(R.id.editText2)).getText().toString(),
+                        ((EditText)findViewById(R.id.editText3)).getText().toString()
+                );
+                Intent intent = new Intent();
+                intent.putExtra("Card", card);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -57,6 +72,7 @@ public class AddModelActivity extends AppCompatActivity
         ((EditText)findViewById(R.id.editText2)).addTextChangedListener(this);
         ((EditText)findViewById(R.id.editText3)).addTextChangedListener(this);
 
+        card = new Card();
         plan_Time = -1;
     }
 
