@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
     public String ABCDEF = "OK";
     private static ArrayList<ModelSchedule> model;
     private SchedlueApplication schedlueApplication;
+    private boolean savecheck = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        savecheck = false;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         if (id == R.id.menu_item0) {
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity
             transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item3) {
         } else if (id == R.id.menu_item4) {
+            savecheck = true;
             SettingFragment fragment = new SettingFragment();
             transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item5) {
@@ -111,49 +114,13 @@ public class MainActivity extends AppCompatActivity
             }
             editor.putBoolean("Launched", true).commit();
         }
-        readModelFile();
+        schedlueApplication.readModelFile();
     }
 
-    public void readModelFile(){
-        model = new ArrayList<ModelSchedule>();
-        String[] buffer = new String[4];
-        String tmp;
-        char c;
-        try{
-            FileInputStream in = openFileInput("default.txt");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            while((tmp = reader.readLine())!=null) {
-                Arrays.fill(buffer, "");
-                for (int i = 0, j = 0; i < tmp.length(); i++) {
-                    c = tmp.charAt(i);
-                    if (c == ' ') {
-                        j++;
-                        continue;
-                    }
-                    buffer[j] += c;
-                }
-                ModelSchedule modelSch = new ModelSchedule();
-                modelSch.setName(buffer[2]);
-                int count = Integer.parseInt(buffer[1]);
-                for (int i = 0; i < count; i++) {
-                    tmp = reader.readLine();
-                    Arrays.fill(buffer, "");
-                    for(int j = 0, k = 0; j < tmp.length(); j++){
-                        c = tmp.charAt(j);
-                        if (c == ' ') {
-                            k++;
-                            continue;
-                        }
-                        buffer[k] += c;
-                    }
-                    modelSch.setCardproperty(Integer.parseInt(buffer[0]),
-                            Integer.parseInt(buffer[1]),
-                            buffer[2], buffer[3]);
-                }
-                model.add(modelSch);
-            }
-            schedlueApplication.setModelSchedule(model);
-        }catch(IOException e){
-        }
+    @Override
+    public void onDestroy(){
+        if(savecheck)
+            schedlueApplication.writeModelFile();
+        super.onDestroy();
     }
 }

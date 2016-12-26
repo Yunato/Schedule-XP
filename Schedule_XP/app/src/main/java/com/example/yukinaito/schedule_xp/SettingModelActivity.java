@@ -18,6 +18,11 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class SettingModelActivity extends AppCompatActivity {
@@ -78,5 +83,11 @@ public class SettingModelActivity extends AppCompatActivity {
                 result = super.onOptionsItemSelected(item);
         }
         return result;
+    }
+
+    @Override
+    public void onDestroy(){
+        schedlueApplication.writeModelFile();
+        super.onDestroy();
     }
 }
