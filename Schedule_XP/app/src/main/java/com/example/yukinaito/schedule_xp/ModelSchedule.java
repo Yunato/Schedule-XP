@@ -11,7 +11,7 @@ public class ModelSchedule implements Serializable{
     private ArrayList<Card> cards;
 
     public class Card implements Serializable{
-        public int time;
+        public Calendar calendar;
         public int lentime;
         public String place;
         public String content;
@@ -29,7 +29,9 @@ public class ModelSchedule implements Serializable{
 
     public void setCardproperty(int time, int lentime, String place, String content){
         Card card = new Card();
-        card.time = time;
+        card.calendar = Calendar.getInstance();
+        card.calendar.set(Calendar.HOUR_OF_DAY, time/100);
+        card.calendar.set(Calendar.MINUTE, time%100);
         card.lentime = lentime;
         card.place = place;
         card.content = content;

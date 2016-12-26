@@ -1,6 +1,5 @@
 package com.example.yukinaito.schedule_xp;
 
-
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -28,7 +27,7 @@ public class AddAtTimePlan extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.addplan_attime);
+        setContentView(R.layout.activity_addattime);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -81,6 +80,9 @@ public class AddAtTimePlan extends AppCompatActivity
             datePicker.show(getSupportFragmentManager(), "datePicker");
         } else if (HOURMINUTE.equals(tag)){
             TimePickerDialogfragment timePicker = new TimePickerDialogfragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt("activity", 1);
+            timePicker.setArguments(bundle);
             timePicker.show(getSupportFragmentManager(), "timePicker");
         } else if (ADD.equals(tag)){
             /*
@@ -136,7 +138,7 @@ public class AddAtTimePlan extends AppCompatActivity
             ((Button) findViewById(R.id.button_3)).setEnabled(false);
             return;
         }
-        if(plan_Day!=0&&plan_Time!=0&&
+        if(plan_Day!=-1&&plan_Time!=-1&&
                 !(((EditText)findViewById(R.id.editText2)).getText().toString()).equals("")&&
                 !(((EditText)findViewById(R.id.editText3)).getText().toString()).equals("")) {
             ((Button) findViewById(R.id.button_3)).setEnabled(true);

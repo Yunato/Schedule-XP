@@ -27,7 +27,7 @@ public class SettingFragment extends ListFragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         Bundle bundle = getArguments();
         model = (ArrayList<ModelSchedule>)bundle.getSerializable("ModelSchedule");
-        return inflater.inflate(R.layout.updatemodel, container, false);
+        return inflater.inflate(R.layout.fragment_setting, container, false);
     }
 
     @Override
@@ -43,6 +43,7 @@ public class SettingFragment extends ListFragment{
     public void onListItemClick(ListView l, View v, int pos, long id){
         Intent intent = new Intent(getActivity(), SettingModelActivity.class);
         intent.putExtra("day_of_week", model.get(pos));
+        intent.putExtra("position", pos);
         startActivity(intent);
     }
 }

@@ -1,9 +1,13 @@
 package com.example.yukinaito.schedule_xp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,12 +24,22 @@ import java.util.ArrayList;
 
 public class SettingMainFragment extends ListFragment {
     private ArrayList<ModelSchedule.Card> cards;
+    static public final String DATE_PATTERN = "HH:mm";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         Bundle bundle = getArguments();
         cards = ((ModelSchedule)bundle.getSerializable("day_information")).getCards();
-        return inflater.inflate(R.layout.updatemodelday, container, false);
+        View view = inflater.inflate(R.layout.fragment_settingmain, container, false);
+        FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                startActivity(intent);
+            }
+        });
+        return view;
     }
 
     @Override
@@ -100,12 +114,16 @@ public class SettingMainFragment extends ListFragment {
             }
 
             TextView textView1 = (TextView)view.findViewWithTag("time");
-            textView1.setText(Integer.toString(card.time));
+            textView1.setText(convertDate2String(card.calendar.getTime()));
             TextView textView2 = (TextView)view.findViewWithTag("place");
             textView2.setText(card.content);
             TextView textView3 = (TextView)view.findViewWithTag("content");
             textView3.setText(card.place);
             return view;
         }
+    }
+
+    public String convertDate2String(java.util.Date date) {
+        return (new SimpleDateFormat(DATE_PATTERN)).format(date);
     }
 }

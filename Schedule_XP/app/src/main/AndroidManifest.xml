@@ -23,6 +23,7 @@
             android:label="@string/AddPlan_1"
             android:theme="@style/AppTheme" />
         <activity android:name=".SettingModelActivity"></activity>
+        <activity android:name=".AddModelActivity"></activity>
     </application>
 
 </manifest>

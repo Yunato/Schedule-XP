@@ -21,6 +21,8 @@
     <string name="hint_default2">行動を入力</string>
     <string name="hint_default3">場所を入力</string>
 
+    <string name="model_delete">ひな形の削除</string>
+
     <string name = "default_text">
         <![CDATA[
             0 0 日曜日・祝日

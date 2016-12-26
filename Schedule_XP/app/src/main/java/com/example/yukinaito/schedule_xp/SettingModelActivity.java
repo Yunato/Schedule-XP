@@ -9,19 +9,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class SettingModelActivity extends AppCompatActivity {
+    private boolean visible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting_model);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -35,6 +39,8 @@ public class SettingModelActivity extends AppCompatActivity {
         upArrow.setColorFilter(getResources().getColor(R.color.colorsimbol), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
 
+        if((int)getIntent().getSerializableExtra("position") > 6)
+            visible = true;
         SettingMainFragment fragment = new SettingMainFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Bundle bundle = new Bundle();
@@ -42,6 +48,13 @@ public class SettingModelActivity extends AppCompatActivity {
         fragment.setArguments(bundle);
         transaction.add(R.id.activity_setting_model, fragment);
         transaction.commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        if(visible)
+            getMenuInflater().inflate(R.menu.modeldelete,menu);
+        return true;
     }
 
     @Override
