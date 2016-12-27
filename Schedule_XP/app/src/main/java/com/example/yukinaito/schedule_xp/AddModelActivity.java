@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class AddModelActivity extends AppCompatActivity
@@ -49,8 +50,6 @@ public class AddModelActivity extends AppCompatActivity
         findViewById(R.id.button_2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Log.d("test",Integer.toString(plan_Time));
                 card.setInfo(plan_Time,
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText2)).getText().toString(),
@@ -65,6 +64,8 @@ public class AddModelActivity extends AppCompatActivity
         findViewById(R.id.button_3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent();
+                setResult(RESULT_CANCELED, intent);
                 finish();
             }
         });
@@ -74,6 +75,16 @@ public class AddModelActivity extends AppCompatActivity
 
         card = new Card();
         plan_Time = -1;
+        if((getIntent().getSerializableExtra("EditingCard")) != null){
+            card = ((Card)getIntent().getSerializableExtra("EditingCard"));
+            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("時刻:HH時mm分")).format(card.getCalendar().getTime()));
+            ((Button)findViewById(R.id.button_2)).setText("更新");
+            ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getLentime()));
+            ((EditText)findViewById(R.id.editText2)).setText(card.getContent());
+            ((EditText)findViewById(R.id.editText3)).setText(card.getPlace());
+            plan_Time = Integer.parseInt((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+            inputCheck();
+        }
     }
 
     public void onReturnValue(int data, String text, int button) {

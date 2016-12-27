@@ -1,6 +1,7 @@
 package com.example.yukinaito.schedule_xp;
 
 import android.app.Application;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -77,23 +78,29 @@ public class SchedlueApplication extends Application {
         String buf = new String();
         this.deleteFile("default.txt");
         Format f = new DecimalFormat("0000");
-        for(int i = 0; i < getModelSchedule().size(); i++) {
+        Log.d("test","OK1");
+        for(int i = 0; i < model.size(); i++) {
             buf = Integer.toString(i)
-                    + " " + Integer.toString(getModelSchedule().get(i).getCards().size())
-                    + " " + getModelSchedule().get(i).getName() + "\n";
+                    + " " + Integer.toString(model.get(i).getCards().size())
+                    + " " + model.get(i).getName() + "\n";
             str += buf;
-            for(int j = 0; j < getModelSchedule().get(i).getCards().size(); j++){
-                buf = String.format(convertDate2String(getModelSchedule().get(i).getCards().get(j).getCalendar().getTime())
-                        + " " + f.format(getModelSchedule().get(i).getCards().get(j).getLentime()))
-                        + " " + getModelSchedule().get(i).getCards().get(j).getContent()
-                        + " " + getModelSchedule().get(i).getCards().get(j).getPlace() + "\n";
+            Log.d("test","OK2");
+            for(int j = 0; j < model.get(i).getCards().size(); j++){
+                buf = String.format(convertDate2String(model.get(i).getCards().get(j).getCalendar().getTime())
+                        + " " + f.format(model.get(i).getCards().get(j).getLentime()))
+                        + " " + model.get(i).getCards().get(j).getContent()
+                        + " " + model.get(i).getCards().get(j).getPlace() + "\n";
                 str += buf;
+                Log.d("test","OK3");
             }
         }
+        Log.d("test","OK4");
         try{
+            Log.d("test",str);
             FileOutputStream out = this.openFileOutput("default.txt",this.MODE_APPEND|this.MODE_WORLD_READABLE);
             out.write(str.getBytes());
         }catch(IOException e){
+            Log.d("test","BAD");
             e.printStackTrace();
         }
     }

@@ -116,11 +116,4 @@ public class MainActivity extends AppCompatActivity
         }
         schedlueApplication.readModelFile();
     }
-
-    @Override
-    public void onDestroy(){
-        if(savecheck)
-            schedlueApplication.writeModelFile();
-        super.onDestroy();
-    }
 }

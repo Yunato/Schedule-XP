@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,28 +25,32 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class SettingMainFragment extends ListFragment {
     private SchedlueApplication schedlueApplication;
     static public final String DATE_PATTERN = "HH:mm";
-    private static final int REQUEST_CODE = 1;
+    private static final int ADD_CODE = 1;
+    private static final int UPDATE_CODE = 2;
     private CardAdapter cardAdapter;
     private ArrayList<Card> cards;
+    private static int arraypos;
     private static int position;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         Bundle bundle = getArguments();
         schedlueApplication = (SchedlueApplication)getActivity().getApplication();
-        cards = schedlueApplication.getModelSchedule().get((int)bundle.getSerializable("position")).getCards();
+        this.arraypos = (int)bundle.getSerializable("position");
+        cards = schedlueApplication.getModelSchedule().get(this.arraypos).getCards();
         View view = inflater.inflate(R.layout.fragment_settingmain, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, ADD_CODE);
             }
         });
         return view;
@@ -74,7 +79,14 @@ public class SettingMainFragment extends ListFragment {
         builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
+                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                Card card = new Card();
+                card.setInfo(schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getCalendar(),
+                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getLentime(),
+                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getContent(),
+                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getPlace());
+                intent.putExtra("EditingCard", card);
+                startActivityForResult(intent,UPDATE_CODE);
             }
         });
         builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
@@ -164,16 +176,20 @@ public class SettingMainFragment extends ListFragment {
         cardAdapter = new CardAdapter();
         setListAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
+        schedlueApplication.writeModelFile();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE){
+        if(requestCode == ADD_CODE){
+            if(resultCode == RESULT_OK) {
+                cards.add((Card) data.getSerializableExtra("Card"));
+                updateListfragment();
+            }
+        }else if(requestCode == UPDATE_CODE){
             if(resultCode == RESULT_OK){
-                cards.add((Card)data.getSerializableExtra("Card"));
-                for(int i = 0; i < cards.size(); i++)
-                    Log.d("test",cards.get(i).getContent());
+                cards.get(position).setUpdate((Card)data.getSerializableExtra("Card"));
                 updateListfragment();
             }
         }

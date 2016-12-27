@@ -74,20 +74,13 @@ public class SettingModelActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         boolean result = true;
-        switch (id) {
-            //左上の戻るボタンがおされたおされたとき
-            case android.R.id.home:
-                finish();
-                break;
-            default:
-                result = super.onOptionsItemSelected(item);
+        if(id == R.id.setting_delete){
+            schedlueApplication.getModelSchedule().remove((int)getIntent().getSerializableExtra("position"));
+            setResult(RESULT_OK);
+            finish();
+        }else if(id == R.id.home){
+            finish();
         }
-        return result;
-    }
-
-    @Override
-    public void onDestroy(){
-        schedlueApplication.writeModelFile();
-        super.onDestroy();
+        return super.onOptionsItemSelected(item);
     }
 }
