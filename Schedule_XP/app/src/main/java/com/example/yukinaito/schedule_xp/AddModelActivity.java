@@ -53,8 +53,7 @@ public class AddModelActivity extends AppCompatActivity
                 card.setInfo(plan_Time,
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText2)).getText().toString(),
-                        ((EditText)findViewById(R.id.editText3)).getText().toString()
-                );
+                        ((EditText)findViewById(R.id.editText3)).getText().toString());
                 Intent intent = new Intent();
                 intent.putExtra("Card", card);
                 setResult(RESULT_OK, intent);
@@ -75,6 +74,7 @@ public class AddModelActivity extends AppCompatActivity
 
         card = new Card();
         plan_Time = -1;
+
         if((getIntent().getSerializableExtra("EditingCard")) != null){
             card = ((Card)getIntent().getSerializableExtra("EditingCard"));
             ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("時刻:HH時mm分")).format(card.getCalendar().getTime()));

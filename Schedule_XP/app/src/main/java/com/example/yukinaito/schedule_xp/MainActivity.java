@@ -114,6 +114,6 @@ public class MainActivity extends AppCompatActivity
             }
             editor.putBoolean("Launched", true).commit();
         }
-        schedlueApplication.readModelFile();
+        schedlueApplication.readFile();
     }
 }

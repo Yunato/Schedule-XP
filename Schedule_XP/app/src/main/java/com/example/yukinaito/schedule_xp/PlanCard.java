@@ -3,8 +3,8 @@ package com.example.yukinaito.schedule_xp;
 import java.util.Calendar;
 
 public class PlanCard {
-    public Calendar calendar;
-    public int lentime;
-    public String place;
-    public String content;
+    private Calendar calendar;
+    private int lentime;
+    private String place;
+    private String content;
 }

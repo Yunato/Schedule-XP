@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +15,10 @@ import android.widget.EditText;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class AddAtTimePlan extends AppCompatActivity
         implements View.OnClickListener, TextWatcher {
@@ -21,6 +26,7 @@ public class AddAtTimePlan extends AppCompatActivity
     private final static String HOURMINUTE = "HOURMINUTE";
     private final static String ADD = "ADD";
     private final static String CANCEL = "CANCEL";
+    private Card card;
     private int plan_Day;
     private int plan_Time;
 
@@ -41,16 +47,11 @@ public class AddAtTimePlan extends AppCompatActivity
         upArrow.setColorFilter(getResources().getColor(R.color.colorsimbol), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
 
-        Button button_1 = (Button)findViewById(R.id.button_1);
-        Button button_2 = (Button)findViewById(R.id.button_2);
-        Button button_3 = (Button)findViewById(R.id.button_3);
-        Button button_4 = (Button)findViewById(R.id.button_4);
-
         ((EditText)findViewById(R.id.editText2)).addTextChangedListener(this);
         ((EditText)findViewById(R.id.editText3)).addTextChangedListener(this);
-
         ((Button) findViewById(R.id.button_3)).setEnabled(false);
 
+        card = new Card();
         plan_Day = -1;
         plan_Time = -1;
     }
@@ -85,19 +86,28 @@ public class AddAtTimePlan extends AppCompatActivity
             timePicker.setArguments(bundle);
             timePicker.show(getSupportFragmentManager(), "timePicker");
         } else if (ADD.equals(tag)){
-            /*
             try{
-                String str = String.valueOf(plan_Day);
-                if(plan_Time/1000 == 0)
-                    str += "0";
-                str += String.valueOf(plan_Time) + " ";
-                str += ((EditText)findViewById(R.id.editText2)).getText().toString() + " ";
-                str += ((EditText)findViewById(R.id.editText3)).getText().toString() + "\n";
-                FileOutputStream out = openFileOutput("default.txt",MODE_APPEND|MODE_WORLD_READABLE);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, plan_Day/10000);
+                plan_Day %= 10000;
+                calendar.set(Calendar.MONTH, plan_Day/100);
+                calendar.set(Calendar.DATE, plan_Day%100);
+                calendar.set(Calendar.HOUR_OF_DAY, plan_Time/100);
+                calendar.set(Calendar.MINUTE, plan_Time%100);
+                card.setInfo(calendar,
+                        Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
+                        ((EditText)findViewById(R.id.editText2)).getText().toString(),
+                        ((EditText)findViewById(R.id.editText3)).getText().toString());
+                Format f = new DecimalFormat("0000");
+                String str = String.format((new SimpleDateFormat("yyyyMMddHHmm")).format(card.getCalendar().getTime())
+                        + " " + f.format(card.getLentime()))
+                        + " " + card.getContent()
+                        + " " + card.getPlace() + "\n";
+                FileOutputStream out = openFileOutput("plan.txt",MODE_APPEND|MODE_WORLD_READABLE);
                 out.write(str.getBytes());
             }catch(IOException e){
                 e.printStackTrace();
-            }*/
+            }
             finish();
         } else if (CANCEL.equals(tag)){
             finish();

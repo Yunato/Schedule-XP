@@ -1,5 +1,7 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.Calendar;
 

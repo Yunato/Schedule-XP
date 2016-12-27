@@ -78,7 +78,7 @@ public class SettingModelActivity extends AppCompatActivity {
             schedlueApplication.getModelSchedule().remove((int)getIntent().getSerializableExtra("position"));
             setResult(RESULT_OK);
             finish();
-        }else if(id == R.id.home){
+        }else if(id == android.R.id.home){
             finish();
         }
         return super.onOptionsItemSelected(item);
