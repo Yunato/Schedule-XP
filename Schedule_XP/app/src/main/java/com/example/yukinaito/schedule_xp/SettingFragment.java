@@ -1,25 +1,16 @@
 package com.example.yukinaito.schedule_xp;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.DialogInterface;
-import android.net.LinkAddress;
-import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
-import android.support.v4.view.LayoutInflaterCompat;
-import android.text.Layout;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -46,6 +37,8 @@ public class SettingFragment extends ListFragment{
                 final View layout = inflater.inflate(R.layout.dialog_createpattern,
                         (ViewGroup) getActivity().findViewById(R.id.layout_root));
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                ((TextView)layout.findViewById(R.id.input_textview)).setText("新たなパターンの名前を入力してください");
+                ((EditText)layout.findViewById(R.id.input_pattern)).setHint("パターン名を入力");
                 builder.setTitle("新規作成");
                 builder.setView(layout);
                 builder.setPositiveButton("作成", new DialogInterface.OnClickListener() {

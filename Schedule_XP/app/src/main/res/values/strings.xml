@@ -20,6 +20,7 @@
     <string name="hint_default1">入力</string>
     <string name="hint_default2">行動を入力</string>
     <string name="hint_default3">場所を入力</string>
+    <string name="hint_default4">内容を入力</string>
 
     <string name="model_delete">ひな形の削除</string>
 

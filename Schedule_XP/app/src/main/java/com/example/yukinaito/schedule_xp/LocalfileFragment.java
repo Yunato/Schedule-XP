@@ -1,7 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
 import android.os.Bundle;
-import android.renderscript.ScriptGroup;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;

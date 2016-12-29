@@ -1,12 +1,9 @@
 package com.example.yukinaito.schedule_xp;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
@@ -42,11 +39,17 @@ public class TimePickerDialogfragment extends DialogFragment implements TimePick
         text += String.valueOf(buf_minute) + "分";
 
         if (activity_check == 1) {
-            AddAtTimePlan callingActivity = (AddAtTimePlan) getActivity();
+            AddPlanActivity callingActivity = (AddPlanActivity) getActivity();
             callingActivity.onReturnValue(time, text, 2);
         }else if(activity_check == 2) {
             AddModelActivity callingActivity = (AddModelActivity) getActivity();
             callingActivity.onReturnValue(time, text, 2);
+        }else if(activity_check == 3) {
+            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            callingActivity.onReturnValue(time, text, 2);
+        }else if(activity_check == 4) {
+            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            callingActivity.onReturnValue(time, text, 4);
         }else{
             return;
         }

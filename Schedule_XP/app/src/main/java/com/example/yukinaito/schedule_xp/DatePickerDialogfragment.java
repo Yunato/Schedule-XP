@@ -9,6 +9,7 @@ import android.widget.DatePicker;
 import java.util.Calendar;
 
 public class DatePickerDialogfragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+    private int activity_check;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
@@ -16,6 +17,7 @@ public class DatePickerDialogfragment extends DialogFragment implements DatePick
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int dayOfmonth = calendar.get(Calendar.DAY_OF_MONTH);
+        activity_check = getArguments().getInt("activity");
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), this, year, month, dayOfmonth);
 
@@ -31,7 +33,17 @@ public class DatePickerDialogfragment extends DialogFragment implements DatePick
         buf_year = date / 10000;
         String text = String.valueOf(buf_year)+"年"+String.valueOf(buf_month)+"月"+String.valueOf(buf_day)+"日";
 
-        AddAtTimePlan callingActivity = (AddAtTimePlan) getActivity();
-        callingActivity.onReturnValue(date, text, 1);
+        if (activity_check == 1) {
+            AddPlanActivity callingActivity = (AddPlanActivity) getActivity();
+            callingActivity.onReturnValue(date, text, 1);
+        }else if(activity_check == 2) {
+            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            callingActivity.onReturnValue(date, text, 1);
+        }else if(activity_check == 3) {
+            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            callingActivity.onReturnValue(date, text, 3);
+        }else{
+            return;
+        }
     }
 }

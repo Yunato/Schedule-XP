@@ -8,12 +8,22 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/input_textview"
+        android:id="@+id/input_textview1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <EditText
-        android:id="@+id/input_pattern"
+        android:id="@+id/input_pattern1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/input_textview2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/input_pattern2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

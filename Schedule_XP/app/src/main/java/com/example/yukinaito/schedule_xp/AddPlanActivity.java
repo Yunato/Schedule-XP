@@ -13,20 +13,22 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-public class AddModelActivity extends AppCompatActivity
-    implements TextWatcher    {
+public class AddPlanActivity extends AppCompatActivity
+        implements TextWatcher {
     private Card card;
+    private int plan_Day;
     private int plan_Time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addmodel);
+        setContentView(R.layout.activity_addattime);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setTitle("ひな形(モデル)の追加");
+        setTitle("日時・行動の追加");
 
         final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
         upArrow.setColorFilter(getResources().getColor(R.color.colorsimbol), PorterDuff.Mode.SRC_ATOP);
@@ -35,17 +37,34 @@ public class AddModelActivity extends AppCompatActivity
         findViewById(R.id.button_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TimePickerDialogfragment timePicker = new TimePickerDialogfragment();
+                DatePickerDialogfragment datePicker = new DatePickerDialogfragment();
                 Bundle bundle = new Bundle();
-                bundle.putInt("activity", 2);
-                timePicker.setArguments(bundle);
-                timePicker.show(getSupportFragmentManager(), "timePicker");
+                bundle.putInt("activity", 1);
+                datePicker.setArguments(bundle);
+                datePicker.show(getSupportFragmentManager(), "datePicker");
             }
         });
         findViewById(R.id.button_2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                card.setInfo(plan_Time,
+                TimePickerDialogfragment timePicker = new TimePickerDialogfragment();
+                Bundle bundle = new Bundle();
+                bundle.putInt("activity", 1);
+                timePicker.setArguments(bundle);
+                timePicker.show(getSupportFragmentManager(), "timePicker");
+            }
+        });
+        findViewById(R.id.button_3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, plan_Day/10000);
+                plan_Day %= 10000;
+                calendar.set(Calendar.MONTH, (plan_Day/100)-1);
+                calendar.set(Calendar.DATE, plan_Day%100);
+                calendar.set(Calendar.HOUR_OF_DAY, plan_Time/100);
+                calendar.set(Calendar.MINUTE, plan_Time%100);
+                card.setInfo(calendar,
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText2)).getText().toString(),
                         ((EditText)findViewById(R.id.editText3)).getText().toString());
@@ -55,7 +74,7 @@ public class AddModelActivity extends AppCompatActivity
                 finish();
             }
         });
-        findViewById(R.id.button_3).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_4).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
@@ -63,30 +82,38 @@ public class AddModelActivity extends AppCompatActivity
                 finish();
             }
         });
-        ((Button)findViewById(R.id.button_2)).setEnabled(false);
+
         ((EditText)findViewById(R.id.editText1)).addTextChangedListener(this);
         ((EditText)findViewById(R.id.editText2)).addTextChangedListener(this);
         ((EditText)findViewById(R.id.editText3)).addTextChangedListener(this);
+        ((Button) findViewById(R.id.button_3)).setEnabled(false);
 
         card = new Card();
+        plan_Day = -1;
         plan_Time = -1;
 
         if((getIntent().getSerializableExtra("EditingCard")) != null){
-            setTitle("ひな形(モデル)の変更");
+            setTitle("日時・行動の変更");
             card = ((Card)getIntent().getSerializableExtra("EditingCard"));
-            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("時刻:HH時mm分")).format(card.getCalendar().getTime()));
-            ((Button)findViewById(R.id.button_2)).setText("更新");
+            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getCalendar().getTime()));
+            ((Button)findViewById(R.id.button_2)).setText((new SimpleDateFormat("HH時mm分")).format(card.getCalendar().getTime()));
+            ((Button)findViewById(R.id.button_3)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getLentime()));
             ((EditText)findViewById(R.id.editText2)).setText(card.getContent());
             ((EditText)findViewById(R.id.editText3)).setText(card.getPlace());
+            plan_Day = Integer.parseInt((new SimpleDateFormat("yyyyMMdd")).format(card.getCalendar().getTime()));
             plan_Time = Integer.parseInt((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
         }
     }
 
     public void onReturnValue(int data, String text, int button) {
-        if(button == 2) {
+        if(button == 1) {
+            plan_Day = data;
+            Button button_0 = (Button) findViewById(R.id.button_1);
+            button_0.setText("年月日:" + text);
+        }else {
             plan_Time = data;
-            Button button_0 = (Button)findViewById(R.id.button_1);
+            Button button_0 = (Button) findViewById(R.id.button_2);
             button_0.setText("時刻:" + text);
         }
         inputCheck();
@@ -106,18 +133,18 @@ public class AddModelActivity extends AppCompatActivity
     }
 
     public void inputCheck(){
-        if(plan_Time==-1||
+        if(plan_Day==-1||plan_Time==-1||
                 (((EditText)findViewById(R.id.editText1)).getText().toString()).equals("")||
                 (((EditText)findViewById(R.id.editText2)).getText().toString()).equals("")||
                 (((EditText)findViewById(R.id.editText3)).getText().toString()).equals("")) {
-            ((Button)findViewById(R.id.button_2)).setEnabled(false);
+            ((Button) findViewById(R.id.button_3)).setEnabled(false);
             return;
         }
-        if(plan_Time!=-1&&
+        if(plan_Day!=-1&&plan_Time!=-1&&
                 !(((EditText)findViewById(R.id.editText1)).getText().toString()).equals("")&&
                 !(((EditText)findViewById(R.id.editText2)).getText().toString()).equals("")&&
                 !(((EditText)findViewById(R.id.editText3)).getText().toString()).equals("")) {
-            ((Button)findViewById(R.id.button_2)).setEnabled(true);
+            ((Button) findViewById(R.id.button_3)).setEnabled(true);
         }
     }
 }

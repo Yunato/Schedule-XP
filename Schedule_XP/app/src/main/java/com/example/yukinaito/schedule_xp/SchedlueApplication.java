@@ -1,7 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
 import android.app.Application;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -18,7 +17,8 @@ import java.util.Calendar;
 public class SchedlueApplication extends Application {
     private ArrayList<ModelSchedule> model;
     private ArrayList<Card> plancards;
-    static public final String DATE_PATTERN = "HHmm";
+    private ArrayList<WantPlanCard> wantplancards;
+    private ArrayList<HavetoPlanCard> havetoplancards;
 
     @Override
     public void onCreate(){
@@ -32,11 +32,23 @@ public class SchedlueApplication extends Application {
         return this.model;
     }
 
+    public ArrayList<Card> getPlanCard(){
+        return this.plancards;
+    }
+
+    public ArrayList<WantPlanCard> getWantplancards(){
+        return this.wantplancards;
+    }
+
+    public ArrayList<HavetoPlanCard> getHavetoplancards(){
+        return this.havetoplancards;
+    }
+
     public void readFile(){
         readModelFile();
         readPlanFile();
-        for(int i = 0; i < plancards.size(); i++)
-            Log.d("test",(new SimpleDateFormat("yyyyMMddHHmm")).format(plancards.get(i).getCalendar().getTime()) + " " + Integer.toString(plancards.get(i).getLentime()) + " " + plancards.get(i).getContent() + " " + plancards.get(i).getPlace());
+        readWantPlanFile();
+        readHavetoPlanFile();
     }
 
     public void readModelFile(){
@@ -101,14 +113,65 @@ public class SchedlueApplication extends Application {
                     buffer[j] += c;
                 }
                 Card card = new Card();
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, Integer.parseInt(buffer[0].substring(0,4)));
-                calendar.set(Calendar.MONTH, Integer.parseInt(buffer[0].substring(4,6)));
-                calendar.set(Calendar.DATE, Integer.parseInt(buffer[0].substring(6,8)));
-                calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(buffer[0].substring(8,10)));
-                calendar.set(Calendar.MINUTE, Integer.parseInt(buffer[0].substring(10,12)));
-                card.setInfo(calendar, Integer.parseInt(buffer[1]), buffer[2], buffer[3]);
+                card.setInfo(convertCalendar(buffer[0]), Integer.parseInt(buffer[1]), buffer[2], buffer[3]);
                 plancards.add(card);
+            }
+        }catch(IOException e){
+        }
+    }
+
+    public void readWantPlanFile(){
+        wantplancards = new ArrayList<WantPlanCard>();
+        String[] buffer = new String[4];
+        String tmp;
+        char c;
+        try{
+            FileInputStream in = openFileInput("wantplan.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            while((tmp = reader.readLine())!=null) {
+                Arrays.fill(buffer, "");
+                for (int i = 0, j = 0; i < tmp.length(); i++) {
+                    c = tmp.charAt(i);
+                    if (c == ' ') {
+                        j++;
+                        continue;
+                    }
+                    buffer[j] += c;
+                }
+                WantPlanCard card = new WantPlanCard();
+                card.setInfo(buffer[0], Boolean.parseBoolean(buffer[1]), Integer.parseInt(buffer[2]), buffer[3]);
+                wantplancards.add(card);
+            }
+        }catch(IOException e){
+        }
+    }
+
+    public void readHavetoPlanFile(){
+        havetoplancards = new ArrayList<HavetoPlanCard>();
+        String[] buffer = new String[6];
+        String tmp;
+        char c;
+        try{
+            FileInputStream in = openFileInput("havetoplan.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            while((tmp = reader.readLine())!=null) {
+                Arrays.fill(buffer, "");
+                for (int i = 0, j = 0; i < tmp.length(); i++) {
+                    c = tmp.charAt(i);
+                    if (c == ' ') {
+                        j++;
+                        continue;
+                    }
+                    buffer[j] += c;
+                }
+                HavetoPlanCard card = new HavetoPlanCard();
+                card.setInfo(buffer[0],
+                        Boolean.parseBoolean(buffer[1]),
+                        convertCalendar(buffer[2]),
+                        convertCalendar(buffer[3]),
+                        Integer.parseInt(buffer[4]),
+                        buffer[5]);
+                havetoplancards.add(card);
             }
         }catch(IOException e){
         }
@@ -125,24 +188,92 @@ public class SchedlueApplication extends Application {
                     + " " + model.get(i).getName() + "\n";
             str += buf;
             for(int j = 0; j < model.get(i).getCards().size(); j++){
-                buf = String.format(convertDate2String(model.get(i).getCards().get(j).getCalendar().getTime())
-                        + " " + f.format(model.get(i).getCards().get(j).getLentime()))
+                buf = (new SimpleDateFormat("HHmm")).format(model.get(i).getCards().get(j).getCalendar().getTime())
+                        + " " + f.format(model.get(i).getCards().get(j).getLentime())
                         + " " + model.get(i).getCards().get(j).getContent()
                         + " " + model.get(i).getCards().get(j).getPlace() + "\n";
                 str += buf;
             }
         }
         try{
-            Log.d("test",str);
             FileOutputStream out = this.openFileOutput("default.txt",this.MODE_APPEND|this.MODE_WORLD_READABLE);
             out.write(str.getBytes());
         }catch(IOException e){
-            Log.d("test","BAD");
             e.printStackTrace();
         }
     }
 
-    public String convertDate2String(java.util.Date date) {
-        return (new SimpleDateFormat(DATE_PATTERN)).format(date);
+    public void writePlanFile(){
+        String str = "";
+        String buf = new String();
+        this.deleteFile("plan.txt");
+        Format f = new DecimalFormat("0000");
+        for(int i = 0; i < plancards.size(); i++){
+            buf = (new SimpleDateFormat("yyyyMMddHHmm")).format(plancards.get(i).getCalendar().getTime())
+                    + " " + f.format(plancards.get(i).getLentime())
+                    + " " + plancards.get(i).getContent()
+                    + " " + plancards.get(i).getPlace() + "\n";
+            str += buf;
+        }
+
+        try{
+            FileOutputStream out = this.openFileOutput("plan.txt",this.MODE_APPEND|this.MODE_WORLD_READABLE);
+            out.write(str.getBytes());
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void writeWantPlanFile(){
+        String str = "";
+        String buf = new String();
+        this.deleteFile("wantplan.txt");
+        for(int i = 0; i < wantplancards.size(); i++){
+            buf = wantplancards.get(i).getName()
+                    + " " + Boolean.toString(wantplancards.get(i).getWant())
+                    + " " + Integer.toString(wantplancards.get(i).getHow())
+                    + " " + wantplancards.get(i).getPlace() + "\n";
+            str += buf;
+        }
+
+        try{
+            FileOutputStream out = this.openFileOutput("wantplan.txt",this.MODE_APPEND|this.MODE_WORLD_READABLE);
+            out.write(str.getBytes());
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void writeHavetoPlanFile(){
+        String str = "";
+        String buf = new String();
+        this.deleteFile("havetoplan.txt");
+        Format f = new DecimalFormat("0000");
+        for(int i = 0; i < havetoplancards.size(); i++){
+            buf = havetoplancards.get(i).getName()
+                    + " " + Boolean.toString(havetoplancards.get(i).getHaveto())
+                    + " " + (new SimpleDateFormat("yyyyMMddHHmm")).format(havetoplancards.get(i).getStart().getTime())
+                    + " " + (new SimpleDateFormat("yyyyMMddHHmm")).format(havetoplancards.get(i).getLimit().getTime())
+                    + " " + f.format(havetoplancards.get(i).getForcast())
+                    + " " + havetoplancards.get(i).getPlace() + "\n";
+            str += buf;
+        }
+
+        try{
+            FileOutputStream out = this.openFileOutput("havetoplan.txt",this.MODE_APPEND|this.MODE_WORLD_READABLE);
+            out.write(str.getBytes());
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public Calendar convertCalendar(String buffer){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, Integer.parseInt(buffer.substring(0,4)));
+        calendar.set(Calendar.MONTH, Integer.parseInt(buffer.substring(4,6)) - 1);
+        calendar.set(Calendar.DATE, Integer.parseInt(buffer.substring(6,8)));
+        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(buffer.substring(8,10)));
+        calendar.set(Calendar.MINUTE, Integer.parseInt(buffer.substring(10,12)));
+        return calendar;
     }
 }

@@ -21,28 +21,25 @@ import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
 
-public class SettingMainFragment extends ListFragment {
+public class CheckMainFragment extends ListFragment {
     private SchedlueApplication schedlueApplication;
     static public final String DATE_PATTERN = "HH:mm";
     private static final int ADD_CODE = 1;
     private static final int UPDATE_CODE = 2;
     private CardAdapter cardAdapter;
     private ArrayList<Card> cards;
-    private static int arraypos;
     private static int position;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        Bundle bundle = getArguments();
         schedlueApplication = (SchedlueApplication)getActivity().getApplication();
-        this.arraypos = (int)bundle.getSerializable("position");
-        cards = schedlueApplication.getModelSchedule().get(this.arraypos).getCards();
+        cards = schedlueApplication.getPlanCard();
         View view = inflater.inflate(R.layout.fragment_listmain, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                Intent intent = new Intent(getActivity(), AddPlanActivity.class);
                 startActivityForResult(intent, ADD_CODE);
             }
         });
@@ -60,8 +57,8 @@ public class SettingMainFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int pos, long id){
         this.position = pos;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("モデルの操作");
-        builder.setMessage("モデルの内容を編集、またはモデルを削除しますか？");
+        builder.setTitle("予定の操作");
+        builder.setMessage("予定の内容を編集、または予定を削除しますか？");
         builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -72,12 +69,12 @@ public class SettingMainFragment extends ListFragment {
         builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                Intent intent = new Intent(getActivity(), AddPlanActivity.class);
                 Card card = new Card();
-                card.setInfo(schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getCalendar(),
-                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getLentime(),
-                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getContent(),
-                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getPlace());
+                card.setInfo(schedlueApplication.getPlanCard().get(position).getCalendar(),
+                        schedlueApplication.getPlanCard().get(position).getLentime(),
+                        schedlueApplication.getPlanCard().get(position).getContent(),
+                        schedlueApplication.getPlanCard().get(position).getPlace());
                 intent.putExtra("EditingCard", card);
                 startActivityForResult(intent,UPDATE_CODE);
             }
@@ -169,7 +166,7 @@ public class SettingMainFragment extends ListFragment {
         cardAdapter = new CardAdapter();
         setListAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
-        schedlueApplication.writeModelFile();
+        schedlueApplication.writePlanFile();
     }
 
     @Override

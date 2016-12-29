@@ -1,10 +1,7 @@
 package com.example.yukinaito.schedule_xp;
 
-import android.graphics.PorterDuff;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class ModelSchedule implements Serializable{
     private String name;

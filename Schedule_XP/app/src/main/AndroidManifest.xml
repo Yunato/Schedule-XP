@@ -19,12 +19,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".AddAtTimePlan"
-            android:label="@string/AddPlan_1"
-            android:theme="@style/AppTheme" />
         <activity android:name=".SettingModelActivity"></activity>
         <activity android:name=".AddModelActivity"></activity>
+        <activity android:name=".CheckPlanActivity"></activity>
+        <activity android:name=".AddPlanActivity"></activity>
+        <activity android:name=".AddHavetoPlanActivity"></activity>
     </application>
 
 </manifest>
