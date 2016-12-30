@@ -51,7 +51,7 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(Calendar.YEAR, plan_Day / 10000);
                 plan_Day %= 10000;
-                calendar.set(Calendar.MONTH, (plan_Day / 100) - 1);
+                calendar.set(Calendar.MONTH, plan_Day / 100);
                 calendar.set(Calendar.DATE, plan_Day % 100);
                 card.setInfo(calendar, pos-1);
                 Intent intent = new Intent();
@@ -99,10 +99,11 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         if ((getIntent().getSerializableExtra("EditingCard")) != null) {
             setTitle("日時・行動の変更");
             card = ((EventCard) getIntent().getSerializableExtra("EditingCard"));
-            year = card.getDate().getInstance().get(Calendar.YEAR);
-            month = card.getDate().getInstance().get(Calendar.MONTH);
-            day = card.getDate().getInstance().get(Calendar.DAY_OF_MONTH);
+            year = card.getDate().get(Calendar.YEAR);
+            month = card.getDate().get(Calendar.MONTH);
+            day = card.getDate().get(Calendar.DAY_OF_MONTH);
             plan_Day = Integer.parseInt((new SimpleDateFormat("yyyyMMdd")).format(card.getDate().getTime()));
+            spinner.setSelection(card.getIndex()+1);
         }
 
         final DatePicker datePicker = (DatePicker)findViewById(R.id.datePicker);

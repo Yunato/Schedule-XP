@@ -36,10 +36,7 @@
             android:textSize="20sp"
             android:layout_marginLeft="10px"
             android:layout_marginRight="10px"
-            android:lines="1"
-            android:minLines="1"
             android:gravity="top|left"
-            android:maxLines="1"
             android:inputType="text"
             android:textCursorDrawable="@drawable/style_cursor"/>
     </LinearLayout>
@@ -217,9 +214,6 @@
             android:hint="@string/hint_default1"
             android:inputType="number"
             android:textSize="20sp"
-            android:minLines="1"
-            android:maxLines="1"
-            android:maxLength="4"
             android:paddingLeft="30px"
             android:paddingRight="30px"
             android:paddingTop="20px"
@@ -267,10 +261,7 @@
             android:textSize="20sp"
             android:layout_marginLeft="10px"
             android:layout_marginRight="10px"
-            android:lines="1"
-            android:minLines="1"
             android:gravity="top|left"
-            android:maxLines="1"
             android:inputType="text"
             android:textCursorDrawable="@drawable/style_cursor"/>
     </LinearLayout>

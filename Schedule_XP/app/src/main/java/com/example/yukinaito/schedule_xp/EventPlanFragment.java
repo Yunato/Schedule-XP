@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +53,9 @@ public class EventPlanFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        getListView().setDivider(separate_line_color);
+        getListView().setDividerHeight(5);
         cardAdapter = new EventPlanFragment.CardAdapter();
         setListAdapter(cardAdapter);
     }
@@ -119,18 +125,26 @@ public class EventPlanFragment extends ListFragment {
                 view = layout;
 
                 TextView textView1 = new TextView(context);
-                textView1.setTextColor(Color.BLACK);
+                textView1.setTextColor(Color.parseColor("#424242"));
                 textView1.setPadding(10,10,10,5);
                 textView1.setTextSize(45.0f);
+                int id = getContext().getResources().getIdentifier("dotted_line1", "drawable", getContext().getPackageName());
+                Drawable back = getContext().getResources().getDrawable(id);
+                textView1.setBackground(back);
                 textView1.setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getDate().getTime()));
                 layout.addView(textView1);
 
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+
                 TextView textView2 = new TextView(context);
-                textView2.setTextColor(Color.BLACK);
+                textView2.setTextColor(Color.parseColor("#424242"));
                 textView2.setPadding(10,5,10,10);
-                textView2.setTextSize(45.0f);
+                textView2.setTextSize(20.0f);
+                textView2.setGravity(Gravity.RIGHT);
                 textView2.setText(schedlueApplication.getModelSchedule().get(card.getIndex()).getName());
-                layout.addView(textView2);
+                layout.addView(textView2, lp);
             }
             return view;
         }

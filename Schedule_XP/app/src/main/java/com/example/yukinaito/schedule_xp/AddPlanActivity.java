@@ -95,8 +95,8 @@ public class AddPlanActivity extends AppCompatActivity
         if((getIntent().getSerializableExtra("EditingCard")) != null){
             setTitle("日時・行動の変更");
             card = ((Card)getIntent().getSerializableExtra("EditingCard"));
-            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getCalendar().getTime()));
-            ((Button)findViewById(R.id.button_2)).setText((new SimpleDateFormat("HH時mm分")).format(card.getCalendar().getTime()));
+            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("yyyy年MM月dd日(変更時はタップ)")).format(card.getCalendar().getTime()));
+            ((Button)findViewById(R.id.button_2)).setText((new SimpleDateFormat("HH時mm分(変更時はタップ)")).format(card.getCalendar().getTime()));
             ((Button)findViewById(R.id.button_3)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getLentime()));
             ((EditText)findViewById(R.id.editText2)).setText(card.getContent());
@@ -110,11 +110,11 @@ public class AddPlanActivity extends AppCompatActivity
         if(button == 1) {
             plan_Day = data;
             Button button_0 = (Button) findViewById(R.id.button_1);
-            button_0.setText("年月日:" + text);
+            button_0.setText(text + "(変更時はタップ)");
         }else {
             plan_Time = data;
             Button button_0 = (Button) findViewById(R.id.button_2);
-            button_0.setText("時刻:" + text);
+            button_0.setText(text + "(変更時はタップ)");
         }
         inputCheck();
     }

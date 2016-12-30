@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
@@ -18,6 +20,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -114,6 +117,9 @@ public class CheckWantPlanFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        getListView().setDivider(separate_line_color);
+        getListView().setDividerHeight(5);
         cardAdapter = new CheckWantPlanFragment.CardAdapter();
         setListAdapter(cardAdapter);
     }
@@ -214,10 +220,15 @@ public class CheckWantPlanFragment extends ListFragment {
             if(view == null){
                 LinearLayout layout = new LinearLayout(context);
                 layout.setBackgroundColor(Color.WHITE);
-                layout.setPadding(10, 10, 10, 10);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
 
                 view = layout;
+
+                RelativeLayout layout1 = new RelativeLayout(context);
+                layout1.setBackgroundColor(Color.WHITE);
+                layout.addView(layout1,  new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.MATCH_PARENT));
 
                 Switch switch1 = new Switch(context);
                 switch1.setChecked(card.getWant());
@@ -237,22 +248,44 @@ public class CheckWantPlanFragment extends ListFragment {
                         updateListfragment();
                     }
                 });
-                layout.addView(switch1);
+
+                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
+                        RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.MATCH_PARENT);
+                lp.addRule(RelativeLayout.ALIGN_BOTTOM);
+                layout1.addView(switch1, lp);
+
+                LinearLayout layout2 = new LinearLayout(context);
+                layout2.setBackgroundColor(Color.WHITE);
+                layout2.setOrientation(LinearLayout.VERTICAL);
+                int id = getContext().getResources().getIdentifier("dotted_line4", "drawable", getContext().getPackageName());
+                Drawable back = getContext().getResources().getDrawable(id);
+                layout2.setBackground(back);
+                layout.addView(layout2, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
 
                 TextView textView1 = new TextView(context);
-                textView1.setTextColor(Color.BLACK);
+                textView1.setTextColor(Color.parseColor("#424242"));
                 textView1.setPadding(10,10, 10, 10);
-                textView1.setTextSize(50.0f);
+                textView1.setTextSize(45.0f);
+                id = getContext().getResources().getIdentifier("dotted_line1", "drawable", getContext().getPackageName());
+                back = getContext().getResources().getDrawable(id);
+                textView1.setBackground(back);
                 textView1.setText(card.getName());
-                layout.addView(textView1);
+                layout2.addView(textView1);
+
+                LinearLayout.LayoutParams lp1 = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
 
                 TextView textView2 = new TextView(context);
-                textView2.setTextColor(Color.BLACK);
+                textView2.setTextColor(Color.parseColor("#424242"));
                 textView2.setPadding(10, 10, 10, 10);
-                textView2.setTextSize(30.0f);
+                textView2.setTextSize(20.0f);
                 textView2.setGravity(Gravity.RIGHT);
                 textView2.setText(Integer.toString(card.getHow()));
-                layout.addView(textView2);
+                layout2.addView(textView2, lp1);
             }
             return view;
         }

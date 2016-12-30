@@ -7,4 +7,6 @@
 
     <color name="colorDrawerHeader">#CDDC39</color>
     <color name="colorGray">#BDBDBD</color>
+
+    <color name="separate_line">#000000</color>
 </resources>

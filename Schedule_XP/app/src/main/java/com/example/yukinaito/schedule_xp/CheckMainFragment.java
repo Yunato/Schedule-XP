@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
@@ -23,7 +25,6 @@ import static android.app.Activity.RESULT_OK;
 
 public class CheckMainFragment extends ListFragment {
     private SchedlueApplication schedlueApplication;
-    static public final String DATE_PATTERN = "HH:mm";
     private static final int ADD_CODE = 1;
     private static final int UPDATE_CODE = 2;
     private CardAdapter cardAdapter;
@@ -49,6 +50,9 @@ public class CheckMainFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        getListView().setDivider(separate_line_color);
+        getListView().setDividerHeight(5);
         cardAdapter = new CardAdapter();
         setListAdapter(cardAdapter);
     }
@@ -114,52 +118,76 @@ public class CheckMainFragment extends ListFragment {
             if(view == null){
                 LinearLayout layout = new LinearLayout(context);
                 layout.setBackgroundColor(Color.WHITE);
-                layout.setPadding(10, 10, 10, 10);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
-
+                layout.setOrientation(LinearLayout.VERTICAL);
                 view = layout;
+
+                TextView textView = new TextView(context);
+                textView.setTag("date");
+                textView.setTextColor(Color.parseColor("#424242"));
+                textView.setPadding(40, 10, 40, 10);
+                textView.setTextSize(45.0f);
+                int id = getContext().getResources().getIdentifier("dotted_line1", "drawable", getContext().getPackageName());
+                Drawable back = getContext().getResources().getDrawable(id);
+                textView.setBackground(back);
+                layout.addView(textView);
+
+                LinearLayout layout1 = new LinearLayout(context);
+                layout1.setBackgroundColor(Color.WHITE);
+                layout1.setOrientation(LinearLayout.HORIZONTAL);
 
                 TextView textView1 = new TextView(context);
                 textView1.setTag("time");
-                textView1.setTextColor(Color.BLACK);
-                textView1.setPadding(30, 10, 10, 10);
-                textView1.setTextSize(60.0f);
-                layout.addView(textView1);
+                textView1.setTextColor(Color.parseColor("#424242"));
+                textView1.setPadding(40, 10, 40, 10);
+                textView1.setTextSize(45.0f);
+                layout1.addView(textView1);
 
                 LinearLayout layout2 = new LinearLayout(context);
                 layout2.setBackgroundColor(Color.WHITE);
                 layout2.setPadding(0, 0, 0, 0);
+                layout2.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
                 layout2.setOrientation(LinearLayout.VERTICAL);
 
                 TextView textView2 = new TextView(context);
                 textView2.setTag("content");
-                textView2.setTextColor(Color.BLACK);
+                textView2.setTextColor(Color.parseColor("#424242"));
                 textView2.setPadding(10,10, 10, 10);
-                textView2.setTextSize(30.0f);
-                layout2.addView(textView2);
+                textView2.setTextSize(20.0f);
+                id = getContext().getResources().getIdentifier("dotted_line2", "drawable", getContext().getPackageName());
+                back = getContext().getResources().getDrawable(id);
+                textView2.setBackground(back);
+                layout2.addView(textView2, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
 
                 TextView textView3 = new TextView(context);
                 textView3.setTag("place");
-                textView3.setTextColor(Color.BLACK);
+                textView3.setTextColor(Color.parseColor("#424242"));
                 textView3.setPadding(10, 10, 10, 10);
-                textView3.setTextSize(30.0f);
-                layout2.addView(textView3);
+                textView3.setTextSize(20.0f);
+                id = getContext().getResources().getIdentifier("dotted_line3", "drawable", getContext().getPackageName());
+                back = getContext().getResources().getDrawable(id);
+                textView3.setBackground(back);
+                layout2.addView(textView3, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
 
-                layout.addView(layout2);
+                layout.addView(layout1);
+                layout1.addView(layout2);
             }
 
+            TextView textView = (TextView)view.findViewWithTag("date");
+            textView.setText((new SimpleDateFormat("yyyy/MM/dd")).format(card.getCalendar().getTime()));
             TextView textView1 = (TextView)view.findViewWithTag("time");
-            textView1.setText(convertDate2String(card.getCalendar().getTime()));
+            textView1.setText((new SimpleDateFormat("HH:mm")).format(card.getCalendar().getTime()));
             TextView textView2 = (TextView)view.findViewWithTag("content");
             textView2.setText(card.getContent());
             TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
             return view;
         }
-    }
-
-    public String convertDate2String(java.util.Date date) {
-        return (new SimpleDateFormat(DATE_PATTERN)).format(date);
     }
 
     public void updateListfragment(){

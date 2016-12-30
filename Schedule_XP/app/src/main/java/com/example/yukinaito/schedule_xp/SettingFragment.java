@@ -3,6 +3,7 @@ package com.example.yukinaito.schedule_xp;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
@@ -83,6 +84,9 @@ public class SettingFragment extends ListFragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        getListView().setDivider(separate_line_color);
+        getListView().setDividerHeight(5);
         model = schedlueApplication.getModelSchedule();
         ArrayList<String> day = new ArrayList<String>();
         for(int i = 0; i < model.size(); i++)

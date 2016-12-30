@@ -101,9 +101,6 @@
             android:hint="@string/hint_default1"
             android:inputType="number"
             android:textSize="20sp"
-            android:minLines="1"
-            android:maxLines="1"
-            android:maxLength="4"
             android:paddingLeft="30px"
             android:paddingRight="30px"
             android:paddingTop="20px"
@@ -142,7 +139,17 @@
         android:layout_marginRight="20px"
         android:paddingTop="50px"
         android:paddingBottom="50px"
+        android:orientation="horizontal"
         android:background="@drawable/object_corners_false">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="#000000"
+            android:text="内容"
+            android:layout_marginLeft="30px"
+            android:layout_marginRight="20px"
+            />
         <EditText
             android:id="@+id/editText2"
             android:layout_width="match_parent"
@@ -150,11 +157,8 @@
             android:hint="@string/hint_default2"
             android:textSize="20sp"
             android:layout_marginLeft="10px"
-            android:layout_marginRight="10px"
-            android:lines="1"
-            android:minLines="1"
+            android:layout_marginRight="30px"
             android:gravity="top|left"
-            android:maxLines="1"
             android:inputType="text"
             android:textCursorDrawable="@drawable/style_cursor"/>
     </LinearLayout>
@@ -171,7 +175,17 @@
         android:layout_marginRight="20px"
         android:paddingTop="50px"
         android:paddingBottom="50px"
+        android:orientation="horizontal"
         android:background="@drawable/object_corners_false">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="#000000"
+            android:text="場所"
+            android:layout_marginLeft="30px"
+            android:layout_marginRight="20px"
+            />
         <EditText
             android:id="@+id/editText3"
             android:layout_width="match_parent"
@@ -180,10 +194,7 @@
             android:textSize="20sp"
             android:layout_marginLeft="10px"
             android:layout_marginRight="10px"
-            android:lines="1"
-            android:minLines="1"
             android:gravity="top|left"
-            android:maxLines="1"
             android:inputType="text"
             android:textCursorDrawable="@drawable/style_cursor"/>
     </LinearLayout>

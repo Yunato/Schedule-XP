@@ -74,7 +74,7 @@ public class AddModelActivity extends AppCompatActivity
         if((getIntent().getSerializableExtra("EditingCard")) != null){
             setTitle("ひな形(モデル)の変更");
             card = ((Card)getIntent().getSerializableExtra("EditingCard"));
-            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("時刻:HH時mm分")).format(card.getCalendar().getTime()));
+            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("HH時mm分(変更時はタップ)")).format(card.getCalendar().getTime()));
             ((Button)findViewById(R.id.button_2)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getLentime()));
             ((EditText)findViewById(R.id.editText2)).setText(card.getContent());

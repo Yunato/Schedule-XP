@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
@@ -52,6 +54,9 @@ public class SettingMainFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
+        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        getListView().setDivider(separate_line_color);
+        getListView().setDividerHeight(5);
         cardAdapter = new CardAdapter();
         setListAdapter(cardAdapter);
     }
@@ -117,36 +122,48 @@ public class SettingMainFragment extends ListFragment {
             if(view == null){
                 LinearLayout layout = new LinearLayout(context);
                 layout.setBackgroundColor(Color.WHITE);
-                layout.setPadding(10, 10, 10, 10);
                 layout.setOrientation(LinearLayout.HORIZONTAL);
 
                 view = layout;
 
                 TextView textView1 = new TextView(context);
                 textView1.setTag("time");
-                textView1.setTextColor(Color.BLACK);
-                textView1.setPadding(30, 10, 10, 10);
-                textView1.setTextSize(60.0f);
+                textView1.setTextColor(Color.parseColor("#424242"));
+                textView1.setPadding(40, 10, 40, 10);
+                textView1.setTextSize(45.0f);
                 layout.addView(textView1);
 
                 LinearLayout layout2 = new LinearLayout(context);
                 layout2.setBackgroundColor(Color.WHITE);
                 layout2.setPadding(0, 0, 0, 0);
+                layout2.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
                 layout2.setOrientation(LinearLayout.VERTICAL);
 
                 TextView textView2 = new TextView(context);
                 textView2.setTag("content");
-                textView2.setTextColor(Color.BLACK);
-                textView2.setPadding(10,10, 10, 10);
-                textView2.setTextSize(30.0f);
-                layout2.addView(textView2);
+                textView2.setTextColor(Color.parseColor("#424242"));
+                textView2.setPadding(10, 10, 10, 10);
+                textView2.setTextSize(20.0f);
+                int id = getContext().getResources().getIdentifier("dotted_line2", "drawable", getContext().getPackageName());
+                Drawable back = getContext().getResources().getDrawable(id);
+                textView2.setBackground(back);
+                layout2.addView(textView2, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
 
                 TextView textView3 = new TextView(context);
                 textView3.setTag("place");
-                textView3.setTextColor(Color.BLACK);
+                textView3.setTextColor(Color.parseColor("#424242"));
                 textView3.setPadding(10, 10, 10, 10);
-                textView3.setTextSize(30.0f);
-                layout2.addView(textView3);
+                textView3.setTextSize(20.0f);
+                id = getContext().getResources().getIdentifier("dotted_line3", "drawable", getContext().getPackageName());
+                back = getContext().getResources().getDrawable(id);
+                textView3.setBackground(back);
+                layout2.addView(textView3, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
 
                 layout.addView(layout2);
             }
