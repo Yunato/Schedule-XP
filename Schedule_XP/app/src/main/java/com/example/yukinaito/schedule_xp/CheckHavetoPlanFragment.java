@@ -156,10 +156,10 @@ public class CheckHavetoPlanFragment extends ListFragment {
     }
 
     public void updateListfragment(){
+        schedlueApplication.writeHavetoPlanFile();
         cardAdapter = new CheckHavetoPlanFragment.CardAdapter();
         setListAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
-        schedlueApplication.writeHavetoPlanFile();
     }
 
     @Override

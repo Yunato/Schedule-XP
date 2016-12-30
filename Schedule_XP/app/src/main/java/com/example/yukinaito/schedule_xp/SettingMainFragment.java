@@ -166,10 +166,10 @@ public class SettingMainFragment extends ListFragment {
     }
 
     public void updateListfragment(){
+        schedlueApplication.writeModelFile();
         cardAdapter = new CardAdapter();
         setListAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
-        schedlueApplication.writeModelFile();
     }
 
     @Override

@@ -41,5 +41,13 @@ public class CheckPlanFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        view.findViewById(R.id.button_4).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), CheckPlanActivity.class);
+                intent.putExtra("select",3);
+                startActivity(intent);
+            }
+        });
     }
 }

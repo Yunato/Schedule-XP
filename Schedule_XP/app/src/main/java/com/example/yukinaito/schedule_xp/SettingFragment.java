@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +55,26 @@ public class SettingFragment extends ListFragment{
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 });
-                builder.create().show();
+                final AlertDialog dialog = builder.create();
+                dialog.show();
+                dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
+                ((EditText)layout.findViewById(R.id.input_pattern)).addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if(inputCheck(layout))
+                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);
+                        else
+                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
+                    }
+                });
             }
         });
         return view;
@@ -84,6 +105,15 @@ public class SettingFragment extends ListFragment{
         Intent intent = new Intent(getActivity(), SettingModelActivity.class);
         intent.putExtra("position", pos);
         startActivityForResult(intent, REQUEST_CODE);
+    }
+
+    public boolean inputCheck(View layout){
+        String end;
+        end = ((EditText)layout.findViewById(R.id.input_pattern)).getText().toString();
+        if(!(end.equals(""))) {
+            return true;
+        }
+        return false;
     }
 
     @Override

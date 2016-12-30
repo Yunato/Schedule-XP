@@ -3,7 +3,6 @@ package com.example.yukinaito.schedule_xp;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -45,6 +44,7 @@ public class CheckWantPlanFragment extends ListFragment {
             @Override
             public void onClick(View view) {
                 final WantPlanCard card = new WantPlanCard();
+                card.setInfo("",false,0,"");
                 LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(
                         LAYOUT_INFLATER_SERVICE);
                 final View layout = inflater.inflate(R.layout.dialog_createwanplan,
@@ -58,8 +58,9 @@ public class CheckWantPlanFragment extends ListFragment {
                 builder.setView(layout);
                 builder.setPositiveButton("作成", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        card.setName(((EditText)layout.findViewById(R.id.input_pattern1)).getText().toString());
-                        card.setPlace(((EditText)layout.findViewById(R.id.input_pattern2)).getText().toString());
+                        card.setInfo(((EditText)layout.findViewById(R.id.input_pattern1)).getText().toString(),
+                                true, 0,
+                                ((EditText)layout.findViewById(R.id.input_pattern2)).getText().toString());
                         schedlueApplication.getWantplancards().add(card);
                         updateListfragment();
                     }
@@ -83,7 +84,9 @@ public class CheckWantPlanFragment extends ListFragment {
                     @Override
                     public void afterTextChanged(Editable editable) {
                         if(inputCheck(layout, card))
-                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);;
+                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);
+                        else
+                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
                     }
                 });
                 ((EditText)layout.findViewById(R.id.input_pattern2)).addTextChangedListener(new TextWatcher() {
@@ -98,7 +101,9 @@ public class CheckWantPlanFragment extends ListFragment {
                     @Override
                     public void afterTextChanged(Editable editable) {
                         if(inputCheck(layout, card))
-                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);;
+                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);
+                        else
+                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
                     }
                 });
             }
@@ -127,20 +132,28 @@ public class CheckWantPlanFragment extends ListFragment {
         ((EditText)layout.findViewById(R.id.input_pattern2)).setText(cards.get(position).getPlace());
         builder.setTitle("編集");
         builder.setView(layout);
-        builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                cards.get(position).setName(((EditText)layout.findViewById(R.id.input_pattern1)).getText().toString());
-                cards.get(position).setPlace(((EditText)layout.findViewById(R.id.input_pattern2)).getText().toString());
+                cards.remove(position);
                 updateListfragment();
             }
         });
-        builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("更新", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                cards.get(position).setInfo(((EditText)layout.findViewById(R.id.input_pattern1)).getText().toString(),
+                        true, 0,
+                        ((EditText)layout.findViewById(R.id.input_pattern2)).getText().toString());
+                updateListfragment();
+            }
+        });
+        builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
         final AlertDialog dialog = builder.create();
         dialog.show();
-        dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON2).setEnabled(false);
         ((EditText)layout.findViewById(R.id.input_pattern1)).addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -152,8 +165,10 @@ public class CheckWantPlanFragment extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(inputCheck(layout, cards.get(position)))
-                    dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);;
+                if(editCheck(layout, cards.get(position)))
+                    dialog.getButton(AlertDialog.BUTTON2).setEnabled(true);
+                else
+                    dialog.getButton(AlertDialog.BUTTON2).setEnabled(false);
             }
         });
         ((EditText)layout.findViewById(R.id.input_pattern2)).addTextChangedListener(new TextWatcher() {
@@ -167,8 +182,8 @@ public class CheckWantPlanFragment extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(inputCheck(layout, cards.get(position)))
-                    dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);;
+                if(editCheck(layout, cards.get(position)))
+                    dialog.getButton(AlertDialog.BUTTON2).setEnabled(true);;
             }
         });
     }
@@ -244,17 +259,34 @@ public class CheckWantPlanFragment extends ListFragment {
     }
 
     public boolean inputCheck(View layout, WantPlanCard card){
-        if(((TextView)layout.findViewById(R.id.input_textview1)).getText() != card.getName()&&
-                ((TextView)layout.findViewById(R.id.input_textview2)).getText() != card.getPlace())
+        String start1, start2, end1, end2;
+        start1 = ((EditText)layout.findViewById(R.id.input_pattern1)).getText().toString();
+        end1 = card.getName();
+        start2 = ((EditText)layout.findViewById(R.id.input_pattern2)).getText().toString();
+        end2 = card.getPlace();
+        if(!(start1.equals(end1))&& !(start2.equals(end2))) {
             return true;
+        }
+        return false;
+    }
+
+    public boolean editCheck(View layout, WantPlanCard card){
+        String start1, start2, end1, end2;
+        start1 = ((EditText)layout.findViewById(R.id.input_pattern1)).getText().toString();
+        end1 = card.getName();
+        start2 = ((EditText)layout.findViewById(R.id.input_pattern2)).getText().toString();
+        end2 = card.getPlace();
+        if(!(start1.equals(end1))|| !(start2.equals(end2))) {
+            return true;
+        }
         return false;
     }
 
     public void updateListfragment(){
+        schedlueApplication.writeWantPlanFile();
         cardAdapter = new CheckWantPlanFragment.CardAdapter();
         setListAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
-        schedlueApplication.writeWantPlanFile();
     }
 }
 

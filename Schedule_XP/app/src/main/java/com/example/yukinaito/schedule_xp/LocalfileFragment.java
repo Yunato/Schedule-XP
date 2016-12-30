@@ -31,7 +31,7 @@ public class LocalfileFragment extends Fragment {
             public void onClick(View view) {
                 String str = et.getText().toString();
                 try{
-                    FileOutputStream out = getActivity().openFileOutput("plan.txt",getActivity().MODE_APPEND|getActivity().MODE_WORLD_READABLE);
+                    FileOutputStream out = getActivity().openFileOutput("default.txt",getActivity().MODE_APPEND|getActivity().MODE_WORLD_READABLE);
                     out.write(str.getBytes());
                 }catch(IOException e){
                     e.printStackTrace();
@@ -42,7 +42,7 @@ public class LocalfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 try {
-                    FileInputStream in = getActivity().openFileInput("plan.txt");
+                    FileInputStream in = getActivity().openFileInput("default.txt");
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                     String tmp;
                     et.setText("");
@@ -58,7 +58,7 @@ public class LocalfileFragment extends Fragment {
         view.findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    getActivity().deleteFile("plan.txt");
+                    getActivity().deleteFile("default.txt");
             }
         });
         view.findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {

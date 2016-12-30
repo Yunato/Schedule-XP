@@ -45,6 +45,12 @@ public class CheckPlanActivity extends AppCompatActivity {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.add(R.id.activity_listfragment, fragment);
             transaction.commit();
+        } else if((int)getIntent().getIntExtra("select", -1)==3) {
+            setTitle("イベント日一覧");
+            EventPlanFragment fragment = new EventPlanFragment();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.activity_listfragment, fragment);
+            transaction.commit();
         }
     }
 

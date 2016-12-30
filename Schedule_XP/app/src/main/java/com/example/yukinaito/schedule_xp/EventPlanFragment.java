@@ -1,5 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,25 +23,24 @@ import java.util.ArrayList;
 
 import static android.app.Activity.RESULT_OK;
 
-public class CheckMainFragment extends ListFragment {
+public class EventPlanFragment extends ListFragment {
     private SchedlueApplication schedlueApplication;
-    static public final String DATE_PATTERN = "HH:mm";
     private static final int ADD_CODE = 1;
     private static final int UPDATE_CODE = 2;
-    private CardAdapter cardAdapter;
-    private ArrayList<Card> cards;
+    private EventPlanFragment.CardAdapter cardAdapter;
+    private ArrayList<EventCard> cards;
     private static int position;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         schedlueApplication = (SchedlueApplication)getActivity().getApplication();
-        cards = schedlueApplication.getPlanCard();
+        cards = schedlueApplication.getEventplancards();
         View view = inflater.inflate(R.layout.fragment_listmain, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), AddPlanActivity.class);
+                Intent intent = new Intent(getActivity(), AddEventPlanActivity.class);
                 startActivityForResult(intent, ADD_CODE);
             }
         });
@@ -49,7 +50,7 @@ public class CheckMainFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        cardAdapter = new CardAdapter();
+        cardAdapter = new EventPlanFragment.CardAdapter();
         setListAdapter(cardAdapter);
     }
 
@@ -57,8 +58,8 @@ public class CheckMainFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int pos, long id){
         this.position = pos;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("予定の操作");
-        builder.setMessage("予定の内容を編集、または予定を削除しますか？");
+        builder.setTitle("イベント日の操作");
+        builder.setMessage("イベント日の詳細を編集、またはイベント日の情報を削除しますか？");
         builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -69,12 +70,10 @@ public class CheckMainFragment extends ListFragment {
         builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(getActivity(), AddPlanActivity.class);
-                Card card = new Card();
-                card.setInfo(schedlueApplication.getPlanCard().get(position).getCalendar(),
-                        schedlueApplication.getPlanCard().get(position).getLentime(),
-                        schedlueApplication.getPlanCard().get(position).getContent(),
-                        schedlueApplication.getPlanCard().get(position).getPlace());
+                Intent intent = new Intent(getActivity(), AddEventPlanActivity.class);
+                EventCard card = new EventCard();
+                card.setInfo(schedlueApplication.getEventplancards().get(position).getDate(),
+                        schedlueApplication.getEventplancards().get(position).getIndex());
                 intent.putExtra("EditingCard", card);
                 startActivityForResult(intent,UPDATE_CODE);
             }
@@ -95,7 +94,7 @@ public class CheckMainFragment extends ListFragment {
         }
 
         @Override
-        public Card getItem(int pos){
+        public EventCard getItem(int pos){
             return cards.get(pos);
         }
 
@@ -108,63 +107,38 @@ public class CheckMainFragment extends ListFragment {
         public View getView(int pos, View view, ViewGroup parent){
             //Context context = getActivity();
             Context context = getActivity().getApplication();
-            Card card = cards.get(pos);
+            final EventCard card = cards.get(pos);
 
             //レイアウトの生成
             if(view == null){
                 LinearLayout layout = new LinearLayout(context);
                 layout.setBackgroundColor(Color.WHITE);
                 layout.setPadding(10, 10, 10, 10);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
+                layout.setOrientation(LinearLayout.VERTICAL);
 
                 view = layout;
 
                 TextView textView1 = new TextView(context);
-                textView1.setTag("time");
                 textView1.setTextColor(Color.BLACK);
-                textView1.setPadding(30, 10, 10, 10);
-                textView1.setTextSize(60.0f);
+                textView1.setPadding(10,10,10,5);
+                textView1.setTextSize(45.0f);
+                textView1.setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getDate().getTime()));
                 layout.addView(textView1);
 
-                LinearLayout layout2 = new LinearLayout(context);
-                layout2.setBackgroundColor(Color.WHITE);
-                layout2.setPadding(0, 0, 0, 0);
-                layout2.setOrientation(LinearLayout.VERTICAL);
-
                 TextView textView2 = new TextView(context);
-                textView2.setTag("content");
                 textView2.setTextColor(Color.BLACK);
-                textView2.setPadding(10,10, 10, 10);
-                textView2.setTextSize(30.0f);
-                layout2.addView(textView2);
-
-                TextView textView3 = new TextView(context);
-                textView3.setTag("place");
-                textView3.setTextColor(Color.BLACK);
-                textView3.setPadding(10, 10, 10, 10);
-                textView3.setTextSize(30.0f);
-                layout2.addView(textView3);
-
-                layout.addView(layout2);
+                textView2.setPadding(10,5,10,10);
+                textView2.setTextSize(45.0f);
+                textView2.setText(schedlueApplication.getModelSchedule().get(card.getIndex()).getName());
+                layout.addView(textView2);
             }
-
-            TextView textView1 = (TextView)view.findViewWithTag("time");
-            textView1.setText(convertDate2String(card.getCalendar().getTime()));
-            TextView textView2 = (TextView)view.findViewWithTag("content");
-            textView2.setText(card.getContent());
-            TextView textView3 = (TextView)view.findViewWithTag("place");
-            textView3.setText(card.getPlace());
             return view;
         }
     }
 
-    public String convertDate2String(java.util.Date date) {
-        return (new SimpleDateFormat(DATE_PATTERN)).format(date);
-    }
-
     public void updateListfragment(){
-        schedlueApplication.writePlanFile();
-        cardAdapter = new CardAdapter();
+        schedlueApplication.writeEventPlanFile();
+        cardAdapter = new EventPlanFragment.CardAdapter();
         setListAdapter(cardAdapter);
         cardAdapter.notifyDataSetChanged();
     }
@@ -174,12 +148,12 @@ public class CheckMainFragment extends ListFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ADD_CODE){
             if(resultCode == RESULT_OK) {
-                cards.add((Card) data.getSerializableExtra("Card"));
+                cards.add((EventCard) data.getSerializableExtra("Card"));
                 updateListfragment();
             }
         }else if(requestCode == UPDATE_CODE){
             if(resultCode == RESULT_OK){
-                cards.get(position).setUpdate((Card)data.getSerializableExtra("Card"));
+                cards.get(position).setUpdate((EventCard)data.getSerializableExtra("Card"));
                 updateListfragment();
             }
         }

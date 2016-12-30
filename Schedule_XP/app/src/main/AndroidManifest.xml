@@ -24,6 +24,7 @@
         <activity android:name=".CheckPlanActivity"></activity>
         <activity android:name=".AddPlanActivity"></activity>
         <activity android:name=".AddHavetoPlanActivity"></activity>
+        <activity android:name=".AddEventPlanActivity"></activity>
     </application>
 
 </manifest>
