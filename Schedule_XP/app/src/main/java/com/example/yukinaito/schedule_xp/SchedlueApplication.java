@@ -226,7 +226,7 @@ public class SchedlueApplication extends Application {
                     + " " + Integer.toString(model.get(i).getCards().size())
                     + " " + model.get(i).getName() + "\n";
             str += buf;
-            Collections.sort(model.get(i).getCards(), new CardComparator1());
+            //Collections.sort(model.get(i).getCards(), new CardComparator1());
             for (int j = 0; j < model.get(i).getCards().size(); j++) {
                 buf = (new SimpleDateFormat("HHmm")).format(model.get(i).getCards().get(j).getCalendar().getTime())
                         + " " + f.format(model.get(i).getCards().get(j).getLentime())

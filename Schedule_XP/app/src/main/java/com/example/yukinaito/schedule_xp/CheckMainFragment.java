@@ -10,16 +10,19 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -135,12 +138,26 @@ public class CheckMainFragment extends ListFragment {
                 layout1.setBackgroundColor(Color.WHITE);
                 layout1.setOrientation(LinearLayout.HORIZONTAL);
 
+                FrameLayout layout3 = new FrameLayout(context);
+                layout1.addView(layout3);
+                layout3.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT));
+
                 TextView textView1 = new TextView(context);
                 textView1.setTag("time");
                 textView1.setTextColor(Color.parseColor("#424242"));
-                textView1.setPadding(40, 10, 40, 10);
+                textView1.setPadding(40, 5, 40, 20);
                 textView1.setTextSize(45.0f);
-                layout1.addView(textView1);
+                layout3.addView(textView1);
+
+                TextView textView4 = new TextView(context);
+                textView4.setTag("finish");
+                textView4.setTextColor(Color.parseColor("#424242"));
+                textView4.setPadding(0, 10, 10, 0);
+                textView4.setTextSize(15.0f);
+                textView4.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
+                layout3.addView(textView4);
 
                 LinearLayout layout2 = new LinearLayout(context);
                 layout2.setBackgroundColor(Color.WHITE);
@@ -153,7 +170,7 @@ public class CheckMainFragment extends ListFragment {
                 TextView textView2 = new TextView(context);
                 textView2.setTag("content");
                 textView2.setTextColor(Color.parseColor("#424242"));
-                textView2.setPadding(10,10, 10, 10);
+                textView2.setPadding(10, 10, 10, 10);
                 textView2.setTextSize(20.0f);
                 id = getContext().getResources().getIdentifier("dotted_line2", "drawable", getContext().getPackageName());
                 back = getContext().getResources().getDrawable(id);
@@ -186,6 +203,13 @@ public class CheckMainFragment extends ListFragment {
             textView2.setText(card.getContent());
             TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
+            Calendar cal = (Calendar)card.getCalendar().clone();
+            cal.add(Calendar.MINUTE, card.getLentime());
+            int diff = cal.compareTo(card.getCalendar());
+            if (diff != 0) {
+                TextView textView4 = (TextView) view.findViewWithTag("finish");
+                textView4.setText((new SimpleDateFormat("～HH:mm")).format(cal.getTime()));
+            }
             return view;
         }
     }

@@ -10,17 +10,21 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class SettingMainFragment extends ListFragment {
@@ -45,6 +49,7 @@ public class SettingMainFragment extends ListFragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                intent.putExtra("position", arraypos);
                 startActivityForResult(intent, ADD_CODE);
             }
         });
@@ -84,6 +89,8 @@ public class SettingMainFragment extends ListFragment {
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getContent(),
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getPlace());
                 intent.putExtra("EditingCard", card);
+                intent.putExtra("position", arraypos);
+                cards.remove(position);
                 startActivityForResult(intent,UPDATE_CODE);
             }
         });
@@ -126,12 +133,26 @@ public class SettingMainFragment extends ListFragment {
 
                 view = layout;
 
+                FrameLayout layout3 = new FrameLayout(context);
+                layout.addView(layout3);
+                layout3.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT));
+
                 TextView textView1 = new TextView(context);
                 textView1.setTag("time");
                 textView1.setTextColor(Color.parseColor("#424242"));
-                textView1.setPadding(40, 10, 40, 10);
+                textView1.setPadding(40, 5, 40, 20);
                 textView1.setTextSize(45.0f);
-                layout.addView(textView1);
+                layout3.addView(textView1);
+
+                TextView textView4 = new TextView(context);
+                textView4.setTag("finish");
+                textView4.setTextColor(Color.parseColor("#424242"));
+                textView4.setPadding(0, 10, 10, 0);
+                textView4.setTextSize(15.0f);
+                textView4.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
+                layout3.addView(textView4);
 
                 LinearLayout layout2 = new LinearLayout(context);
                 layout2.setBackgroundColor(Color.WHITE);
@@ -174,6 +195,13 @@ public class SettingMainFragment extends ListFragment {
             textView2.setText(card.getContent());
             TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
+            Calendar cal = (Calendar)card.getCalendar().clone();
+            cal.add(Calendar.MINUTE, card.getLentime());
+            int diff = cal.compareTo(card.getCalendar());
+            if (diff != 0) {
+                TextView textView4 = (TextView) view.findViewWithTag("finish");
+                textView4.setText((new SimpleDateFormat("～HH:mm")).format(cal.getTime()));
+            }
             return view;
         }
     }
@@ -194,13 +222,28 @@ public class SettingMainFragment extends ListFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ADD_CODE){
             if(resultCode == RESULT_OK) {
-                cards.add((Card) data.getSerializableExtra("Card"));
-                updateListfragment();
+                int pos = data.getIntExtra("Position",-1);
+                if (pos != -1) {
+                    if (pos == cards.size())
+                        cards.add((Card) data.getSerializableExtra("Card"));
+                    else
+                        cards.add(pos, (Card) data.getSerializableExtra("Card"));
+                    updateListfragment();
+                }
             }
         }else if(requestCode == UPDATE_CODE){
-            if(resultCode == RESULT_OK){
-                cards.get(position).setUpdate((Card)data.getSerializableExtra("Card"));
-                updateListfragment();
+            if(resultCode == RESULT_OK) {
+                int pos = data.getIntExtra("Position", -1);
+                if (pos != -1) {
+                    if (pos == cards.size())
+                        cards.add((Card) data.getSerializableExtra("Card"));
+                    else
+                        cards.add(pos, (Card) data.getSerializableExtra("Card"));
+                    updateListfragment();
+                }else{
+                    cards.add((Card) data.getSerializableExtra("Card"));
+                    updateListfragment();
+                }
             }
         }
     }
