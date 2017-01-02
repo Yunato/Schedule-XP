@@ -83,6 +83,7 @@ public class CheckMainFragment extends ListFragment {
                         schedlueApplication.getPlanCard().get(position).getContent(),
                         schedlueApplication.getPlanCard().get(position).getPlace());
                 intent.putExtra("EditingCard", card);
+                cards.remove(position);
                 startActivityForResult(intent,UPDATE_CODE);
             }
         });
@@ -226,13 +227,28 @@ public class CheckMainFragment extends ListFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ADD_CODE){
             if(resultCode == RESULT_OK) {
-                cards.add((Card) data.getSerializableExtra("Card"));
-                updateListfragment();
+                int pos = data.getIntExtra("Position",-1);
+                if (pos != -1) {
+                    if (pos == cards.size())
+                        cards.add((Card) data.getSerializableExtra("Card"));
+                    else
+                        cards.add(pos, (Card) data.getSerializableExtra("Card"));
+                    updateListfragment();
+                }
             }
         }else if(requestCode == UPDATE_CODE){
-            if(resultCode == RESULT_OK){
-                cards.get(position).setUpdate((Card)data.getSerializableExtra("Card"));
-                updateListfragment();
+            if(resultCode == RESULT_OK) {
+                int pos = data.getIntExtra("Position", -1);
+                if (pos != -1) {
+                    if (pos == cards.size())
+                        cards.add((Card) data.getSerializableExtra("Card"));
+                    else
+                        cards.add(pos, (Card) data.getSerializableExtra("Card"));
+                    updateListfragment();
+                }else{
+                    cards.add(position, (Card) data.getSerializableExtra("Card"));
+                    updateListfragment();
+                }
             }
         }
     }

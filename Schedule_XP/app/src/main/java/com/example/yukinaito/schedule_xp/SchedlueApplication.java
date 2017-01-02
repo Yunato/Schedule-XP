@@ -248,7 +248,7 @@ public class SchedlueApplication extends Application {
         String buf = new String();
         this.deleteFile("plan.txt");
         Format f = new DecimalFormat("0000");
-        Collections.sort(plancards, new CardComparator1());
+        //Collections.sort(plancards, new CardComparator1());
         for (int i = 0; i < plancards.size(); i++) {
             buf = (new SimpleDateFormat("yyyyMMddHHmm")).format(plancards.get(i).getCalendar().getTime())
                     + " " + f.format(plancards.get(i).getLentime())

@@ -83,10 +83,6 @@ public class AddModelActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                card.setInfo(plan_Time,
-                        Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
-                        ((EditText)findViewById(R.id.editText2)).getText().toString(),
-                        ((EditText)findViewById(R.id.editText3)).getText().toString());
                 intent.putExtra("Card", card);
                 setResult(RESULT_OK, intent);
                 finish();
@@ -153,31 +149,28 @@ public class AddModelActivity extends AppCompatActivity
     public int addCheck(Card card){
         int diff;
         boolean check;
-        Calendar buffer1, buffer2;
+        Calendar buffer;
         ArrayList<Card> cards = ((SchedlueApplication)this.getApplication()).getModelSchedule().get(arraypos).getCards();
         if(cards.size() == 0)
             return 0;
         for(int i = 0; i < cards.size(); i++){
-            buffer1 = (Calendar)cards.get(i).getCalendar().clone();
-            diff = buffer1.compareTo(card.getCalendar());
-            check = (new SimpleDateFormat("HHmm")).format(buffer1.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+            buffer = (Calendar)cards.get(i).getCalendar().clone();
+            diff = buffer.compareTo(card.getCalendar());
             if(cards.size() - 1 == i) {
                 if(diff > 0){
-                    buffer1 = (Calendar)cards.get(i).getCalendar().clone();
-                    buffer2 = (Calendar)card.getCalendar().clone();
-                    buffer2.add(Calendar.MINUTE, card.getLentime());
-                    diff = buffer1.compareTo(buffer2);
-                    check = (new SimpleDateFormat("HHmm")).format(buffer1.getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer2.getTime()));
+                    buffer = (Calendar)card.getCalendar().clone();
+                    buffer.add(Calendar.MINUTE, card.getLentime());
+                    diff = cards.get(i).getCalendar().compareTo(buffer);
+                    check = (new SimpleDateFormat("HHmm")).format(cards.get(i).getCalendar().getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer.getTime()));
                     if(diff < 0 && !check)
                         return -1 * i - 1;
                     else
                         return i;
                 }else{
-                    buffer1 = (Calendar)cards.get(i).getCalendar().clone();
-                    buffer1.add(Calendar.MINUTE, cards.get(i).getLentime());
-                    buffer2 = (Calendar)card.getCalendar().clone();
-                    diff = buffer1.compareTo(buffer2);
-                    check = (new SimpleDateFormat("HHmm")).format(buffer1.getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer2.getTime()));
+                    buffer = (Calendar)cards.get(i).getCalendar().clone();
+                    buffer.add(Calendar.MINUTE, cards.get(i).getLentime());
+                    diff = buffer.compareTo(card.getCalendar());
+                    check = (new SimpleDateFormat("HHmm")).format(buffer.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
                     if (diff > 0 && !check)
                         return -1 * i - 1;
                     else
@@ -185,22 +178,24 @@ public class AddModelActivity extends AppCompatActivity
                 }
             }
             if(diff > 0){
-                buffer1 = (Calendar)cards.get(i-1).getCalendar().clone();
-                buffer1.add(Calendar.MINUTE, cards.get(i-1).getLentime());
-                diff = buffer1.compareTo(card.getCalendar());
-                check = (new SimpleDateFormat("HHmm")).format(buffer1.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
-                if(!(diff > 0) || check){
-                    if(cards.size()  == i)
+                buffer = (Calendar)cards.get(i+1).getCalendar().clone();
+                diff = buffer.compareTo(card.getCalendar());
+                check = (new SimpleDateFormat("HHmm")).format(buffer.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+                if(check)
+                    continue;
+                buffer = (Calendar)cards.get(i-1).getCalendar().clone();
+                buffer.add(Calendar.MINUTE, cards.get(i-1).getLentime());
+                diff = buffer.compareTo(card.getCalendar());
+                check = (new SimpleDateFormat("HHmm")).format(buffer.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+                if(!(diff > 0) || check) {
+                    buffer = (Calendar) card.getCalendar().clone();
+                    buffer.add(Calendar.MINUTE, card.getLentime());
+                    diff = cards.get(i).getCalendar().compareTo(buffer);
+                    check = (new SimpleDateFormat("HHmm")).format(cards.get(i).getCalendar().getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer.getTime()));
+                    if (!(diff < 0) || check)
                         return i;
-                    buffer1 = (Calendar)cards.get(i).getCalendar().clone();
-                    buffer2 = (Calendar)card.getCalendar().clone();
-                    buffer2.add(Calendar.MINUTE, card.getLentime());
-                    diff = buffer1.compareTo(buffer2);
-                    check = (new SimpleDateFormat("HHmm")).format(buffer1.getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer2.getTime()));
-                    if(!(diff < 0) || check)
-                        return i-1;
                     else
-                        return -1 * i-1;
+                        return -1 * i - 1;
                 }
                 else
                     return -1 * i;

@@ -1,9 +1,11 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -13,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class AddPlanActivity extends AppCompatActivity
@@ -68,17 +71,36 @@ public class AddPlanActivity extends AppCompatActivity
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText2)).getText().toString(),
                         ((EditText)findViewById(R.id.editText3)).getText().toString());
-                Intent intent = new Intent();
-                intent.putExtra("Card", card);
-                setResult(RESULT_OK, intent);
-                finish();
+                int check = addCheck(card);
+                if(check > -1) {
+                    Intent intent = new Intent();
+                    intent.putExtra("Card", card);
+                    intent.putExtra("Position", check);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }else{
+                    check += 1;
+                    check *= -1;
+                    final ArrayList<Card> cards = ((SchedlueApplication) getApplication()).getPlanCard();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddPlanActivity.this);
+                    builder.setTitle("警告");
+                    builder.setMessage("他の予定と時間が重なっています。\n重なっている予定:" + cards.get(check).getContent());
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         });
         findViewById(R.id.button_4).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                setResult(RESULT_CANCELED, intent);
+                intent.putExtra("Card", card);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -146,5 +168,68 @@ public class AddPlanActivity extends AppCompatActivity
                 !(((EditText)findViewById(R.id.editText3)).getText().toString()).equals("")) {
             ((Button) findViewById(R.id.button_3)).setEnabled(true);
         }
+    }
+
+    public int addCheck(Card card){
+        int diff;
+        boolean check;
+        Calendar buffer;
+        ArrayList<Card> cards = ((SchedlueApplication)this.getApplication()).getPlanCard();
+        if(cards.size() == 0)
+            return 0;
+        for(int i = 0; i < cards.size(); i++){
+            buffer = (Calendar)cards.get(i).getCalendar().clone();
+            diff = buffer.compareTo(card.getCalendar());
+            check = (new SimpleDateFormat("yyyyMMdd")).format(buffer.getTime()).equals((new SimpleDateFormat("yyyyMMdd")).format(card.getCalendar().getTime()));
+            if(check) {
+                if(cards.size() - 1 == i) {
+                    if(diff > 0){
+                        buffer = (Calendar)card.getCalendar().clone();
+                        buffer.add(Calendar.MINUTE, card.getLentime());
+                        diff = cards.get(i).getCalendar().compareTo(buffer);
+                        check = (new SimpleDateFormat("HHmm")).format(cards.get(i).getCalendar().getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer.getTime()));
+                        if(diff < 0 && !check)
+                            return -1 * i - 1;
+                        else
+                            return i;
+                    }else{
+                        buffer = (Calendar)cards.get(i).getCalendar().clone();
+                        buffer.add(Calendar.MINUTE, cards.get(i).getLentime());
+                        diff = buffer.compareTo(card.getCalendar());
+                        check = (new SimpleDateFormat("HHmm")).format(buffer.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+                        if (diff > 0 && !check)
+                            return -1 * i - 1;
+                        else
+                            return cards.size();
+                    }
+                }
+                if(diff > 0){
+                    buffer = (Calendar)cards.get(i+1).getCalendar().clone();
+                    diff = buffer.compareTo(card.getCalendar());
+                    check = (new SimpleDateFormat("HHmm")).format(buffer.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+                    if(check)
+                        continue;
+                    buffer = (Calendar)cards.get(i-1).getCalendar().clone();
+                    buffer.add(Calendar.MINUTE, cards.get(i-1).getLentime());
+                    diff = buffer.compareTo(card.getCalendar());
+                    check = (new SimpleDateFormat("HHmm")).format(buffer.getTime()).equals((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+                    if(!(diff > 0) || check) {
+                        buffer = (Calendar) card.getCalendar().clone();
+                        buffer.add(Calendar.MINUTE, card.getLentime());
+                        diff = cards.get(i).getCalendar().compareTo(buffer);
+                        check = (new SimpleDateFormat("HHmm")).format(cards.get(i).getCalendar().getTime()).equals((new SimpleDateFormat("HHmm")).format(buffer.getTime()));
+                        if (!(diff < 0) || check)
+                            return i;
+                        else
+                            return -1 * i - 1;
+                    }
+                    else
+                        return -1 * i;
+                }
+            }
+            if(diff > 0)
+                return i;
+        }
+        return cards.size();
     }
 }

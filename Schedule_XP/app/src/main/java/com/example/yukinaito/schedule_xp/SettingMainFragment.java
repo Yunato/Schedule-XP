@@ -41,7 +41,7 @@ public class SettingMainFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         Bundle bundle = getArguments();
         schedlueApplication = (SchedlueApplication)getActivity().getApplication();
-        this.arraypos = (int)bundle.getSerializable("position");
+        arraypos = (int)bundle.getSerializable("position");
         cards = schedlueApplication.getModelSchedule().get(this.arraypos).getCards();
         View view = inflater.inflate(R.layout.fragment_listmain, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
@@ -241,7 +241,7 @@ public class SettingMainFragment extends ListFragment {
                         cards.add(pos, (Card) data.getSerializableExtra("Card"));
                     updateListfragment();
                 }else{
-                    cards.add((Card) data.getSerializableExtra("Card"));
+                    cards.add(position, (Card) data.getSerializableExtra("Card"));
                     updateListfragment();
                 }
             }
