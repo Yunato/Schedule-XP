@@ -6,12 +6,12 @@ import java.util.Calendar;
 public class HavetoPlanCard implements Serializable {
     String name;
     boolean haveto;
-    Calendar start;
-    Calendar limit;
+    long start;
+    long limit;
     int forcast;
     String place;
 
-    public void setInfo(String name, boolean haveto, Calendar start, Calendar limit, int forcast, String place){
+    public void setInfo(String name, boolean haveto, long start, long limit, int forcast, String place){
         this.name = name;
         this.haveto = haveto;
         this.start = start;
@@ -32,9 +32,9 @@ public class HavetoPlanCard implements Serializable {
 
     public boolean getHaveto(){return this.haveto;}
 
-    public Calendar getStart(){return this.start;}
+    public long getStart(){return this.start;}
 
-    public Calendar getLimit(){return this.limit;}
+    public long getLimit(){return this.limit;}
 
     public int getForcast(){return this.forcast;}
 

@@ -25,6 +25,8 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -123,6 +125,8 @@ public class CheckHavetoPlanFragment extends ListFragment {
             //Context context = getActivity();
             Context context = getActivity().getApplication();
             final HavetoPlanCard card = cards.get(pos);
+            Format f1 = new DecimalFormat("0000");
+            Format f2 = new DecimalFormat("00");
 
             //レイアウトの生成
             if(view == null){
@@ -203,7 +207,9 @@ public class CheckHavetoPlanFragment extends ListFragment {
                 textView3.setTextColor(Color.parseColor("#424242"));
                 textView3.setPadding(10, 10, 10, 10);
                 textView3.setTextSize(20.0f);
-                textView3.setText((new SimpleDateFormat("yyyy/MM/dd HH:mm")).format(card.getStart().getTime()));
+                long start1 = card.getStart() % 100000000;
+                long start2 = card.getStart() % 10000;
+                textView3.setText(f1.format(card.getStart() / 100000000) + "/" + f2.format(start1/1000000) + "/" + f2.format((start1%1000000)/10000) + " " + f2.format(start2/100) + ":" + f2.format(start2%100));
                 id = getContext().getResources().getIdentifier("dotted_line3", "drawable", getContext().getPackageName());
                 back = getContext().getResources().getDrawable(id);
                 textView3.setBackground(back);
@@ -226,7 +232,9 @@ public class CheckHavetoPlanFragment extends ListFragment {
                 textView5.setTextColor(Color.parseColor("#424242"));
                 textView5.setPadding(10, 10, 10, 10);
                 textView5.setTextSize(20.0f);
-                textView5.setText((new SimpleDateFormat("yyyy/MM/dd HH:mm")).format(card.getLimit().getTime()));
+                long end1 = card.getLimit() % 100000000;
+                long end2 = card.getLimit() % 10000;
+                textView5.setText(f1.format(card.getLimit() / 100000000) + "/" + f2.format(end1/1000000) + "/" + f2.format((end1%1000000)/10000) + " " + f2.format(end2/100) + ":" + f2.format(end2%100));
                 id = getContext().getResources().getIdentifier("dotted_line3", "drawable", getContext().getPackageName());
                 back = getContext().getResources().getDrawable(id);
                 textView5.setBackground(back);

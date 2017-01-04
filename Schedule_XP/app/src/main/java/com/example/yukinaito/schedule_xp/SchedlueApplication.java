@@ -2,6 +2,7 @@ package com.example.yukinaito.schedule_xp;
 
 import android.app.Application;
 import android.util.Log;
+import android.util.LongSparseArray;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -23,6 +24,7 @@ public class SchedlueApplication extends Application {
     private ArrayList<WantPlanCard> wantplancards;
     private ArrayList<HavetoPlanCard> havetoplancards;
     private ArrayList<EventCard> eventcards;
+    private ArrayList<ModelSchedule> eventmodel;
 
     @Override
     public void onCreate() {
@@ -92,7 +94,7 @@ public class SchedlueApplication extends Application {
                         }
                         buffer[k] += c;
                     }
-                    modelSch.setCardproperty(Integer.parseInt(buffer[0]),
+                    modelSch.setCardproperty(Long.parseLong(buffer[0]),
                             Integer.parseInt(buffer[1]),
                             buffer[2], buffer[3]);
                 }
@@ -105,7 +107,7 @@ public class SchedlueApplication extends Application {
 
     public void readPlanFile() {
         plancards = new ArrayList<Card>();
-        String[] buffer = new String[4];
+        String[] buffer = new String[5];
         String tmp;
         char c;
         try {
@@ -122,7 +124,9 @@ public class SchedlueApplication extends Application {
                     buffer[j] += c;
                 }
                 Card card = new Card();
-                card.setInfo(convertCalendar(buffer[0]), Integer.parseInt(buffer[1]), buffer[2], buffer[3]);
+                card.setInfo(Long.parseLong(buffer[0]), Integer.parseInt(buffer[1]), buffer[2], buffer[3]);
+                if(buffer[4].length() != 0)
+                    card.setMemo(buffer[4]);
                 plancards.add(card);
             }
         } catch (IOException e) {
@@ -176,8 +180,8 @@ public class SchedlueApplication extends Application {
                 HavetoPlanCard card = new HavetoPlanCard();
                 card.setInfo(buffer[0],
                         Boolean.parseBoolean(buffer[1]),
-                        convertCalendar(buffer[2]),
-                        convertCalendar(buffer[3]),
+                        Long.parseLong(buffer[2]),
+                        Long.parseLong(buffer[3]),
                         Integer.parseInt(buffer[4]),
                         buffer[5]);
                 havetoplancards.add(card);
@@ -188,7 +192,8 @@ public class SchedlueApplication extends Application {
 
     public void readEventPlanFile() {
         eventcards = new ArrayList<EventCard>();
-        String[] buffer = new String[2];
+        String[] buffer = new String[3];
+        String[] buf = new String[7];
         String tmp;
         char c;
         try {
@@ -204,13 +209,35 @@ public class SchedlueApplication extends Application {
                     }
                     buffer[j] += c;
                 }
-                EventCard card = new EventCard();
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, Integer.parseInt(buffer[0].substring(0, 4)));
-                calendar.set(Calendar.MONTH, Integer.parseInt(buffer[0].substring(4, 6)) - 1);
-                calendar.set(Calendar.DATE, Integer.parseInt(buffer[0].substring(6, 8)));
-                card.setInfo(calendar, Integer.parseInt(buffer[1]));
-                eventcards.add(card);
+                EventCard eventCard = new EventCard();
+                ArrayList<EventModelCard> eventModelCards = new ArrayList<EventModelCard>();
+                eventCard.setInfo(Integer.parseInt(buffer[0]), Integer.parseInt(buffer[1]));
+                int count = Integer.parseInt(buffer[2]);
+                for(int i = 0; i < count ; i++) {
+                    EventModelCard eventModelCard = new EventModelCard();
+                    tmp = reader.readLine();
+                    Arrays.fill(buf, "");
+                    for(int j = 0, k = 0; j < tmp.length(); j++){
+                        c = tmp.charAt(j);
+                        if (c == ' '){
+                            k++;
+                            continue;
+                        }
+                        buf[k] += c;
+                    }
+                    if(buf[0].equals("true"))
+                        eventModelCard.setmodelInfo(true, Integer.parseInt(buf[1]));
+                    else {
+                        Card card = new Card();
+                        card.setInfo(Long.parseLong(buf[2]), Integer.parseInt(buf[3]), buf[4], buf[5]);
+                        if(buf[6].length() != 0)
+                            card.setMemo(buf[6]);
+                        eventModelCard.setmodelInfo(false, Integer.parseInt(buf[1]), card);
+                    }
+                    eventModelCards.add(eventModelCard);
+                }
+                eventCard.setContent(eventModelCards);
+                eventcards.add(eventCard);
             }
         } catch (IOException e) {
         }
@@ -226,9 +253,8 @@ public class SchedlueApplication extends Application {
                     + " " + Integer.toString(model.get(i).getCards().size())
                     + " " + model.get(i).getName() + "\n";
             str += buf;
-            //Collections.sort(model.get(i).getCards(), new CardComparator1());
             for (int j = 0; j < model.get(i).getCards().size(); j++) {
-                buf = (new SimpleDateFormat("HHmm")).format(model.get(i).getCards().get(j).getCalendar().getTime())
+                buf = f.format(model.get(i).getCards().get(j).getCalendar())
                         + " " + f.format(model.get(i).getCards().get(j).getLentime())
                         + " " + model.get(i).getCards().get(j).getContent()
                         + " " + model.get(i).getCards().get(j).getPlace() + "\n";
@@ -247,14 +273,19 @@ public class SchedlueApplication extends Application {
         String str = "";
         String buf = new String();
         this.deleteFile("plan.txt");
-        Format f = new DecimalFormat("0000");
-        //Collections.sort(plancards, new CardComparator1());
+        Format f1 = new DecimalFormat("000000000000");
+        Format f2 = new DecimalFormat("0000");
         for (int i = 0; i < plancards.size(); i++) {
-            buf = (new SimpleDateFormat("yyyyMMddHHmm")).format(plancards.get(i).getCalendar().getTime())
-                    + " " + f.format(plancards.get(i).getLentime())
+            buf = f1.format(plancards.get(i).getCalendar())
+                    + " " + f2.format(plancards.get(i).getLentime())
                     + " " + plancards.get(i).getContent()
-                    + " " + plancards.get(i).getPlace() + "\n";
+                    + " " + plancards.get(i).getPlace();
             str += buf;
+            if(plancards.get(i).getMemo() != null && plancards.get(i).getMemo().length() != 0) {
+                buf = " " + plancards.get(i).getMemo();
+                str += buf;
+            }
+            str += "\n";
         }
 
         try {
@@ -276,7 +307,6 @@ public class SchedlueApplication extends Application {
                     + " " + wantplancards.get(i).getPlace() + "\n";
             str += buf;
         }
-
         try {
             FileOutputStream out = this.openFileOutput("wantplan.txt", this.MODE_APPEND | this.MODE_WORLD_READABLE);
             out.write(str.getBytes());
@@ -289,18 +319,18 @@ public class SchedlueApplication extends Application {
         String str = "";
         String buf = new String();
         this.deleteFile("havetoplan.txt");
-        Format f = new DecimalFormat("0000");
-        Collections.sort(havetoplancards, new CardComparator2());
+        Format f1 = new DecimalFormat("000000000000");
+        Format f2 = new DecimalFormat("0000");
+        Collections.sort(havetoplancards, new CardComparator1());
         for (int i = 0; i < havetoplancards.size(); i++) {
             buf = havetoplancards.get(i).getName()
                     + " " + Boolean.toString(havetoplancards.get(i).getHaveto())
-                    + " " + (new SimpleDateFormat("yyyyMMddHHmm")).format(havetoplancards.get(i).getStart().getTime())
-                    + " " + (new SimpleDateFormat("yyyyMMddHHmm")).format(havetoplancards.get(i).getLimit().getTime())
-                    + " " + f.format(havetoplancards.get(i).getForcast())
+                    + " " + f1.format(havetoplancards.get(i).getStart())
+                    + " " + f1.format(havetoplancards.get(i).getLimit())
+                    + " " + f2.format(havetoplancards.get(i).getForcast())
                     + " " + havetoplancards.get(i).getPlace() + "\n";
             str += buf;
         }
-
         try {
             FileOutputStream out = this.openFileOutput("havetoplan.txt", this.MODE_APPEND | this.MODE_WORLD_READABLE);
             out.write(str.getBytes());
@@ -313,14 +343,39 @@ public class SchedlueApplication extends Application {
         String str = "";
         String buf = new String();
         this.deleteFile("eventplan.txt");
-        Format f = new DecimalFormat("0000");
-        Collections.sort(eventcards, new CardComparator3());
+        Format f = new DecimalFormat("00000000");
+        Collections.sort(eventcards, new CardComparator2());
         for (int i = 0; i < eventcards.size(); i++) {
-            buf = (new SimpleDateFormat("yyyyMMdd")).format(eventcards.get(i).getDate().getTime())
-                    + " " + eventcards.get(i).getIndex() + "\n";
+            buf = f.format(eventcards.get(i).getDate())
+                    + " " + eventcards.get(i).getIndex();
             str += buf;
+            if(eventcards.get(i).getCards() != null) {
+                buf = " " + eventcards.get(i).getCards().size() + "\n";
+            }else{
+                buf = " 0\n";
+            }
+            str += buf;
+            if(eventcards.get(i).getCards() != null) {
+                int count = eventcards.get(i).getCards().size();
+                for (int j = 0; j < count; j++) {
+                    buf = Boolean.toString(eventcards.get(i).getCards().get(j).getUpdate())
+                            + " " + Integer.toString(eventcards.get(i).getCards().get(j).getIndex());
+                    str += buf;
+                    if(eventcards.get(i).getCards().get(j).getCard() != null) {
+                        buf = " " + Long.toString(eventcards.get(i).getCards().get(j).getCardCalendar())
+                                + " " + Integer.toString(eventcards.get(i).getCards().get(j).getCardLentime())
+                                + " " + eventcards.get(i).getCards().get(j).getCardPlace()
+                                + " " + eventcards.get(i).getCards().get(j).getCardContent();
+                        str += buf;
+                    }
+                    if (eventcards.get(i).getCards().get(j).getCardMemo() != null && eventcards.get(i).getCards().get(j).getCardMemo().length() != 0) {
+                        buf = " " + eventcards.get(i).getCards().get(j).getCardMemo();
+                        str += buf;
+                    }
+                    str += "\n";
+                }
+            }
         }
-
         try {
             FileOutputStream out = this.openFileOutput("eventplan.txt", this.MODE_APPEND | this.MODE_WORLD_READABLE);
             out.write(str.getBytes());
@@ -329,52 +384,26 @@ public class SchedlueApplication extends Application {
         }
     }
 
-    public Calendar convertCalendar(String buffer) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, Integer.parseInt(buffer.substring(0, 4)));
-        calendar.set(Calendar.MONTH, Integer.parseInt(buffer.substring(4, 6)) - 1);
-        calendar.set(Calendar.DATE, Integer.parseInt(buffer.substring(6, 8)));
-        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(buffer.substring(8, 10)));
-        calendar.set(Calendar.MINUTE, Integer.parseInt(buffer.substring(10, 12)));
-        return calendar;
-    }
-
-    public class CardComparator1 implements Comparator<Card> {
-        public int compare(Card s, Card t) {
-            Calendar calendar1 = s.getCalendar();
-            Calendar calendar2 = t.getCalendar();
-            int diff = calendar1.compareTo(calendar2);
-            if (diff > 0)
-                return 1;
-            else if (diff == 0)
-                return 0;
-            else
-                return -1;
-        }
-    }
-
-    public class CardComparator2 implements Comparator<HavetoPlanCard> {
+    public class CardComparator1 implements Comparator<HavetoPlanCard> {
         public int compare(HavetoPlanCard s, HavetoPlanCard t) {
-            Calendar calendar1 = s.getLimit();
-            Calendar calendar2 = t.getLimit();
-            int diff = calendar1.compareTo(calendar2);
-            if (diff > 0)
+            long calendar1 = s.getLimit();
+            long calendar2 = t.getLimit();
+            if (calendar1 > calendar2)
                 return 1;
-            else if (diff == 0)
+            else if (calendar1 == calendar2)
                 return 0;
             else
                 return -1;
         }
     }
 
-    public class CardComparator3 implements Comparator<EventCard> {
+    public class CardComparator2 implements Comparator<EventCard> {
         public int compare(EventCard s, EventCard t) {
-            Calendar calendar1 = s.getDate();
-            Calendar calendar2 = t.getDate();
-            int diff = calendar1.compareTo(calendar2);
-            if (diff > 0)
+            long calendar1 = s.getDate();
+            long calendar2 = t.getDate();
+            if (calendar1 > calendar2)
                 return 1;
-            else if (diff == 0)
+            else if (calendar1 == calendar2)
                 return 0;
             else
                 return -1;

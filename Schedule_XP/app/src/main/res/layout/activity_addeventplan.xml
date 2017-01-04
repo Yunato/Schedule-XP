@@ -16,43 +16,84 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark"/>
 
     <RelativeLayout
-        android:id="@+id/relativelayout"
+        android:layout_below="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/relativelayout1"
-        android:elevation="3dp"
-        android:layout_marginTop="10px"
-        android:layout_marginBottom="10px"
-        android:layout_marginLeft="20px"
-        android:layout_marginRight="20px"
-        android:paddingTop="50px"
-        android:paddingBottom="50px"
-        android:background="@drawable/object_corners_true">
+        android:layout_height="match_parent"
+        android:layout_above = "@+id/relativelayout1">
 
-        <TextView
-            android:id="@+id/textview1"
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/button_3"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="モデル"
-            android:textColor="#000000"
+            android:text="年月日の指定"
             android:textSize="20sp"
+            android:elevation="3dp"
+            android:layout_marginTop="30px"
+            android:layout_marginBottom="10px"
+            android:layout_marginLeft="20px"
+            android:layout_marginRight="20px"
+            android:paddingTop="50px"
+            android:paddingBottom="50px"
+            android:tag ="YEARMONTHDAY"
+            android:onClick="onClick"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/button_state" />
+
+        <RelativeLayout
+            android:id="@+id/relativelayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/button_3"
+            android:elevation="3dp"
             android:layout_marginTop="10px"
             android:layout_marginBottom="10px"
             android:layout_marginLeft="20px"
             android:layout_marginRight="20px"
-            />
+            android:paddingTop="50px"
+            android:paddingBottom="50px"
+            android:background="@drawable/object_corners_true">
 
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dialog"
-            android:layout_toEndOf="@+id/textview1"
-            android:textSize="20sp"
-            android:layout_marginTop="10px"
-            android:layout_marginBottom="10px"
-            android:layout_marginRight="20px"
-            />
+            <TextView
+                android:id="@+id/textview1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="モデル"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:layout_marginTop="10px"
+                android:layout_marginBottom="10px"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                />
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dialog"
+                android:layout_toEndOf="@+id/textview1"
+                android:textSize="20sp"
+                android:layout_marginTop="10px"
+                android:layout_marginBottom="10px"
+                android:layout_marginRight="20px"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relativelayout2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/relativelayout"
+            android:background="@drawable/under_line"
+            android:paddingTop="6px"
+            android:paddingBottom="6px">
+            <ListView
+                android:id="@+id/listview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </ListView>
+        </RelativeLayout>
 
     </RelativeLayout>
 
@@ -61,6 +102,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="#ffffff"
         android:layout_marginBottom="25px">
         <View
             android:id="@+id/center_view"
@@ -110,25 +152,6 @@
             android:onClick="onClick"
             android:background="@drawable/button_state" />
     </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/linearlayout1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="3dp"
-        android:layout_marginTop="15dp"
-        android:gravity="center"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
-
-        <DatePicker android:id="@+id/datePicker"
-            android:scaleX="0.8"
-            android:scaleY="0.8"
-            android:layout_gravity="center"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        </DatePicker>
-    </LinearLayout>
 
 
 </RelativeLayout>

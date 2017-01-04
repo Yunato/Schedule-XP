@@ -8,13 +8,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.text.DecimalFormat;
+import java.text.Format;
 
 public class AddHavetoPlanActivity extends AppCompatActivity
         implements TextWatcher {
@@ -80,10 +79,10 @@ public class AddHavetoPlanActivity extends AppCompatActivity
         findViewById(R.id.button_5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                long start = (long)plan_Day1 * 10000 + (long)plan_Time1;
+                long end = (long)plan_Day2 * 10000 + (long)plan_Time2;
                 card.setInfo(((EditText)findViewById(R.id.editText2)).getText().toString(),
-                        false,
-                        createCalendar(plan_Day1, plan_Time1),
-                        createCalendar(plan_Day2, plan_Time2),
+                        false, start, end,
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText3)).getText().toString());
                 Intent intent = new Intent();
@@ -115,18 +114,24 @@ public class AddHavetoPlanActivity extends AppCompatActivity
         if((getIntent().getSerializableExtra("EditingCard")) != null){
             setTitle("やるべきことの変更");
             card = ((HavetoPlanCard)getIntent().getSerializableExtra("EditingCard"));
-            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getStart().getTime()));
-            ((Button)findViewById(R.id.button_2)).setText((new SimpleDateFormat("HH時mm分")).format(card.getStart().getTime()));
-            ((Button)findViewById(R.id.button_3)).setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getLimit().getTime()));
-            ((Button)findViewById(R.id.button_4)).setText((new SimpleDateFormat("HH時mm分")).format(card.getLimit().getTime()));
+            Format f1 = new DecimalFormat("0000");
+            Format f2 = new DecimalFormat("00");
+            long start = card.getStart() % 100000000;
+            ((Button)findViewById(R.id.button_1)).setText(f1.format(card.getStart() / 100000000) + "年" + f2.format(start/1000000) + "月" + f2.format((start%1000000)/10000) + "日");
+            start = card.getStart() % 10000;
+            ((Button)findViewById(R.id.button_2)).setText(f2.format(start/100) + "時" + f2.format(start%100) + "分");
+            long end = card.getLimit() % 100000000;
+            ((Button)findViewById(R.id.button_3)).setText(f1.format(card.getLimit() / 100000000) + "年" + f2.format(end/1000000) + "月" + f2.format((end%1000000)/10000) + "日");
+            end = card.getLimit() % 10000;
+            ((Button)findViewById(R.id.button_4)).setText(f2.format(end/100) + "時" + f2.format(end%100) + "分");
             ((Button)findViewById(R.id.button_5)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getForcast()));
             ((EditText)findViewById(R.id.editText2)).setText(card.getName());
             ((EditText)findViewById(R.id.editText3)).setText(card.getPlace());
-            plan_Day1 = Integer.parseInt((new SimpleDateFormat("yyyyMMdd")).format(card.getStart().getTime()));
-            plan_Time1 = Integer.parseInt((new SimpleDateFormat("HHmm")).format(card.getStart().getTime()));
-            plan_Day2 = Integer.parseInt((new SimpleDateFormat("yyyyMMdd")).format(card.getLimit().getTime()));
-            plan_Time2 = Integer.parseInt((new SimpleDateFormat("HHmm")).format(card.getLimit().getTime()));
+            plan_Day1 = (int)(card.getStart() / 10000);
+            plan_Time1 = (int)(card.getStart() % 10000);
+            plan_Day2 = (int)(card.getLimit() / 10000);
+            plan_Time2 = (int)(card.getLimit() % 10000);
         }
     }
 
@@ -178,17 +183,5 @@ public class AddHavetoPlanActivity extends AppCompatActivity
                 !(((EditText)findViewById(R.id.editText3)).getText().toString()).equals("")) {
             ((Button) findViewById(R.id.button_5)).setEnabled(true);
         }
-    }
-
-    public Calendar createCalendar(int plan_Day, int plan_Time){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, plan_Day/10000);
-        plan_Day %= 10000;
-        calendar.set(Calendar.MONTH, (plan_Day/100)-1);
-        calendar.set(Calendar.DATE, plan_Day%100);
-        calendar.set(Calendar.HOUR_OF_DAY, plan_Time/100);
-        calendar.set(Calendar.MINUTE, plan_Time%100);
-
-        return calendar;
     }
 }

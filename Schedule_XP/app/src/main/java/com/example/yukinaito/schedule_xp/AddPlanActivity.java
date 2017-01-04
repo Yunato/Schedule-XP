@@ -10,10 +10,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -60,29 +64,19 @@ public class AddPlanActivity extends AppCompatActivity
         findViewById(R.id.button_3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.YEAR, plan_Day/10000);
-                plan_Day %= 10000;
-                calendar.set(Calendar.MONTH, (plan_Day/100)-1);
-                calendar.set(Calendar.DATE, plan_Day%100);
-                calendar.set(Calendar.HOUR_OF_DAY, plan_Time/100);
-                calendar.set(Calendar.MINUTE, plan_Time%100);
+                long calendar = (long)plan_Day * 10000 + (long)plan_Time;
                 card.setInfo(calendar,
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText2)).getText().toString(),
                         ((EditText)findViewById(R.id.editText3)).getText().toString());
                 Calendar now = Calendar.getInstance();
                 long nowtime = now.get(Calendar.YEAR);
-                nowtime = nowtime * 100 + now.get(Calendar.MONTH);
+                nowtime = nowtime * 100 + now.get(Calendar.MONTH) + 1;
                 nowtime = nowtime * 100 + now.get(Calendar.DATE);
                 nowtime = nowtime * 100 + now.get(Calendar.HOUR_OF_DAY);
                 nowtime = nowtime * 100 + now.get(Calendar.MINUTE);
-                long cardtime = calendar.get(Calendar.YEAR);
-                cardtime = cardtime * 100 + calendar.get(Calendar.MONTH);
-                cardtime = cardtime * 100 + calendar.get(Calendar.DATE);
-                cardtime = cardtime * 100 + calendar.get(Calendar.HOUR_OF_DAY);
-                cardtime = cardtime * 100 + calendar.get(Calendar.MINUTE);
-                if(nowtime < cardtime){
+                Log.d("TEST",Long.toString(nowtime) + " < " + Long.toString(calendar));
+                if(nowtime <= calendar){
                     int check = addCheck(card);
                     if(check > -1) {
                         Intent intent = new Intent();
@@ -142,14 +136,18 @@ public class AddPlanActivity extends AppCompatActivity
         if((getIntent().getSerializableExtra("EditingCard")) != null){
             setTitle("日時・行動の変更");
             card = ((Card)getIntent().getSerializableExtra("EditingCard"));
-            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("yyyy年MM月dd日(変更時はタップ)")).format(card.getCalendar().getTime()));
-            ((Button)findViewById(R.id.button_2)).setText((new SimpleDateFormat("HH時mm分(変更時はタップ)")).format(card.getCalendar().getTime()));
+            Format f1 = new DecimalFormat("0000");
+            Format f2 = new DecimalFormat("00");
+            long start = card.getCalendar() % 100000000;
+            ((Button)findViewById(R.id.button_1)).setText(f1.format(card.getCalendar() / 100000000) + "年" + f2.format(start/1000000) + "月" + f2.format((start%1000000)/10000) + "日(変更時はタップ");
+            start = card.getCalendar() % 10000;
+            ((Button)findViewById(R.id.button_2)).setText(f2.format(start/100) + "時" + f2.format(start%100) + "分(変更時はタップ)");
             ((Button)findViewById(R.id.button_3)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getLentime()));
             ((EditText)findViewById(R.id.editText2)).setText(card.getContent());
             ((EditText)findViewById(R.id.editText3)).setText(card.getPlace());
-            plan_Day = Integer.parseInt((new SimpleDateFormat("yyyyMMdd")).format(card.getCalendar().getTime()));
-            plan_Time = Integer.parseInt((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+            plan_Day = (int)(card.getCalendar() / 10000);
+            plan_Time = (int)(card.getCalendar() % 10000);
         }
     }
 
@@ -158,10 +156,12 @@ public class AddPlanActivity extends AppCompatActivity
             plan_Day = data;
             Button button_0 = (Button) findViewById(R.id.button_1);
             button_0.setText(text + "(変更時はタップ)");
-        }else {
+        }else if(button == 2){
             plan_Time = data;
             Button button_0 = (Button) findViewById(R.id.button_2);
             button_0.setText(text + "(変更時はタップ)");
+        }else{
+
         }
         inputCheck();
     }
@@ -203,19 +203,13 @@ public class AddPlanActivity extends AppCompatActivity
         if (cards.size() == 0)
             return 0;
         for(i = 0; i < cards.size(); i++){
-            buffer = (Calendar) cards.get(i).getCalendar().clone();
-            start1 = buffer.get(Calendar.YEAR) * 10000 + buffer.get(Calendar.MONTH) * 100 + buffer.get(Calendar.DATE);
-            buffer = (Calendar) card.getCalendar().clone();
-            start2 = buffer.get(Calendar.YEAR) * 10000 + buffer.get(Calendar.MONTH) * 100 + buffer.get(Calendar.DATE);
+            start1 = cards.get(i).getCalendar() / 10000;
+            start2 = card.getCalendar() / 10000;
             if(start1 == start2) {
-                buffer = (Calendar) cards.get(i).getCalendar().clone();
-                start1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-                buffer.add(Calendar.MINUTE, cards.get(i).getLentime());
-                end1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-                buffer = (Calendar) card.getCalendar().clone();
-                start2 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-                buffer.add(Calendar.MINUTE, card.getLentime());
-                end2 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
+                start1 = cards.get(i).getCalendar() % 10000;
+                end1 = start1 + cards.get(i).getLentime();
+                start2 = card.getCalendar() % 10000;
+                end2 = start1 + card.getLentime();
                 if (start1 > start2) {
                     if (!(start1 == start2) || !(start2 == end2)) {
                         if (start1 < end2 && start2 < end1)
@@ -223,10 +217,8 @@ public class AddPlanActivity extends AppCompatActivity
                         else {
                             if (i == 0)
                                 return i;
-                            buffer = (Calendar) cards.get(i - 1).getCalendar().clone();
-                            start1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-                            buffer.add(Calendar.MINUTE, cards.get(i - 1).getLentime());
-                            end1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
+                            start1 = cards.get(i - 1).getCalendar() % 10000;
+                            end1 = start1 + cards.get(i - 1).getLentime();
                             if (start1 < end2 && start2 < end1)
                                 return -1 * (i - 1) - 1;
                             else {

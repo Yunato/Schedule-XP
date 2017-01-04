@@ -25,6 +25,7 @@
         <activity android:name=".AddPlanActivity"></activity>
         <activity android:name=".AddHavetoPlanActivity"></activity>
         <activity android:name=".AddEventPlanActivity"></activity>
+        <activity android:name=".AddMemoActivity"></activity>
     </application>
 
 </manifest>

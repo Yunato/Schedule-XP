@@ -23,10 +23,6 @@ public class WantPlanCard implements Serializable {
         this.want = want;
     }
 
-    public void setPlace(String place){
-        this.place = place;
-    }
-
     public String getName(){return this.name;}
 
     public boolean getWant(){return this.want;}

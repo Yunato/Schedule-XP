@@ -42,7 +42,10 @@ public class DatePickerDialogfragment extends DialogFragment implements DatePick
         }else if(activity_check == 3) {
             AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
             callingActivity.onReturnValue(date, text, 3);
-        }else{
+        }else if(activity_check == 4) {
+            AddEventPlanActivity callingActivity = (AddEventPlanActivity) getActivity();
+            callingActivity.onReturnValue(date, text, 1);
+        }{
             return;
         }
     }

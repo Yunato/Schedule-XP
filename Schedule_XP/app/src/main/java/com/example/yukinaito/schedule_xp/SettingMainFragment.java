@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,7 +31,6 @@ import static android.app.Activity.RESULT_OK;
 
 public class SettingMainFragment extends ListFragment {
     private SchedlueApplication schedlueApplication;
-    static public final String DATE_PATTERN = "HH:mm";
     private static final int ADD_CODE = 1;
     private static final int UPDATE_CODE = 2;
     private CardAdapter cardAdapter;
@@ -49,7 +50,7 @@ public class SettingMainFragment extends ListFragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
-                intent.putExtra("position", arraypos);
+                intent.putExtra("cards", cards);
                 startActivityForResult(intent, ADD_CODE);
             }
         });
@@ -88,8 +89,8 @@ public class SettingMainFragment extends ListFragment {
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getLentime(),
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getContent(),
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getPlace());
+                intent.putExtra("cards", cards);
                 intent.putExtra("EditingCard", card);
-                intent.putExtra("position", arraypos);
                 cards.remove(position);
                 startActivityForResult(intent,UPDATE_CODE);
             }
@@ -189,25 +190,21 @@ public class SettingMainFragment extends ListFragment {
                 layout.addView(layout2);
             }
 
+            Format f = new DecimalFormat("00");
             TextView textView1 = (TextView)view.findViewWithTag("time");
-            textView1.setText(convertDate2String(card.getCalendar().getTime()));
+            textView1.setText(f.format(card.getCalendar()/100) + ":" + f.format(card.getCalendar()%100));
             TextView textView2 = (TextView)view.findViewWithTag("content");
             textView2.setText(card.getContent());
             TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
-            Calendar cal = (Calendar)card.getCalendar().clone();
-            cal.add(Calendar.MINUTE, card.getLentime());
-            int diff = cal.compareTo(card.getCalendar());
-            if (diff != 0) {
+            long buffer = (card.getCalendar() / 100) * 60 + card.getCalendar() % 100 + card.getLentime();
+            long time = (buffer / 60) * 100 + (buffer % 60);
+            if (time != card.getCalendar()) {
                 TextView textView4 = (TextView) view.findViewWithTag("finish");
-                textView4.setText((new SimpleDateFormat("～HH:mm")).format(cal.getTime()));
+                textView4.setText("～" + f.format(time/100) + ":" + f.format(time%100));
             }
             return view;
         }
-    }
-
-    public String convertDate2String(java.util.Date date) {
-        return (new SimpleDateFormat(DATE_PATTERN)).format(date);
     }
 
     public void updateListfragment(){
@@ -239,11 +236,9 @@ public class SettingMainFragment extends ListFragment {
                         cards.add((Card) data.getSerializableExtra("Card"));
                     else
                         cards.add(pos, (Card) data.getSerializableExtra("Card"));
-                    updateListfragment();
-                }else{
+                }else
                     cards.add(position, (Card) data.getSerializableExtra("Card"));
-                    updateListfragment();
-                }
+                updateListfragment();
             }
         }
     }

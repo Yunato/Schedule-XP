@@ -17,9 +17,9 @@ public class ModelSchedule implements Serializable{
 
     public String getName(){return this.name;}
 
-    public void setCardproperty(int time, int lentime, String content, String place){
+    public void setCardproperty(long calendar, int lentime, String content, String place){
         Card card = new Card();
-        card.setInfo(time, lentime, content, place);
+        card.setInfo(calendar, lentime, content, place);
         this.cards.add(card);
     }
 

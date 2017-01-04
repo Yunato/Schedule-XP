@@ -14,15 +14,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 public class AddModelActivity extends AppCompatActivity
         implements TextWatcher    {
+    private ArrayList<Card> cards;
     private Card card;
     private int plan_Time;
-    private static int arraypos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,7 @@ public class AddModelActivity extends AppCompatActivity
         upArrow.setColorFilter(getResources().getColor(R.color.colorsimbol), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
 
-        arraypos = getIntent().getIntExtra("position", -1);
+        cards = (ArrayList<Card>) getIntent().getSerializableExtra("cards");
         findViewById(R.id.button_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,7 +53,8 @@ public class AddModelActivity extends AppCompatActivity
         findViewById(R.id.button_2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                card.setInfo(plan_Time,
+                long calendar = (long)plan_Time;
+                card.setInfo(calendar,
                         Integer.parseInt(((EditText)findViewById(R.id.editText1)).getText().toString()),
                         ((EditText)findViewById(R.id.editText2)).getText().toString(),
                         ((EditText)findViewById(R.id.editText3)).getText().toString());
@@ -65,7 +68,6 @@ public class AddModelActivity extends AppCompatActivity
                 }else{
                     check += 1;
                     check *= -1;
-                    final ArrayList<Card> cards = ((SchedlueApplication) getApplication()).getModelSchedule().get(arraypos).getCards();
                     AlertDialog.Builder builder = new AlertDialog.Builder(AddModelActivity.this);
                     builder.setTitle("警告");
                     builder.setMessage("他の予定と時間が重なっています。\n重なっている予定:" + cards.get(check).getContent());
@@ -99,12 +101,13 @@ public class AddModelActivity extends AppCompatActivity
         if((getIntent().getSerializableExtra("EditingCard")) != null){
             setTitle("ひな形(モデル)の変更");
             card = ((Card)getIntent().getSerializableExtra("EditingCard"));
-            ((Button)findViewById(R.id.button_1)).setText((new SimpleDateFormat("HH時mm分(変更時はタップ)")).format(card.getCalendar().getTime()));
+            Format f = new DecimalFormat("00");
+            ((Button)findViewById(R.id.button_1)).setText(f.format(card.getCalendar()/100) + "時" + f.format(card.getCalendar()%100) + "分(変更時はタップ)");
             ((Button)findViewById(R.id.button_2)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(Integer.toString(card.getLentime()));
             ((EditText)findViewById(R.id.editText2)).setText(card.getContent());
             ((EditText)findViewById(R.id.editText3)).setText(card.getPlace());
-            plan_Time = Integer.parseInt((new SimpleDateFormat("HHmm")).format(card.getCalendar().getTime()));
+            plan_Time = (int)card.getCalendar();
         }
     }
 
@@ -149,19 +152,13 @@ public class AddModelActivity extends AppCompatActivity
     public int addCheck(Card card) {
         int i;
         long start1 = 0, start2 = 0, end1 = 0, end2 = 0;
-        Calendar buffer;
-        ArrayList<Card> cards = ((SchedlueApplication) this.getApplication()).getModelSchedule().get(arraypos).getCards();
         if (cards.size() == 0)
             return 0;
         for (i = 0; i < cards.size(); i++) {
-            buffer = (Calendar) cards.get(i).getCalendar().clone();
-            start1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-            buffer.add(Calendar.MINUTE, cards.get(i).getLentime());
-            end1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-            buffer = (Calendar) card.getCalendar().clone();
-            start2 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-            buffer.add(Calendar.MINUTE, card.getLentime());
-            end2 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
+            start1 = cards.get(i).getCalendar();
+            end1 = cards.get(i).getCalendar() + cards.get(i).getLentime();
+            start2 = card.getCalendar();
+            end2 = card.getCalendar() + card.getLentime();
             if (start1 > start2) {
                 if (!(start1 == start2) || !(start2 == end2)) {
                     if (start1 < end2 && start2 < end1)
@@ -169,10 +166,8 @@ public class AddModelActivity extends AppCompatActivity
                     else {
                         if (i == 0)
                             return i;
-                        buffer = (Calendar) cards.get(i - 1).getCalendar().clone();
-                        start1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
-                        buffer.add(Calendar.MINUTE, cards.get(i - 1).getLentime());
-                        end1 = buffer.get(Calendar.HOUR_OF_DAY) * 100 + buffer.get(Calendar.MINUTE);
+                        start1 = cards.get(i - 1).getCalendar();
+                        end1 = cards.get(i - 1).getCalendar() + cards.get(i - 1).getLentime();
                         if (start1 < end2 && start2 < end1)
                             return -1 * (i - 1) - 1;
                         else {

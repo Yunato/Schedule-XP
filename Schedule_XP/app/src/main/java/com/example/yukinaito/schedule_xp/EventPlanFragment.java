@@ -21,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -114,6 +116,8 @@ public class EventPlanFragment extends ListFragment {
             //Context context = getActivity();
             Context context = getActivity().getApplication();
             final EventCard card = cards.get(pos);
+            Format f1 = new DecimalFormat("0000");
+            Format f2 = new DecimalFormat("00");
 
             //レイアウトの生成
             if(view == null){
@@ -131,7 +135,8 @@ public class EventPlanFragment extends ListFragment {
                 int id = getContext().getResources().getIdentifier("dotted_line1", "drawable", getContext().getPackageName());
                 Drawable back = getContext().getResources().getDrawable(id);
                 textView1.setBackground(back);
-                textView1.setText((new SimpleDateFormat("yyyy年MM月dd日")).format(card.getDate().getTime()));
+                long start = card.getDate() % 10000;
+                textView1.setText(f1.format(card.getDate() / 10000) + "年" + f2.format((start / 100)) + "月" + f2.format(start % 100) + "日");
                 layout.addView(textView1);
 
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
