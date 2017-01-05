@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class EventCard implements Serializable {
+public class EventCard implements Serializable , Cloneable{
     int date;
     int index;
     ArrayList<EventModelCard> cards;
@@ -34,10 +34,5 @@ public class EventCard implements Serializable {
 
     public void setContent(ArrayList<EventModelCard> cards){
         this.cards = cards;
-    }
-
-    public void setUpdate(EventCard card){
-        this.date = card.getDate();
-        this.index = card.getIndex();
     }
 }

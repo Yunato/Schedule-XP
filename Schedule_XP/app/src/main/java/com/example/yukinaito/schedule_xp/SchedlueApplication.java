@@ -356,6 +356,7 @@ public class SchedlueApplication extends Application {
             }
             str += buf;
             if(eventcards.get(i).getCards() != null) {
+                Collections.sort(eventcards.get(i).getCards(), new CardComparator3());
                 int count = eventcards.get(i).getCards().size();
                 for (int j = 0; j < count; j++) {
                     buf = Boolean.toString(eventcards.get(i).getCards().get(j).getUpdate())
@@ -367,10 +368,10 @@ public class SchedlueApplication extends Application {
                                 + " " + eventcards.get(i).getCards().get(j).getCardPlace()
                                 + " " + eventcards.get(i).getCards().get(j).getCardContent();
                         str += buf;
-                    }
-                    if (eventcards.get(i).getCards().get(j).getCardMemo() != null && eventcards.get(i).getCards().get(j).getCardMemo().length() != 0) {
-                        buf = " " + eventcards.get(i).getCards().get(j).getCardMemo();
-                        str += buf;
+                        if (eventcards.get(i).getCards().get(j).getCardMemo() != null && eventcards.get(i).getCards().get(j).getCardMemo().length() != 0) {
+                            buf = " " + eventcards.get(i).getCards().get(j).getCardMemo();
+                            str += buf;
+                        }
                     }
                     str += "\n";
                 }
@@ -404,6 +405,19 @@ public class SchedlueApplication extends Application {
             if (calendar1 > calendar2)
                 return 1;
             else if (calendar1 == calendar2)
+                return 0;
+            else
+                return -1;
+        }
+    }
+
+    public class CardComparator3 implements Comparator<EventModelCard> {
+        public int compare(EventModelCard s, EventModelCard t) {
+            int index1 = s.getIndex();
+            int index2 = t.getIndex();
+            if (index1 > index2)
+                return 1;
+            else if (index1 == index2)
                 return 0;
             else
                 return -1;

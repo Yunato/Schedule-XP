@@ -1,6 +1,8 @@
 package com.example.yukinaito.schedule_xp;
 
-public class EventModelCard{
+import java.io.Serializable;
+
+public class EventModelCard implements Serializable {
     boolean update;
     int index;
     Card card;
@@ -17,6 +19,10 @@ public class EventModelCard{
     public void setmodelInfo(boolean update, int index, Card card){
         this.update = update;
         this.index = index;
+        this.card = card;
+    }
+
+    public void setCard(Card card){
         this.card = card;
     }
 

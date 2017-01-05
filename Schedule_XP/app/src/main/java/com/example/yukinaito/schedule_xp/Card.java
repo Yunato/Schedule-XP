@@ -1,5 +1,7 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.Calendar;
 
@@ -33,12 +35,5 @@ public class Card implements Serializable {
 
     public Card getCard(){
         return this;
-    }
-
-    public void setUpdate(Card card){
-        this.calendar = card.getCalendar();
-        this.lentime = card.getLentime();
-        this.content = card.getContent();
-        this.place = card.getPlace();
     }
 }

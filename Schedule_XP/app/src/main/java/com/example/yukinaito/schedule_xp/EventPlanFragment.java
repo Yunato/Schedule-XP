@@ -1,6 +1,5 @@
 package com.example.yukinaito.schedule_xp;
 
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,6 +33,7 @@ public class EventPlanFragment extends ListFragment {
     private static final int UPDATE_CODE = 2;
     private EventPlanFragment.CardAdapter cardAdapter;
     private ArrayList<EventCard> cards;
+    private EventCard eventCard;
     private static int position;
 
     @Override
@@ -63,7 +63,7 @@ public class EventPlanFragment extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int pos, long id){
+    public void onListItemClick(ListView l, View v, final int pos, long id){
         this.position = pos;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("イベント日の操作");
@@ -79,10 +79,13 @@ public class EventPlanFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), AddEventPlanActivity.class);
-                EventCard card = new EventCard();
-                card.setInfo(schedlueApplication.getEventplancards().get(position).getDate(),
+                eventCard = new EventCard();
+                eventCard.setInfo(schedlueApplication.getEventplancards().get(position).getDate(),
                         schedlueApplication.getEventplancards().get(position).getIndex());
-                intent.putExtra("EditingCard", card);
+                eventCard.setContent(schedlueApplication.getEventplancards().get(position).getCards());
+                intent.putExtra("EditingCard", eventCard);
+                intent.putExtra("position", position);
+                cards.remove(position);
                 startActivityForResult(intent,UPDATE_CODE);
             }
         });
@@ -167,12 +170,25 @@ public class EventPlanFragment extends ListFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ADD_CODE){
             if(resultCode == RESULT_OK) {
-                cards.add((EventCard) data.getSerializableExtra("Card"));
+                int pos = data.getIntExtra("Position", -1);
+                if (pos > -1) {
+                    if (pos == cards.size())
+                        cards.add((EventCard) data.getSerializableExtra("Card"));
+                    else
+                        cards.add(pos, (EventCard) data.getSerializableExtra("Card"));
+                }
                 updateListfragment();
             }
         }else if(requestCode == UPDATE_CODE){
-            if(resultCode == RESULT_OK){
-                cards.get(position).setUpdate((EventCard)data.getSerializableExtra("Card"));
+            if(resultCode == RESULT_OK) {
+                int pos = data.getIntExtra("Position", -1);
+                if (pos > -1) {
+                    if (pos == cards.size())
+                        cards.add((EventCard) data.getSerializableExtra("Card"));
+                    else
+                        cards.add(pos, (EventCard) data.getSerializableExtra("Card"));
+                } else if(pos == -1)
+                    cards.add(position, eventCard);
                 updateListfragment();
             }
         }

@@ -3,6 +3,7 @@ package com.example.yukinaito.schedule_xp;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInstaller;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -15,6 +16,7 @@ import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.EventLog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -43,10 +45,12 @@ public class AddEventPlanActivity  extends AppCompatActivity {
     private AddEventPlanActivity.CardAdapter cardAdapter;
     private static final int UPDATE_CODE = 1;
     private ArrayList<Card> cards;
-    private EventCard card;
+    private boolean[] check;
+    private EventCard eventCard;
     private int plan_Day;
     private int pos;
     private int year, month, day;
+    private static int arraypos;
     private static int position;
 
     @Override
@@ -63,21 +67,63 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
 
         schedlueApplication = (SchedlueApplication)this.getApplication();
+        arraypos = getIntent().getIntExtra("position", -1);
         findViewById(R.id.button_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                card.setInfo(plan_Day, pos-1);
-                Intent intent = new Intent();
-                intent.putExtra("Card", card);
-                setResult(RESULT_OK, intent);
-                finish();
+                eventCard.setInfo(plan_Day, pos-1);
+                int addcheck = addCheck(eventCard);
+                if(addcheck > -1) {
+                    final Intent intent = new Intent();
+                    intent.putExtra("Card", eventCard);
+                    Calendar cal = Calendar.getInstance();
+                    year = plan_Day/10000;
+                    month = plan_Day%10000/100 - 1;
+                    day = plan_Day%100;
+                    cal.set(Calendar.YEAR, year);
+                    cal.set(Calendar.MONTH, month);
+                    cal.set(Calendar.DAY_OF_MONTH, day);
+                    if(cal.get(Calendar.DAY_OF_WEEK) == pos && (eventCard.getCards() == null || (eventCard.getCards() != null && eventCard.getCards().size() == 0))) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(AddEventPlanActivity.this);
+                        builder.setTitle("注意");
+                        builder.setMessage("デフォルトで指定されたモデルのままであるため、追加しません。");
+                        builder.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                intent.putExtra("Position", -2);
+                                setResult(RESULT_OK, intent);
+                                finish();
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }else {
+                        intent.putExtra("Position", addcheck);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                }else{
+                    addcheck += 1;
+                    addcheck *= -1;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddEventPlanActivity.this);
+                    builder.setTitle("警告");
+                    builder.setMessage("他のイベントと日程が重なっています。\n重なっているイベント日:" + schedlueApplication.getEventplancards().get(addcheck).getDate());
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         });
         findViewById(R.id.button_2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                setResult(RESULT_CANCELED, intent);
+                intent.putExtra("Card", eventCard);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -95,38 +141,67 @@ public class AddEventPlanActivity  extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id){
                 AddEventPlanActivity.this.position = position;
-                AlertDialog.Builder builder = new AlertDialog.Builder(AddEventPlanActivity.this);
-                builder.setTitle("モデルの操作");
-                builder.setMessage("モデルの内容を編集、またはモデルを削除しますか？");
-                builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        cards.remove(AddEventPlanActivity.this.position);
-                        updateListfragment();
-                    }
-                });
-                builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent intent = new Intent(AddEventPlanActivity.this, AddModelActivity.class);
-                        Card card = new Card();
-                        card.setInfo(cards.get(AddEventPlanActivity.this.position).getCalendar(),
-                                cards.get(AddEventPlanActivity.this.position).getLentime(),
-                                cards.get(AddEventPlanActivity.this.position).getContent(),
-                                cards.get(AddEventPlanActivity.this.position).getPlace());
-                        intent.putExtra("cards", cards);
-                        intent.putExtra("EditingCard", card);
-                        cards.remove(AddEventPlanActivity.this.position);
-                        startActivityForResult(intent,UPDATE_CODE);
-                    }
-                });
-                builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
+                if(check[AddEventPlanActivity.this.position]) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddEventPlanActivity.this);
+                    builder.setTitle("モデルの操作");
+                    builder.setMessage("モデルの内容を編集、またはモデルを削除しますか？");
+                    builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            check[AddEventPlanActivity.this.position] = false;
+                            EventModelCard card = new EventModelCard();
+                            card.setmodelInfo(true, AddEventPlanActivity.this.position);
+                            eventCard.getCards().add(card);
+                            updateListfragment();
+                        }
+                    });
+                    builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent(AddEventPlanActivity.this, AddModelActivity.class);
+                            Card card = new Card();
+                            card.setInfo(cards.get(AddEventPlanActivity.this.position).getCalendar(),
+                                    cards.get(AddEventPlanActivity.this.position).getLentime(),
+                                    cards.get(AddEventPlanActivity.this.position).getContent(),
+                                    cards.get(AddEventPlanActivity.this.position).getPlace());
+                            intent.putExtra("cards", cards);
+                            intent.putExtra("EditingCard", card);
+                            cards.remove(AddEventPlanActivity.this.position);
+                            startActivityForResult(intent, UPDATE_CODE);
+                        }
+                    });
+                    builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddEventPlanActivity.this);
+                    builder.setTitle("モデルの操作");
+                    builder.setMessage("この項目を元に戻しますか？");
+                    builder.setPositiveButton("戻す", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            check[AddEventPlanActivity.this.position] = true;
+                            for(int j = 0; j < eventCard.getCards().size(); j++){
+                                if(eventCard.getCards().get(j).getIndex() == AddEventPlanActivity.this.position && eventCard.getCards().get(j).getUpdate() == true){
+                                    eventCard.getCards().remove(j);
+                                    break;
+                                }
+                            }
+                            updateListfragment();
+                        }
+                    });
+                    builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
             }
         });
 
@@ -147,28 +222,70 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                pos = position;
-                inputCheck();
-                createList();
+                Spinner spinner = (Spinner)findViewById(R.id.spinner);
+                if(spinner.isFocusable() == false) {
+                    spinner.setFocusable(true);
+                    return;
+                }else{
+                    final int b_position = pos;
+                    pos = position;
+                    if(eventCard.getCards() != null && eventCard.getCards().size() != 0){
+                        AlertDialog.Builder builder = new AlertDialog.Builder(AddEventPlanActivity.this);
+                        builder.setTitle("注意");
+                        builder.setMessage("モデルの変更により、編集内容を破棄します。(確認を押した後キャンセルを押すと破棄されません。)\nよろしいですか？");
+                        builder.setPositiveButton("確認", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                eventCard = new EventCard();
+                                inputCheck();
+                                createList();
+                                updateListfragment();
+                            }
+                        });
+                        builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                pos = b_position;
+                            }
+                        });
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+                    }else {
+                        inputCheck();
+                        createList();
+                        if(cards != null)
+                            updateListfragment();
+                    }
+                }
             }
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
 
-        card = new EventCard();
+        eventCard = new EventCard();
         plan_Day = -1;
 
         if ((getIntent().getSerializableExtra("EditingCard")) != null) {
             setTitle("日時・行動の変更");
-            card = ((EventCard) getIntent().getSerializableExtra("EditingCard"));
-            year = card.getDate()/10000;
-            month = card.getDate()%10000/100 + 1;
-            day = card.getDate()%100;
+            ((Button)findViewById(R.id.button_1)).setText("更新");
+            eventCard = ((EventCard) getIntent().getSerializableExtra("EditingCard"));
+            year = eventCard.getDate()/10000;
+            month = eventCard.getDate()%10000/100;
+            day = eventCard.getDate()%100;
             ((Button)findViewById(R.id.button_3)).setText(Integer.toString(year) + "年" + Integer.toString(month) + "月" + Integer.toString(day) + "日(変更時はタップ)");
-            plan_Day = card.getDate();
-            spinner.setSelection(card.getIndex()+1);
+            plan_Day = eventCard.getDate();
+            pos = eventCard.getIndex() + 1;
+            spinner.setSelection(pos);
+            inputCheck();
+            createList();
         }
+    }
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        ((Spinner)findViewById(R.id.spinner)).setFocusable(false);
     }
 
     public void onReturnValue(int data, String text, int button) {
@@ -197,8 +314,27 @@ public class AddEventPlanActivity  extends AppCompatActivity {
     public void createList(){
         if(pos != 0){
             (findViewById(R.id.relativelayout2)).setVisibility(View.VISIBLE);
+            check = new boolean[schedlueApplication.getModelSchedule().get(pos-1).getCards().size()];
             cards = new ArrayList<Card>(schedlueApplication.getModelSchedule().get(pos-1).getCards().size());
-            for(int i = 0; i < schedlueApplication.getModelSchedule().get(pos-1).getCards().size(); i++){
+            for(int i = 0, j = 0; i < schedlueApplication.getModelSchedule().get(pos-1).getCards().size(); i++){
+                if(eventCard.getCards() != null && eventCard.getCards().size()!=j) {
+                    if (eventCard.getCards().get(j).getIndex() == i) {
+                        if (!eventCard.getCards().get(j).getUpdate()) {
+                            check[i] = true;
+                            Card card = eventCard.getCards().get(j).getCard();
+                            cards.add(card);
+                        } else {
+                            check[i] = false;
+                            Card card = schedlueApplication.getModelSchedule().get(pos-1).getCards().get(i).getCard();
+                            cards.add(card);
+                        }
+                        j++;
+                        if(eventCard.getCards().size()!=j && eventCard.getCards().get(j).getIndex() == i)
+                            i--;
+                        continue;
+                    }
+                }
+                check[i] = true;
                 Card card = new Card();
                 card = schedlueApplication.getModelSchedule().get(pos-1).getCards().get(i).getCard();
                 cards.add(card);
@@ -230,6 +366,7 @@ public class AddEventPlanActivity  extends AppCompatActivity {
             //Context context = getActivity();
             Context context = AddEventPlanActivity.this;
             Card card = cards.get(pos);
+            int id;
 
             //レイアウトの生成
             if(view == null){
@@ -248,6 +385,8 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 TextView textView1 = new TextView(context);
                 textView1.setTag("time");
                 textView1.setTextColor(Color.parseColor("#424242"));
+                if(!check[pos])
+                    textView1.setBackgroundColor(Color.parseColor("#757575"));
                 textView1.setPadding(40, 5, 40, 20);
                 textView1.setTextSize(45.0f);
                 layout3.addView(textView1);
@@ -273,7 +412,10 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 textView2.setTextColor(Color.parseColor("#424242"));
                 textView2.setPadding(10, 10, 10, 10);
                 textView2.setTextSize(20.0f);
-                int id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line2", "drawable", AddEventPlanActivity.this.getPackageName());
+                if(check[pos])
+                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line2", "drawable", AddEventPlanActivity.this.getPackageName());
+                else
+                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line5", "drawable", AddEventPlanActivity.this.getPackageName());
                 Drawable back = AddEventPlanActivity.this.getResources().getDrawable(id);
                 textView2.setBackground(back);
                 layout2.addView(textView2, new LinearLayout.LayoutParams(
@@ -285,7 +427,10 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 textView3.setTextColor(Color.parseColor("#424242"));
                 textView3.setPadding(10, 10, 10, 10);
                 textView3.setTextSize(20.0f);
-                id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line3", "drawable", AddEventPlanActivity.this.getPackageName());
+                if(check[pos])
+                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line3", "drawable", AddEventPlanActivity.this.getPackageName());
+                else
+                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line6", "drawable", AddEventPlanActivity.this.getPackageName());
                 back = AddEventPlanActivity.this.getResources().getDrawable(id);
                 textView3.setBackground(back);
                 layout2.addView(textView3, new LinearLayout.LayoutParams(
@@ -329,10 +474,37 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         cards.add((Card) data.getSerializableExtra("Card"));
                     else
                         cards.add(pos, (Card) data.getSerializableExtra("Card"));
+                    check[AddEventPlanActivity.this.position] = true;
+                    EventModelCard card = new EventModelCard();
+                    card.setmodelInfo(false, AddEventPlanActivity.this.position, (Card) data.getSerializableExtra("Card"));
+                    eventCard.getCards().add(card);
+                    updateListfragment();
                 }else
                     cards.add(position, (Card) data.getSerializableExtra("Card"));
                 updateListfragment();
             }
         }
+    }
+
+    public int addCheck(EventCard card) {
+        int i;
+        long start = 0, end = 0;
+        if (schedlueApplication.getEventplancards() == null || (schedlueApplication.getEventplancards() != null && schedlueApplication.getEventplancards().size() == 0))
+            return 0;
+        Log.d("TEST",Integer.toString(schedlueApplication.getEventplancards().size()));
+        for (i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
+            start = schedlueApplication.getEventplancards().get(i).getDate();
+            end = card.getDate();
+            Log.d("TEST",Long.toString(start) +" "+ Long.toString(end));
+            if (start == end)
+                return -1 * i - 1;
+            if (start > end) {
+                if (i == 0)
+                    return 0;
+                else
+                    return i - 1;
+            }
+        }
+        return cards.size();
     }
 }
