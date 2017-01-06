@@ -416,6 +416,7 @@ public class AddEventPlanActivity  extends AppCompatActivity {
             //Context context = getActivity();
             Context context = AddEventPlanActivity.this;
             Card card = cards.get(pos);
+            Log.d("CHECK",Integer.toString(pos) +" " +Boolean.toString(check[pos]));
             int id;
 
             //レイアウトの生成
@@ -435,8 +436,6 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 TextView textView1 = new TextView(context);
                 textView1.setTag("time");
                 textView1.setTextColor(Color.parseColor("#424242"));
-                if(!check[pos])
-                    textView1.setBackgroundColor(Color.parseColor("#757575"));
                 textView1.setPadding(40, 5, 40, 20);
                 textView1.setTextSize(45.0f);
                 layout3.addView(textView1);
@@ -462,12 +461,6 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 textView2.setTextColor(Color.parseColor("#424242"));
                 textView2.setPadding(10, 10, 10, 10);
                 textView2.setTextSize(20.0f);
-                if(check[pos])
-                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line2", "drawable", AddEventPlanActivity.this.getPackageName());
-                else
-                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line5", "drawable", AddEventPlanActivity.this.getPackageName());
-                Drawable back = AddEventPlanActivity.this.getResources().getDrawable(id);
-                textView2.setBackground(back);
                 layout2.addView(textView2, new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT,1f));
@@ -477,12 +470,6 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 textView3.setTextColor(Color.parseColor("#424242"));
                 textView3.setPadding(10, 10, 10, 10);
                 textView3.setTextSize(20.0f);
-                if(check[pos])
-                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line3", "drawable", AddEventPlanActivity.this.getPackageName());
-                else
-                    id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line6", "drawable", AddEventPlanActivity.this.getPackageName());
-                back = AddEventPlanActivity.this.getResources().getDrawable(id);
-                textView3.setBackground(back);
                 layout2.addView(textView3, new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT,1f));
@@ -493,10 +480,26 @@ public class AddEventPlanActivity  extends AppCompatActivity {
             Format f = new DecimalFormat("00");
             TextView textView1 = (TextView)view.findViewWithTag("time");
             textView1.setText(f.format(card.getCalendar()/100) + ":" + f.format(card.getCalendar()%100));
+            if(!check[pos])
+                textView1.setBackgroundColor(Color.parseColor("#757575"));
+            else
+                textView1.setBackgroundColor(Color.parseColor("#ffffff"));
             TextView textView2 = (TextView)view.findViewWithTag("content");
             textView2.setText(card.getContent());
+            if(check[pos])
+                id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line2", "drawable", AddEventPlanActivity.this.getPackageName());
+            else
+                id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line5", "drawable", AddEventPlanActivity.this.getPackageName());
+            Drawable back = AddEventPlanActivity.this.getResources().getDrawable(id);
+            textView2.setBackground(back);
             TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
+            if(check[pos])
+                id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line3", "drawable", AddEventPlanActivity.this.getPackageName());
+            else
+                id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line6", "drawable", AddEventPlanActivity.this.getPackageName());
+            back = AddEventPlanActivity.this.getResources().getDrawable(id);
+            textView3.setBackground(back);
             long buffer = (card.getCalendar() / 100) * 60 + card.getCalendar() % 100 + card.getLentime();
             long time = (buffer / 60) * 100 + (buffer % 60);
             if (time != card.getCalendar()) {
