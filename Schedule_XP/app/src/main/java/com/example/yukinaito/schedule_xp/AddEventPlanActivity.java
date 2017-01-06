@@ -3,8 +3,6 @@ package com.example.yukinaito.schedule_xp;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInstaller;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -12,11 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.EventLog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -219,6 +213,49 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         for(int i = 0; i < schedlueApplication.getModelSchedule().size(); i++)
             adapter.add(schedlueApplication.getModelSchedule().get(i).getName());
         spinner.setAdapter(adapter);
+
+        eventCard = new EventCard();
+        plan_Day = -1;
+        Calendar cal = Calendar.getInstance();
+        year = plan_Day/10000;
+        month = plan_Day%10000/100 - 1;
+        day = plan_Day%100;
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.DAY_OF_MONTH, day);
+
+        if ((getIntent().getSerializableExtra("EditingCard")) != null) {
+            String name;
+            setTitle("日時・行動の変更");
+            ((Button) findViewById(R.id.button_1)).setText("更新");
+            eventCard = ((EventCard) getIntent().getSerializableExtra("EditingCard"));
+            year = eventCard.getDate() / 10000;
+            month = eventCard.getDate() % 10000 / 100;
+            day = eventCard.getDate() % 100;
+            ((Button) findViewById(R.id.button_3)).setText(Integer.toString(year) + "年" + Integer.toString(month) + "月" + Integer.toString(day) + "日(変更時はタップ)");
+            plan_Day = eventCard.getDate();
+            pos = eventCard.getIndex() + 1;
+            if (eventCard.getIndex() > (schedlueApplication.getModelSchedule().size() - 1)) {
+                name = schedlueApplication.getEventmodel().get(eventCard.getIndex() - schedlueApplication.getModelSchedule().size()).getName();
+            }else {
+                name = schedlueApplication.getModelSchedule().get(eventCard.getIndex()).getName();
+            }
+            boolean exist = false;
+            int place = 0;
+            for (int i = 0; i < schedlueApplication.getModelSchedule().size(); i++) {
+                if (schedlueApplication.getModelSchedule().get(i).getName() .equals(name)) {
+                    exist = true;
+                    place = i + 1;
+                }
+            }
+            if (!exist) {
+                adapter.add(name);
+                place = schedlueApplication.getModelSchedule().size() + 1;
+            }
+            spinner.setSelection(place);
+            inputCheck();
+            createList();
+        }
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -252,6 +289,7 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         dialog.show();
                     }else {
                         inputCheck();
+                        eventCard = new EventCard();
                         createList();
                         if(cards != null)
                             updateListfragment();
@@ -262,24 +300,6 @@ public class AddEventPlanActivity  extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> arg0) {
             }
         });
-
-        eventCard = new EventCard();
-        plan_Day = -1;
-
-        if ((getIntent().getSerializableExtra("EditingCard")) != null) {
-            setTitle("日時・行動の変更");
-            ((Button)findViewById(R.id.button_1)).setText("更新");
-            eventCard = ((EventCard) getIntent().getSerializableExtra("EditingCard"));
-            year = eventCard.getDate()/10000;
-            month = eventCard.getDate()%10000/100;
-            day = eventCard.getDate()%100;
-            ((Button)findViewById(R.id.button_3)).setText(Integer.toString(year) + "年" + Integer.toString(month) + "月" + Integer.toString(day) + "日(変更時はタップ)");
-            plan_Day = eventCard.getDate();
-            pos = eventCard.getIndex() + 1;
-            spinner.setSelection(pos);
-            inputCheck();
-            createList();
-        }
     }
 
     @Override
@@ -312,34 +332,64 @@ public class AddEventPlanActivity  extends AppCompatActivity {
     }
 
     public void createList(){
-        if(pos != 0){
-            (findViewById(R.id.relativelayout2)).setVisibility(View.VISIBLE);
-            check = new boolean[schedlueApplication.getModelSchedule().get(pos-1).getCards().size()];
-            cards = new ArrayList<Card>(schedlueApplication.getModelSchedule().get(pos-1).getCards().size());
-            for(int i = 0, j = 0; i < schedlueApplication.getModelSchedule().get(pos-1).getCards().size(); i++){
-                if(eventCard.getCards() != null && eventCard.getCards().size()!=j) {
-                    if (eventCard.getCards().get(j).getIndex() == i) {
-                        if (!eventCard.getCards().get(j).getUpdate()) {
-                            check[i] = true;
-                            Card card = eventCard.getCards().get(j).getCard();
-                            cards.add(card);
-                        } else {
-                            check[i] = false;
-                            Card card = schedlueApplication.getModelSchedule().get(pos-1).getCards().get(i).getCard();
-                            cards.add(card);
+        if(!((Spinner)findViewById(R.id.spinner)).getSelectedItem().toString().equals("モデルの選択")){
+            if (eventCard.getIndex() <= (schedlueApplication.getModelSchedule().size() - 1)) {
+                (findViewById(R.id.relativelayout2)).setVisibility(View.VISIBLE);
+                check = new boolean[schedlueApplication.getModelSchedule().get(pos - 1).getCards().size()];
+                cards = new ArrayList<Card>(schedlueApplication.getModelSchedule().get(pos - 1).getCards().size());
+                for (int i = 0, j = 0; i < schedlueApplication.getModelSchedule().get(pos - 1).getCards().size(); i++) {
+                    if (eventCard.getCards() != null && eventCard.getCards().size() != j) {
+                        if (eventCard.getCards().get(j).getIndex() == i) {
+                            if (!eventCard.getCards().get(j).getUpdate()) {
+                                check[i] = true;
+                                Card card = eventCard.getCards().get(j).getCard();
+                                cards.add(card);
+                            } else {
+                                check[i] = false;
+                                Card card = schedlueApplication.getModelSchedule().get(pos - 1).getCards().get(i).getCard();
+                                cards.add(card);
+                            }
+                            j++;
+                            if (eventCard.getCards().size() != j && eventCard.getCards().get(j).getIndex() == i)
+                                i--;
+                            continue;
                         }
-                        j++;
-                        if(eventCard.getCards().size()!=j && eventCard.getCards().get(j).getIndex() == i)
-                            i--;
-                        continue;
                     }
+                    check[i] = true;
+                    Card card = new Card();
+                    card = schedlueApplication.getModelSchedule().get(pos - 1).getCards().get(i).getCard();
+                    cards.add(card);
                 }
-                check[i] = true;
-                Card card = new Card();
-                card = schedlueApplication.getModelSchedule().get(pos-1).getCards().get(i).getCard();
-                cards.add(card);
+            }else{
+                int array = eventCard.getIndex() - schedlueApplication.getModelSchedule().size();
+                (findViewById(R.id.relativelayout2)).setVisibility(View.VISIBLE);
+                check = new boolean[schedlueApplication.getEventmodel().get(array).getCards().size()];
+                cards = new ArrayList<Card>(schedlueApplication.getEventmodel().get(array).getCards().size());
+                for (int i = 0, j = 0; i < schedlueApplication.getEventmodel().get(array).getCards().size(); i++) {
+                    if (eventCard.getCards() != null && eventCard.getCards().size() != j) {
+                        if (eventCard.getCards().get(j).getIndex() == i) {
+                            if (!eventCard.getCards().get(j).getUpdate()) {
+                                check[i] = true;
+                                Card card = eventCard.getCards().get(j).getCard();
+                                cards.add(card);
+                            } else {
+                                check[i] = false;
+                                Card card = schedlueApplication.getEventmodel().get(array).getCards().get(i).getCard();
+                                cards.add(card);
+                            }
+                            j++;
+                            if (eventCard.getCards().size() != j && eventCard.getCards().get(j).getIndex() == i)
+                                i--;
+                            continue;
+                        }
+                    }
+                    check[i] = true;
+                    Card card = new Card();
+                    card = schedlueApplication.getEventmodel().get(array).getCards().get(i).getCard();
+                    cards.add(card);
+                }
             }
-            ListView listView = (ListView)findViewById(R.id.listview);
+            ListView listView = (ListView) findViewById(R.id.listview);
             listView.setScrollingCacheEnabled(false);
             listView.setAdapter(new CardAdapter());
         }
@@ -495,7 +545,7 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         for (i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
             start = schedlueApplication.getEventplancards().get(i).getDate();
             end = card.getDate();
-            Log.d("TEST",Long.toString(start) +" "+ Long.toString(end));
+            Log.d("TEST",Long.toString(start)+ " " + Long.toString(end));
             if (start == end)
                 return -1 * i - 1;
             if (start > end) {
@@ -505,6 +555,6 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                     return i - 1;
             }
         }
-        return cards.size();
+        return schedlueApplication.getEventplancards().size();
     }
 }

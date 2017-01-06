@@ -12,6 +12,7 @@ import android.view.WindowManager;
 
 public class SettingModelActivity extends AppCompatActivity {
     private boolean visible = false;
+    private int arraypos;
     private SchedlueApplication schedlueApplication;
 
     @Override
@@ -38,6 +39,7 @@ public class SettingModelActivity extends AppCompatActivity {
         SettingMainFragment fragment = new SettingMainFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         Bundle bundle = new Bundle();
+        arraypos = (int)getIntent().getSerializableExtra("position");
         bundle.putSerializable("position", (int)getIntent().getSerializableExtra("position"));
         fragment.setArguments(bundle);
         transaction.add(R.id.activity_listfragment, fragment);
@@ -55,7 +57,34 @@ public class SettingModelActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.setting_delete){
+            boolean check = false;
+            for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++){
+                if(schedlueApplication.getEventplancards().get(i).getIndex() == arraypos)
+                    check = true;
+            }
+            if(check){
+                ModelSchedule modelSchedule = new ModelSchedule();
+                modelSchedule.setName(schedlueApplication.getModelSchedule().get(this.arraypos).getName());
+                for(int i = 0; i < schedlueApplication.getModelSchedule().get(this.arraypos).getCards().size(); i++){
+                    Card card = new Card();
+                    card.setInfo(schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getCalendar(),
+                            schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getLentime(),
+                            schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getContent(),
+                            schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getPlace());
+                    modelSchedule.getCards().add(card);
+                }
+                schedlueApplication.getEventmodel().add(modelSchedule);
+                for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++)
+                    schedlueApplication.getEventplancards().get(i).setIndex(schedlueApplication.getModelSchedule().size() + schedlueApplication.getEventmodel().size() - 1);
+            }
+            for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
+                if(schedlueApplication.getEventplancards().get(i).getIndex() > (schedlueApplication.getModelSchedule().size() - 1)) {
+                    int buf = schedlueApplication.getEventplancards().get(i).getIndex();
+                    schedlueApplication.getEventplancards().get(i).setIndex(buf - 1);
+                }
+            }
             schedlueApplication.getModelSchedule().remove((int)getIntent().getSerializableExtra("position"));
+            schedlueApplication.writeEventPlanFile();
             setResult(RESULT_OK);
             finish();
         }else if(id == android.R.id.home){

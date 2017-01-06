@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -52,6 +53,10 @@ public class SchedlueApplication extends Application {
 
     public ArrayList<EventCard> getEventplancards() {
         return this.eventcards;
+    }
+
+    public ArrayList<ModelSchedule> getEventmodel(){
+        return this.eventmodel;
     }
 
     public void readFile() {
@@ -192,6 +197,7 @@ public class SchedlueApplication extends Application {
 
     public void readEventPlanFile() {
         eventcards = new ArrayList<EventCard>();
+        eventmodel = new ArrayList<ModelSchedule>();
         String[] buffer = new String[3];
         String[] buf = new String[7];
         String tmp;
@@ -199,8 +205,8 @@ public class SchedlueApplication extends Application {
         try {
             FileInputStream in = openFileInput("eventplan.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-            while ((tmp = reader.readLine()) != null) {
-                Arrays.fill(buffer, "");
+            Arrays.fill(buffer, "");
+            if((tmp = reader.readLine()) != null) {
                 for (int i = 0, j = 0; i < tmp.length(); i++) {
                     c = tmp.charAt(i);
                     if (c == ' ') {
@@ -209,35 +215,79 @@ public class SchedlueApplication extends Application {
                     }
                     buffer[j] += c;
                 }
-                EventCard eventCard = new EventCard();
-                ArrayList<EventModelCard> eventModelCards = new ArrayList<EventModelCard>();
-                eventCard.setInfo(Integer.parseInt(buffer[0]), Integer.parseInt(buffer[1]));
-                int count = Integer.parseInt(buffer[2]);
-                for(int i = 0; i < count ; i++) {
-                    EventModelCard eventModelCard = new EventModelCard();
+                int loop = Integer.parseInt(buffer[0]);
+                for (int l = 0; l < loop; l++) {
+                    Arrays.fill(buffer, "");
                     tmp = reader.readLine();
-                    Arrays.fill(buf, "");
-                    for(int j = 0, k = 0; j < tmp.length(); j++){
-                        c = tmp.charAt(j);
-                        if (c == ' '){
-                            k++;
+                    for (int i = 0, j = 0; i < tmp.length(); i++) {
+                        c = tmp.charAt(i);
+                        if (c == ' ') {
+                            j++;
                             continue;
                         }
-                        buf[k] += c;
+                        buffer[j] += c;
                     }
-                    if(buf[0].equals("true"))
-                        eventModelCard.setmodelInfo(true, Integer.parseInt(buf[1]));
-                    else {
-                        Card card = new Card();
-                        card.setInfo(Long.parseLong(buf[2]), Integer.parseInt(buf[3]), buf[4], buf[5]);
-                        if(buf[6].length() != 0)
-                            card.setMemo(buf[6]);
-                        eventModelCard.setmodelInfo(false, Integer.parseInt(buf[1]), card);
+                    EventCard eventCard = new EventCard();
+                    ArrayList<EventModelCard> eventModelCards = new ArrayList<EventModelCard>();
+                    eventCard.setInfo(Integer.parseInt(buffer[0]), Integer.parseInt(buffer[1]));
+                    int count = Integer.parseInt(buffer[2]);
+                    for (int i = 0; i < count; i++) {
+                        EventModelCard eventModelCard = new EventModelCard();
+                        tmp = reader.readLine();
+                        Arrays.fill(buf, "");
+                        for (int j = 0, k = 0; j < tmp.length(); j++) {
+                            c = tmp.charAt(j);
+                            if (c == ' ') {
+                                k++;
+                                continue;
+                            }
+                            buf[k] += c;
+                        }
+                        if (buf[0].equals("true"))
+                            eventModelCard.setmodelInfo(true, Integer.parseInt(buf[1]));
+                        else {
+                            Card card = new Card();
+                            card.setInfo(Long.parseLong(buf[2]), Integer.parseInt(buf[3]), buf[4], buf[5]);
+                            if (buf[6].length() != 0)
+                                card.setMemo(buf[6]);
+                            eventModelCard.setmodelInfo(false, Integer.parseInt(buf[1]), card);
+                        }
+                        eventModelCards.add(eventModelCard);
                     }
-                    eventModelCards.add(eventModelCard);
+                    eventCard.setContent(eventModelCards);
+                    eventcards.add(eventCard);
                 }
-                eventCard.setContent(eventModelCards);
-                eventcards.add(eventCard);
+                buffer = new String[4];
+                while ((tmp = reader.readLine()) != null) {
+                    Arrays.fill(buffer, "");
+                    for (int i = 0, j = 0; i < tmp.length(); i++) {
+                        c = tmp.charAt(i);
+                        if (c == ' ') {
+                            j++;
+                            continue;
+                        }
+                        buffer[j] += c;
+                    }
+                    ModelSchedule modelSch = new ModelSchedule();
+                    modelSch.setName(buffer[2]);
+                    int count = Integer.parseInt(buffer[1]);
+                    for (int i = 0; i < count; i++) {
+                        tmp = reader.readLine();
+                        Arrays.fill(buffer, "");
+                        for (int j = 0, k = 0; j < tmp.length(); j++) {
+                            c = tmp.charAt(j);
+                            if (c == ' ') {
+                                k++;
+                                continue;
+                            }
+                            buffer[k] += c;
+                        }
+                        modelSch.setCardproperty(Long.parseLong(buffer[0]),
+                                Integer.parseInt(buffer[1]),
+                                buffer[2], buffer[3]);
+                    }
+                    eventmodel.add(modelSch);
+                }
             }
         } catch (IOException e) {
         }
@@ -343,10 +393,12 @@ public class SchedlueApplication extends Application {
         String str = "";
         String buf = new String();
         this.deleteFile("eventplan.txt");
-        Format f = new DecimalFormat("00000000");
+        Format f1 = new DecimalFormat("00000000");
         Collections.sort(eventcards, new CardComparator2());
+        buf = Integer.toString(eventcards.size()) + "\n";
+        str += buf;
         for (int i = 0; i < eventcards.size(); i++) {
-            buf = f.format(eventcards.get(i).getDate())
+            buf = f1.format(eventcards.get(i).getDate())
                     + " " + eventcards.get(i).getIndex();
             str += buf;
             if(eventcards.get(i).getCards() != null) {
@@ -374,6 +426,23 @@ public class SchedlueApplication extends Application {
                         }
                     }
                     str += "\n";
+                }
+            }
+        }
+        Log.d("TEST", Integer.toString(eventcards.size()));
+        if(eventmodel != null && eventcards.size() != 0){
+            Format f2 = new DecimalFormat("0000");
+            for (int i = 0; i < eventmodel.size(); i++) {
+                buf = Integer.toString(i)
+                        + " " + Integer.toString(eventmodel.get(i).getCards().size())
+                        + " " + eventmodel.get(i).getName() + "\n";
+                str += buf;
+                for (int j = 0; j < eventmodel.get(i).getCards().size(); j++) {
+                    buf = f2.format(eventmodel.get(i).getCards().get(j).getCalendar())
+                            + " " + f2.format(eventmodel.get(i).getCards().get(j).getLentime())
+                            + " " + eventmodel.get(i).getCards().get(j).getContent()
+                            + " " + eventmodel.get(i).getCards().get(j).getPlace() + "\n";
+                    str += buf;
                 }
             }
         }

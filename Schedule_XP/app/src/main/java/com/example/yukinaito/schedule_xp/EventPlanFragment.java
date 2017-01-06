@@ -71,7 +71,24 @@ public class EventPlanFragment extends ListFragment {
         builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                int array = cards.get(position).getIndex();
                 cards.remove(position);
+                if(array > schedlueApplication.getModelSchedule().size() - 1) {
+                    boolean check = true;
+                    for (int j = 0; j < cards.size(); j++) {
+                        if (cards.get(j).getIndex() == array)
+                            check = false;
+                    }
+                    if (check) {
+                        for (int j = 0; j < cards.size(); j++) {
+                            if (cards.get(j).getIndex() > array) {
+                                int buf = cards.get(j).getIndex();
+                                cards.get(j).setIndex(buf - 1);
+                            }
+                        }
+                        schedlueApplication.getEventmodel().remove(array - schedlueApplication.getModelSchedule().size());
+                    }
+                }
                 updateListfragment();
             }
         });
@@ -151,7 +168,10 @@ public class EventPlanFragment extends ListFragment {
                 textView2.setPadding(10,5,10,10);
                 textView2.setTextSize(20.0f);
                 textView2.setGravity(Gravity.RIGHT);
-                textView2.setText(schedlueApplication.getModelSchedule().get(card.getIndex()).getName());
+                if(card.getIndex() < schedlueApplication.getModelSchedule().size())
+                    textView2.setText(schedlueApplication.getModelSchedule().get(card.getIndex()).getName());
+                else
+                    textView2.setText(schedlueApplication.getModelSchedule().get(card.getIndex() - schedlueApplication.getModelSchedule().size()).getName());
                 layout.addView(textView2, lp);
             }
             return view;
@@ -171,6 +191,7 @@ public class EventPlanFragment extends ListFragment {
         if(requestCode == ADD_CODE){
             if(resultCode == RESULT_OK) {
                 int pos = data.getIntExtra("Position", -1);
+                Log.d("OK",Integer.toString(pos));
                 if (pos > -1) {
                     if (pos == cards.size())
                         cards.add((EventCard) data.getSerializableExtra("Card"));

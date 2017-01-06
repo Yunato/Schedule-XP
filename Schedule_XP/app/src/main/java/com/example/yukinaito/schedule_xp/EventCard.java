@@ -12,11 +12,15 @@ public class EventCard implements Serializable , Cloneable{
     ArrayList<EventModelCard> cards;
 
     EventCard(){
-        cards = null;
+        cards = new ArrayList<EventModelCard>();
     }
 
     public void setInfo(int date, int index){
         this.date = date;
+        this.index = index;
+    }
+
+    public void setIndex(int index){
         this.index = index;
     }
 

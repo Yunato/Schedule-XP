@@ -9,6 +9,7 @@ import android.support.v4.app.ListFragment;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,13 @@ public class SettingFragment extends ListFragment{
                 builder.setView(layout);
                 builder.setPositiveButton("作成", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
+                        for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
+                            if(schedlueApplication.getEventplancards().get(i).getIndex() > (schedlueApplication.getModelSchedule().size() - 1)) {
+                                int buf = schedlueApplication.getEventplancards().get(i).getIndex();
+                                schedlueApplication.getEventplancards().get(i).setIndex(buf + 1);
+                            }
+                        }
+                        schedlueApplication.writeEventPlanFile();
                         ModelSchedule modelSch = new ModelSchedule();
                         modelSch.setName(((EditText)layout.findViewById(R.id.input_pattern)).getText().toString());
                         schedlueApplication.getModelSchedule().add(modelSch);

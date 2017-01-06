@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,7 @@ public class SettingMainFragment extends ListFragment {
     private static final int UPDATE_CODE = 2;
     private CardAdapter cardAdapter;
     private ArrayList<Card> cards;
+    private Card before;
     private static int arraypos;
     private static int position;
 
@@ -76,6 +78,7 @@ public class SettingMainFragment extends ListFragment {
         builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                checkUpdate();
                 cards.remove(position);
                 updateListfragment();
             }
@@ -85,6 +88,7 @@ public class SettingMainFragment extends ListFragment {
             public void onClick(DialogInterface dialogInterface, int i) {
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
                 Card card = new Card();
+                before = card;
                 card.setInfo(schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getCalendar(),
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getLentime(),
                         schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getContent(),
@@ -214,6 +218,32 @@ public class SettingMainFragment extends ListFragment {
         cardAdapter.notifyDataSetChanged();
     }
 
+    public void checkUpdate(){
+        boolean check = false;
+        for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++){
+            if(schedlueApplication.getEventplancards().get(i).getIndex() == arraypos)
+                check = true;
+        }
+        if(check){
+            ModelSchedule modelSchedule = new ModelSchedule();
+            modelSchedule.setName(schedlueApplication.getModelSchedule().get(this.arraypos).getName());
+            for(int i = 0; i < schedlueApplication.getModelSchedule().get(this.arraypos).getCards().size(); i++){
+                Card card = new Card();
+                card.setInfo(schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getCalendar(),
+                        schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getLentime(),
+                        schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getContent(),
+                        schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getPlace());
+                modelSchedule.getCards().add(card);
+            }
+            schedlueApplication.getEventmodel().add(modelSchedule);
+            for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
+                if(schedlueApplication.getEventplancards().get(i).getIndex() == arraypos)
+                    schedlueApplication.getEventplancards().get(i).setIndex(schedlueApplication.getModelSchedule().size() + schedlueApplication.getEventmodel().size() - 1);
+            }
+            schedlueApplication.writeEventPlanFile();
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -221,6 +251,7 @@ public class SettingMainFragment extends ListFragment {
             if(resultCode == RESULT_OK) {
                 int pos = data.getIntExtra("Position",-1);
                 if (pos != -1) {
+                    checkUpdate();
                     if (pos == cards.size())
                         cards.add((Card) data.getSerializableExtra("Card"));
                     else
@@ -232,6 +263,9 @@ public class SettingMainFragment extends ListFragment {
             if(resultCode == RESULT_OK) {
                 int pos = data.getIntExtra("Position", -1);
                 if (pos != -1) {
+                    cards.add(position, before);
+                    checkUpdate();
+                    cards.remove(position);
                     if (pos == cards.size())
                         cards.add((Card) data.getSerializableExtra("Card"));
                     else
