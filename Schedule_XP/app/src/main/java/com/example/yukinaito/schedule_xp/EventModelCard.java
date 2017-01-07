@@ -8,7 +8,7 @@ public class EventModelCard implements Serializable {
     Card card;
 
     EventModelCard(){
-        this.card = null;
+        this.card = new Card();
     }
 
     public void setmodelInfo(boolean update, int index){
@@ -20,6 +20,10 @@ public class EventModelCard implements Serializable {
         this.update = update;
         this.index = index;
         this.card = card;
+    }
+
+    public void setUpdate(boolean update){
+        this.update = update;
     }
 
     public void setCard(Card card){

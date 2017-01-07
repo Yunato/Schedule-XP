@@ -243,15 +243,16 @@ public class SchedlueApplication extends Application {
                             }
                             buf[k] += c;
                         }
+                        boolean check;
                         if (buf[0].equals("true"))
-                            eventModelCard.setmodelInfo(true, Integer.parseInt(buf[1]));
-                        else {
-                            Card card = new Card();
-                            card.setInfo(Long.parseLong(buf[2]), Integer.parseInt(buf[3]), buf[4], buf[5]);
-                            if (buf[6].length() != 0)
-                                card.setMemo(buf[6]);
-                            eventModelCard.setmodelInfo(false, Integer.parseInt(buf[1]), card);
-                        }
+                            check = true;
+                        else
+                            check = false;
+                        Card card = new Card();
+                        card.setInfo(Long.parseLong(buf[2]), Integer.parseInt(buf[3]), buf[4], buf[5]);
+                        if (buf[6].length() != 0)
+                            card.setMemo(buf[6]);
+                        eventModelCard.setmodelInfo(check, Integer.parseInt(buf[1]), card);
                         eventModelCards.add(eventModelCard);
                     }
                     eventCard.setContent(eventModelCards);
@@ -412,18 +413,15 @@ public class SchedlueApplication extends Application {
                 int count = eventcards.get(i).getCards().size();
                 for (int j = 0; j < count; j++) {
                     buf = Boolean.toString(eventcards.get(i).getCards().get(j).getUpdate())
-                            + " " + Integer.toString(eventcards.get(i).getCards().get(j).getIndex());
+                            + " " + Integer.toString(eventcards.get(i).getCards().get(j).getIndex())
+                            + " " + Long.toString(eventcards.get(i).getCards().get(j).getCardCalendar())
+                            + " " + Integer.toString(eventcards.get(i).getCards().get(j).getCardLentime())
+                            + " " + eventcards.get(i).getCards().get(j).getCardPlace()
+                            + " " + eventcards.get(i).getCards().get(j).getCardContent();
                     str += buf;
-                    if(eventcards.get(i).getCards().get(j).getCard() != null) {
-                        buf = " " + Long.toString(eventcards.get(i).getCards().get(j).getCardCalendar())
-                                + " " + Integer.toString(eventcards.get(i).getCards().get(j).getCardLentime())
-                                + " " + eventcards.get(i).getCards().get(j).getCardPlace()
-                                + " " + eventcards.get(i).getCards().get(j).getCardContent();
+                    if (eventcards.get(i).getCards().get(j).getCardMemo() != null && eventcards.get(i).getCards().get(j).getCardMemo().length() != 0) {
+                        buf = " " + eventcards.get(i).getCards().get(j).getCardMemo();
                         str += buf;
-                        if (eventcards.get(i).getCards().get(j).getCardMemo() != null && eventcards.get(i).getCards().get(j).getCardMemo().length() != 0) {
-                            buf = " " + eventcards.get(i).getCards().get(j).getCardMemo();
-                            str += buf;
-                        }
                     }
                     str += "\n";
                 }

@@ -38,9 +38,11 @@ public class AddEventPlanActivity  extends AppCompatActivity {
     private SchedlueApplication schedlueApplication;
     private AddEventPlanActivity.CardAdapter cardAdapter;
     private static final int UPDATE_CODE = 1;
+    private static final int MEMO_UPDATE_CODE = 3;
     private ArrayList<Card> cards;
     private boolean[] check;
     private EventCard eventCard;
+    private Card memocard;
     private int plan_Day;
     private int pos;
     private int year, month, day;
@@ -59,9 +61,7 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         final Drawable upArrow = getResources().getDrawable(R.drawable.abc_ic_ab_back_material);
         upArrow.setColorFilter(getResources().getColor(R.color.colorsimbol), PorterDuff.Mode.SRC_ATOP);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
-
         schedlueApplication = (SchedlueApplication)this.getApplication();
-        arraypos = getIntent().getIntExtra("position", -1);
         findViewById(R.id.button_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -144,7 +144,15 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         public void onClick(DialogInterface dialogInterface, int i) {
                             check[AddEventPlanActivity.this.position] = false;
                             EventModelCard card = new EventModelCard();
-                            card.setmodelInfo(true, AddEventPlanActivity.this.position);
+                            for(int j = 0; j < eventCard.getCards().size(); j++){
+                                if(eventCard.getCards().get(j).getIndex() == AddEventPlanActivity.this.position){
+                                    card = eventCard.getCards().get(j);
+                                    card.setUpdate(true);
+                                    updateListfragment();
+                                    return;
+                                }
+                            }
+                            card.setmodelInfo(true, AddEventPlanActivity.this.position, cards.get(AddEventPlanActivity.this.position));
                             eventCard.getCards().add(card);
                             updateListfragment();
                         }
@@ -179,12 +187,17 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             check[AddEventPlanActivity.this.position] = true;
+                            EventModelCard card = new EventModelCard();
                             for(int j = 0; j < eventCard.getCards().size(); j++){
-                                if(eventCard.getCards().get(j).getIndex() == AddEventPlanActivity.this.position && eventCard.getCards().get(j).getUpdate() == true){
-                                    eventCard.getCards().remove(j);
-                                    break;
+                                if(eventCard.getCards().get(j).getIndex() == AddEventPlanActivity.this.position){
+                                    card = eventCard.getCards().get(j);
+                                    card.setUpdate(false);
+                                    updateListfragment();
+                                    return;
                                 }
                             }
+                            card.setmodelInfo(false, AddEventPlanActivity.this.position, cards.get(AddEventPlanActivity.this.position));
+                            eventCard.getCards().add(card);
                             updateListfragment();
                         }
                     });
@@ -415,20 +428,21 @@ public class AddEventPlanActivity  extends AppCompatActivity {
         public View getView(int pos, View view, ViewGroup parent){
             //Context context = getActivity();
             Context context = AddEventPlanActivity.this;
-            Card card = cards.get(pos);
+            final int array = pos;
+            final Card card = cards.get(pos);
             Log.d("CHECK",Integer.toString(pos) +" " +Boolean.toString(check[pos]));
             int id;
 
             //レイアウトの生成
             if(view == null){
-                LinearLayout layout = new LinearLayout(context);
-                layout.setBackgroundColor(Color.WHITE);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout layout1 = new LinearLayout(context);
+                layout1.setBackgroundColor(Color.WHITE);
+                layout1.setOrientation(LinearLayout.HORIZONTAL);
 
-                view = layout;
+                view = layout1;
 
                 FrameLayout layout3 = new FrameLayout(context);
-                layout.addView(layout3);
+                layout1.addView(layout3);
                 layout3.setLayoutParams(new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.MATCH_PARENT));
@@ -448,6 +462,15 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 textView4.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
                 layout3.addView(textView4);
 
+                LinearLayout layout4 = new LinearLayout(context);
+                layout4.setBackgroundColor(Color.WHITE);
+                layout4.setPadding(0, 0, 0, 0);
+                layout4.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT));
+                layout4.setOrientation(LinearLayout.HORIZONTAL);
+                layout1.addView(layout4);
+
                 LinearLayout layout2 = new LinearLayout(context);
                 layout2.setBackgroundColor(Color.WHITE);
                 layout2.setPadding(0, 0, 0, 0);
@@ -455,6 +478,9 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT));
                 layout2.setOrientation(LinearLayout.VERTICAL);
+                layout4.addView(layout2, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
 
                 TextView textView2 = new TextView(context);
                 textView2.setTag("content");
@@ -474,7 +500,29 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT,1f));
 
-                layout.addView(layout2);
+                Button button1 = new Button(context);
+                button1.setTag("memo");
+                button1.setTextColor(Color.parseColor("#ffffff"));
+                button1.setTextSize(20.0f);
+                button1.setPadding(10, 10, 10, 10);
+                button1.setFocusableInTouchMode(false);
+                button1.setFocusable(false);
+                button1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        memocard = card;
+                        arraypos = array;
+                        Intent intent = new Intent(AddEventPlanActivity.this, AddMemoActivity.class);
+                        if(card.getMemo() != null)
+                            intent.putExtra("memo", card.getMemo());
+                        else
+                            intent.putExtra("memo", "");
+                        startActivityForResult(intent, MEMO_UPDATE_CODE);
+                    }
+                });
+                layout4.addView(button1, new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT));
             }
 
             Format f = new DecimalFormat("00");
@@ -500,6 +548,14 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                 id = AddEventPlanActivity.this.getResources().getIdentifier("dotted_line6", "drawable", AddEventPlanActivity.this.getPackageName());
             back = AddEventPlanActivity.this.getResources().getDrawable(id);
             textView3.setBackground(back);
+            Button button1 = (Button)view.findViewWithTag("memo");
+            if(card.getMemo() != null) {
+                button1.setText("メモ\nあり");
+                button1.setBackgroundColor(Color.parseColor("#4CAF50"));
+            }else {
+                button1.setText("メモ\nなし");
+                button1.setBackgroundColor(Color.parseColor("#424242"));
+            }
             long buffer = (card.getCalendar() / 100) * 60 + card.getCalendar() % 100 + card.getLentime();
             long time = (buffer / 60) * 100 + (buffer % 60);
             if (time != card.getCalendar()) {
@@ -529,11 +585,35 @@ public class AddEventPlanActivity  extends AppCompatActivity {
                         cards.add(pos, (Card) data.getSerializableExtra("Card"));
                     check[AddEventPlanActivity.this.position] = true;
                     EventModelCard card = new EventModelCard();
+                    for(int i = 0; i < eventCard.getCards().size(); i++){
+                        if(eventCard.getCards().get(i).getIndex() == AddEventPlanActivity.this.position){
+                            card = eventCard.getCards().get(i);
+                            eventCard.getCards().remove(i);
+                        }
+                    }
                     card.setmodelInfo(false, AddEventPlanActivity.this.position, (Card) data.getSerializableExtra("Card"));
                     eventCard.getCards().add(card);
                     updateListfragment();
                 }else
                     cards.add(position, (Card) data.getSerializableExtra("Card"));
+                updateListfragment();
+            }
+        }else if(requestCode == MEMO_UPDATE_CODE){
+            if(resultCode == RESULT_OK) {
+                if(data.getStringExtra("Memo") != null && (data.getStringExtra("Memo").length() != 0)){
+                    memocard.setMemo(data.getStringExtra("Memo"));
+                    EventModelCard card = new EventModelCard();
+                    for(int i = 0; i < eventCard.getCards().size(); i++){
+                        if(eventCard.getCards().get(i).getIndex() == arraypos){
+                            card = eventCard.getCards().get(i);
+                            eventCard.getCards().remove(i);
+                        }
+                    }
+                    card.setmodelInfo(!check[arraypos], arraypos, memocard);
+                    eventCard.getCards().add(card);
+                }else{
+                    memocard.setMemo(null);
+                }
                 updateListfragment();
             }
         }

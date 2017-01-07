@@ -232,13 +232,6 @@ public class CheckMainFragment extends ListFragment {
                         startActivityForResult(intent, MEMO_UPDATE_CODE);
                     }
                 });
-                if(card.getMemo() != null) {
-                    button1.setText("メモ\nあり");
-                    button1.setBackgroundColor(Color.parseColor("#4CAF50"));
-                }else {
-                    button1.setText("メモ\nなし");
-                    button1.setBackgroundColor(Color.parseColor("#424242"));
-                }
                 layout4.addView(button1, new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.MATCH_PARENT));
@@ -258,6 +251,14 @@ public class CheckMainFragment extends ListFragment {
             Log.d("test","OK1");
             TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
+            Button button1 = (Button)view.findViewWithTag("memo");
+            if(card.getMemo() != null) {
+                button1.setText("メモ\nあり");
+                button1.setBackgroundColor(Color.parseColor("#4CAF50"));
+            }else {
+                button1.setText("メモ\nなし");
+                button1.setBackgroundColor(Color.parseColor("#424242"));
+            }
             long time = card.getCalendar() + card.getLentime();
             if (time != card.getCalendar()) {
                 start = time % 10000;
@@ -305,7 +306,6 @@ public class CheckMainFragment extends ListFragment {
             }
         }else if(requestCode == MEMO_UPDATE_CODE){
             if(resultCode == RESULT_OK) {
-                Log.d("OK","OK2");
                 if(data.getStringExtra("Memo") != null && (data.getStringExtra("Memo").length() != 0)){
                     memocard.setMemo(data.getStringExtra("Memo"));
                 }else{
