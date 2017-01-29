@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/addplan_attime"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    tools:context="com.example.yukinaito.schedule_xp.AddPlanActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="3dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"/>
+
+    <LinearLayout
+        android:id="@+id/linearlayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:elevation="3dp"
+        android:layout_marginTop="20px"
+        android:layout_marginBottom="10px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:paddingTop="30px"
+        android:paddingBottom="30px"
+        android:background="@drawable/object_corners_false">
+        <EditText
+            android:id="@+id/editText1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_default4"
+            android:textSize="20sp"
+            android:layout_marginLeft="10px"
+            android:layout_marginRight="10px"
+            android:gravity="top|left"
+            android:inputType="text"
+            android:textCursorDrawable="@drawable/style_cursor"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativelayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:layout_below="@+id/linearlayout1">
+        <View
+            android:id="@+id/center_view2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignRight="@+id/center_view2">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:layout_gravity="center"
+                android:text = "開始時刻"/>
+
+            <Button
+                android:id="@+id/button_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="年月日の指定"
+                android:textSize="20sp"
+                android:elevation="3dp"
+                android:layout_marginTop="10px"
+                android:layout_marginBottom="10px"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:paddingTop="50px"
+                android:paddingBottom="50px"
+                android:tag ="YEARMONTHDAY"
+                android:onClick="onClick"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/button_state" />
+
+            <Button
+                android:id="@+id/button_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="開始時刻の指定"
+                android:layout_below="@+id/button_1"
+                android:textSize="20sp"
+                android:elevation="3dp"
+                android:layout_marginTop="10px"
+                android:layout_marginBottom="10px"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:paddingTop="50px"
+                android:paddingBottom="50px"
+                android:tag ="HOURMINUTE"
+                android:onClick="onClick"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/button_state"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignLeft="@+id/center_view2">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:layout_gravity="center"
+                android:text = "終了時刻"/>
+
+            <Button
+                android:id="@+id/button_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="年月日の指定"
+                android:textSize="20sp"
+                android:elevation="3dp"
+                android:layout_marginTop="10px"
+                android:layout_marginBottom="10px"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:paddingTop="50px"
+                android:paddingBottom="50px"
+                android:tag ="YEARMONTHDAY"
+                android:onClick="onClick"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/button_state" />
+
+            <Button
+                android:id="@+id/button_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="開始時刻の指定"
+                android:layout_below="@+id/button_1"
+                android:textSize="20sp"
+                android:elevation="3dp"
+                android:layout_marginTop="10px"
+                android:layout_marginBottom="10px"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:paddingTop="50px"
+                android:paddingBottom="50px"
+                android:tag ="HOURMINUTE"
+                android:onClick="onClick"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/button_state"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativelayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativelayout1"
+        android:elevation="3dp"
+        android:layout_marginTop="10px"
+        android:layout_marginBottom="10px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:paddingTop="50px"
+        android:paddingBottom="50px"
+        android:background="@drawable/object_corners_true">
+
+        <TextView
+            android:id="@+id/textview1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="行動にかかる時間(予想)"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:layout_marginTop="10px"
+            android:layout_marginBottom="10px"
+            android:layout_marginLeft="20px"
+            android:layout_marginRight="20px"
+            />
+
+        <TextView
+            android:id="@+id/textview2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="約"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:layout_below="@+id/textview1"
+            android:layout_marginTop="20px"
+            android:layout_marginBottom="10px"
+            android:layout_marginLeft="600px"
+            />
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="200px"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textview1"
+            android:hint="@string/hint_default1"
+            android:inputType="number"
+            android:textSize="20sp"
+            android:paddingLeft="30px"
+            android:paddingRight="30px"
+            android:paddingTop="20px"
+            android:paddingBottom="20px"
+            android:layout_marginRight="10px"
+            android:layout_marginLeft="10px"
+            android:layout_toEndOf="@+id/textview2"
+            android:background="@drawable/object_corners_false"
+            android:textCursorDrawable="@drawable/style_cursor" />
+
+        <TextView
+            android:id="@+id/textview3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="分間"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:layout_below="@+id/textview1"
+            android:layout_toEndOf="@+id/editText2"
+            android:layout_marginTop="20px"
+            android:layout_marginBottom="10px"
+            android:layout_marginRight="10px"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/linearlayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativelayout2"
+        android:elevation="3dp"
+        android:layout_marginTop="10px"
+        android:layout_marginBottom="10px"
+        android:layout_marginLeft="20px"
+        android:layout_marginRight="20px"
+        android:paddingTop="30px"
+        android:paddingBottom="30px"
+        android:background="@drawable/object_corners_false">
+        <EditText
+            android:id="@+id/editText3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hint_default3"
+            android:textSize="20sp"
+            android:layout_marginLeft="10px"
+            android:layout_marginRight="10px"
+            android:gravity="top|left"
+            android:inputType="text"
+            android:textCursorDrawable="@drawable/style_cursor"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="25px">
+        <View
+            android:id="@+id/center_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_centerInParent="true"
+            />
+
+        <Button
+            android:id="@+id/button_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="追加"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignRight="@+id/center_view"
+            android:textSize="20sp"
+            android:elevation="3dp"
+            android:layout_marginTop="10px"
+            android:layout_marginBottom="10px"
+            android:layout_marginLeft="20px"
+            android:layout_marginRight="20px"
+            android:paddingTop="50px"
+            android:paddingBottom="50px"
+            android:tag ="ADD"
+            android:onClick="onClick"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/button_state" />
+
+        <Button
+            android:id="@+id/button_6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="キャンセル"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignLeft="@+id/center_view"
+            android:textSize="20sp"
+            android:elevation="3dp"
+            android:layout_marginTop="10px"
+            android:layout_marginBottom="10px"
+            android:layout_marginLeft="20px"
+            android:layout_marginRight="20px"
+            android:paddingTop="50px"
+            android:paddingBottom="50px"
+            android:tag ="CANCEL"
+            android:onClick="onClick"
+            android:background="@drawable/button_state" />
+    </RelativeLayout>
+
+
+</RelativeLayout>
