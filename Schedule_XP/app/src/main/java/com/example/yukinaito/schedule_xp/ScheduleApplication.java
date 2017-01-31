@@ -1,7 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
 import android.app.Application;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -302,7 +301,7 @@ public class ScheduleApplication extends Application {
             str += buf;
             for (int j = 0; j < model.get(i).getCards().size(); j++) {
                 buf = f.format(model.get(i).getCards().get(j).getCalendar())
-                        + " " + f.format(model.get(i).getCards().get(j).getLentime())
+                        + " " + f.format(model.get(i).getCards().get(j).getLenTime())
                         + " " + model.get(i).getCards().get(j).getContent()
                         + " " + model.get(i).getCards().get(j).getPlace() + "\n";
                 str += buf;
@@ -324,7 +323,7 @@ public class ScheduleApplication extends Application {
         Format f2 = new DecimalFormat("0000");
         for (int i = 0; i < plancards.size(); i++) {
             buf = f1.format(plancards.get(i).getCalendar())
-                    + " " + f2.format(plancards.get(i).getLentime())
+                    + " " + f2.format(plancards.get(i).getLenTime())
                     + " " + plancards.get(i).getContent()
                     + " " + plancards.get(i).getPlace();
             str += buf;
@@ -371,10 +370,10 @@ public class ScheduleApplication extends Application {
         Collections.sort(havetoplancards, new CardComparator1());
         for (int i = 0; i < havetoplancards.size(); i++) {
             buf = havetoplancards.get(i).getName()
-                    + " " + Boolean.toString(havetoplancards.get(i).getHaveto())
+                    + " " + Boolean.toString(havetoplancards.get(i).getMust())
                     + " " + f1.format(havetoplancards.get(i).getStart())
                     + " " + f1.format(havetoplancards.get(i).getLimit())
-                    + " " + f2.format(havetoplancards.get(i).getForcast())
+                    + " " + f2.format(havetoplancards.get(i).getForCast())
                     + " " + havetoplancards.get(i).getPlace() + "\n";
             str += buf;
         }
@@ -411,7 +410,7 @@ public class ScheduleApplication extends Application {
                     buf = Boolean.toString(eventcards.get(i).getCards().get(j).getVisible())
                             + " " + Integer.toString(eventcards.get(i).getCards().get(j).getIndex())
                             + " " + Long.toString(eventcards.get(i).getCards().get(j).getCardCalendar())
-                            + " " + Integer.toString(eventcards.get(i).getCards().get(j).getCardLentime())
+                            + " " + Integer.toString(eventcards.get(i).getCards().get(j).getCardLenTime())
                             + " " + eventcards.get(i).getCards().get(j).getCardContent()
                             + " " + eventcards.get(i).getCards().get(j).getCardPlace();
                     str += buf;
@@ -432,7 +431,7 @@ public class ScheduleApplication extends Application {
                 str += buf;
                 for (int j = 0; j < eventmodel.get(i).getCards().size(); j++) {
                     buf = f2.format(eventmodel.get(i).getCards().get(j).getCalendar())
-                            + " " + f2.format(eventmodel.get(i).getCards().get(j).getLentime())
+                            + " " + f2.format(eventmodel.get(i).getCards().get(j).getLenTime())
                             + " " + eventmodel.get(i).getCards().get(j).getContent()
                             + " " + eventmodel.get(i).getCards().get(j).getPlace() + "\n";
                     str += buf;

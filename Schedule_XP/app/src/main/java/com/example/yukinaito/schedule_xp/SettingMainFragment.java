@@ -9,8 +9,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,37 +23,41 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
-import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 public class SettingMainFragment extends ListFragment {
-    private SchedlueApplication schedlueApplication;
+    private ScheduleApplication scheduleApplication;
+    //requestCode
     private static final int ADD_CODE = 1;
     private static final int UPDATE_CODE = 2;
+    //表示する予定群
     private CardAdapter cardAdapter;
+    //予定を格納
     private ArrayList<Card> cards;
-    private Card before;
-    private static int arraypos;
-    private static int position;
+    //固定スケジュールのインデックス
+    private static int modelIndex;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        scheduleApplication = (ScheduleApplication)getActivity().getApplication();
+        //固定スケジュールのインデックスを取得
         Bundle bundle = getArguments();
-        schedlueApplication = (SchedlueApplication)getActivity().getApplication();
-        arraypos = (int)bundle.getSerializable("position");
-        cards = schedlueApplication.getModelSchedule().get(this.arraypos).getCards();
+        modelIndex = (int)bundle.getSerializable("Position");
+        //予定をすべて取得
+        cards = scheduleApplication.getModelSchedule().get(modelIndex).getCards();
         View view = inflater.inflate(R.layout.fragment_listmain, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //region 予定の追加画面へ遷移
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
                 intent.putExtra("cards", cards);
+                intent.putExtra("modelIndex", modelIndex);
                 startActivityForResult(intent, ADD_CODE);
+                //endregion
             }
         });
         return view;
@@ -62,41 +66,51 @@ public class SettingMainFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        //ListViewの区切り線
+        ColorDrawable separate_line_color = new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.separate_line));
         getListView().setDivider(separate_line_color);
         getListView().setDividerHeight(5);
-        cardAdapter = new CardAdapter();
-        setListAdapter(cardAdapter);
+
+        //ListViewの値セット
+        updateListFragment();
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int pos, long id){
-        this.position = pos;
+        final int position = pos;
+        //ダイアログの生成
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("モデルの操作");
         builder.setMessage("モデルの内容を編集、またはモデルを削除しますか？");
         builder.setPositiveButton("削除", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
+                //region 予定の削除
                 checkUpdate();
                 cards.remove(position);
-                updateListfragment();
+                updateListFragment();
+                //endregion
             }
         });
         builder.setNegativeButton("編集", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                //region 予定の編集画面へ遷移
+                //予定の生成
                 Card card = new Card();
-                before = card;
-                card.setInfo(schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getCalendar(),
-                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getLentime(),
-                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getContent(),
-                        schedlueApplication.getModelSchedule().get(arraypos).getCards().get(position).getPlace());
-                intent.putExtra("cards", cards);
-                intent.putExtra("EditingCard", card);
+                card.setInfo(scheduleApplication.getModelSchedule().get(modelIndex).getCards().get(position).getCalendar(),
+                        scheduleApplication.getModelSchedule().get(modelIndex).getCards().get(position).getLenTime(),
+                        scheduleApplication.getModelSchedule().get(modelIndex).getCards().get(position).getContent(),
+                        scheduleApplication.getModelSchedule().get(modelIndex).getCards().get(position).getPlace());
                 cards.remove(position);
+
+                //生成した予定と編集する予定のインデックスをAddPlanActivityへ渡す
+                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                intent.putExtra("EditingCard", card);
+                intent.putExtra("Position", position);
+                intent.putExtra("modelIndex", modelIndex);
                 startActivityForResult(intent,UPDATE_CODE);
+                //endregion
             }
         });
         builder.setNeutralButton("キャンセル", new DialogInterface.OnClickListener() {
@@ -126,121 +140,69 @@ public class SettingMainFragment extends ListFragment {
 
         @Override
         public View getView(int pos, View view, ViewGroup parent){
-            //Context context = getActivity();
             Context context = getActivity().getApplication();
+            //ListViewの要素として表示する予定情報
             Card card = cards.get(pos);
 
             //レイアウトの生成
-            if(view == null){
-                LinearLayout layout = new LinearLayout(context);
-                layout.setBackgroundColor(Color.WHITE);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
+            if(view == null)
+                view = (LayoutInflater.from(context)).inflate(R.layout.list_settingmainfragment, null);
 
-                view = layout;
+            Format format = new DecimalFormat("00");
+            int start = (int)card.getCalendar();
+            start = (start / 100) * 60 + (start % 100);
+            int finish = card.getLenTime();
+            TextView textView1 = (TextView) view.findViewById(R.id.time);
+            TextView textView2 = (TextView) view.findViewById(R.id.content);
+            TextView textView3 = (TextView) view.findViewById(R.id.place);
+            TextView textView4 = (TextView) view.findViewById(R.id.finish);
 
-                FrameLayout layout3 = new FrameLayout(context);
-                layout.addView(layout3);
-                layout3.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT));
+            //この処理がないとList更新時前のデータが残る
+            textView1.setText("");
+            textView2.setText("");
+            textView3.setText("");
+            textView4.setText("");
 
-                TextView textView1 = new TextView(context);
-                textView1.setTag("time");
-                textView1.setTextColor(Color.parseColor("#424242"));
-                textView1.setPadding(40, 5, 40, 20);
-                textView1.setTextSize(45.0f);
-                layout3.addView(textView1);
-
-                TextView textView4 = new TextView(context);
-                textView4.setTag("finish");
-                textView4.setTextColor(Color.parseColor("#424242"));
-                textView4.setPadding(0, 10, 10, 0);
-                textView4.setTextSize(15.0f);
-                textView4.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
-                layout3.addView(textView4);
-
-                LinearLayout layout2 = new LinearLayout(context);
-                layout2.setBackgroundColor(Color.WHITE);
-                layout2.setPadding(0, 0, 0, 0);
-                layout2.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                layout2.setOrientation(LinearLayout.VERTICAL);
-
-                TextView textView2 = new TextView(context);
-                textView2.setTag("content");
-                textView2.setTextColor(Color.parseColor("#424242"));
-                textView2.setPadding(10, 10, 10, 10);
-                textView2.setTextSize(20.0f);
-                int id = getContext().getResources().getIdentifier("dotted_line2", "drawable", getContext().getPackageName());
-                Drawable back = getContext().getResources().getDrawable(id);
-                textView2.setBackground(back);
-                layout2.addView(textView2, new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
-
-                TextView textView3 = new TextView(context);
-                textView3.setTag("place");
-                textView3.setTextColor(Color.parseColor("#424242"));
-                textView3.setPadding(10, 10, 10, 10);
-                textView3.setTextSize(20.0f);
-                id = getContext().getResources().getIdentifier("dotted_line3", "drawable", getContext().getPackageName());
-                back = getContext().getResources().getDrawable(id);
-                textView3.setBackground(back);
-                layout2.addView(textView3, new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,1f));
-
-                layout.addView(layout2);
-            }
-
-            Format f = new DecimalFormat("00");
-            TextView textView1 = (TextView)view.findViewWithTag("time");
-            textView1.setText(f.format(card.getCalendar()/100) + ":" + f.format(card.getCalendar()%100));
-            TextView textView2 = (TextView)view.findViewWithTag("content");
+            textView1.setText(format.format(start/60) + ":" + format.format(start%60));
             textView2.setText(card.getContent());
-            TextView textView3 = (TextView)view.findViewWithTag("place");
             textView3.setText(card.getPlace());
-            long buffer = (card.getCalendar() / 100) * 60 + card.getCalendar() % 100 + card.getLentime();
-            long time = (buffer / 60) * 100 + (buffer % 60);
-            if (time != card.getCalendar()) {
-                TextView textView4 = (TextView) view.findViewWithTag("finish");
-                textView4.setText("～" + f.format(time/100) + ":" + f.format(time%100));
-            }
+
+            //終了時刻
+            int time = start + finish;
+            if (time != start)
+                textView4.setText("～" + format.format(time/60) + ":" + format.format(time%60));
+
             return view;
         }
     }
 
-    public void updateListfragment(){
-        schedlueApplication.writeModelFile();
+    //Listの要素更新
+    public void updateListFragment(){
+        scheduleApplication.writeModelFile();
         cardAdapter = new CardAdapter();
         setListAdapter(cardAdapter);
+        //画面更新
         cardAdapter.notifyDataSetChanged();
     }
 
+    //イベント日のチェック
     public void checkUpdate(){
+        //イベント日の指定で本処理で変更される固定スケジュールをもつものがあるか
         boolean check = false;
-        for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++){
-            if(schedlueApplication.getEventplancards().get(i).getIndex() == arraypos)
+        for(int i = 0; i < scheduleApplication.getEventplancards().size(); i++){
+            if(scheduleApplication.getEventplancards().get(i).getIndex() == modelIndex) {
                 check = true;
+                break;
+            }
         }
         if(check){
-            ModelSchedule modelSchedule = new ModelSchedule();
-            modelSchedule.setName(schedlueApplication.getModelSchedule().get(this.arraypos).getName());
-            for(int i = 0; i < schedlueApplication.getModelSchedule().get(this.arraypos).getCards().size(); i++){
-                Card card = new Card();
-                card.setInfo(schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getCalendar(),
-                        schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getLentime(),
-                        schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getContent(),
-                        schedlueApplication.getModelSchedule().get(this.arraypos).getCards().get(i).getPlace());
-                modelSchedule.getCards().add(card);
+            //イベント日に指定されているため、固定スケジュールを別の場所へ移す
+            scheduleApplication.getEventmodel().add(scheduleApplication.getModelSchedule().get(modelIndex));
+            for(int i = 0; i < scheduleApplication.getEventplancards().size(); i++) {
+                if(scheduleApplication.getEventplancards().get(i).getIndex() == modelIndex)
+                    scheduleApplication.getEventplancards().get(i).setIndex(scheduleApplication.getModelSchedule().size() + scheduleApplication.getEventmodel().size() - 1);
             }
-            schedlueApplication.getEventmodel().add(modelSchedule);
-            for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
-                if(schedlueApplication.getEventplancards().get(i).getIndex() == arraypos)
-                    schedlueApplication.getEventplancards().get(i).setIndex(schedlueApplication.getModelSchedule().size() + schedlueApplication.getEventmodel().size() - 1);
-            }
-            schedlueApplication.writeEventPlanFile();
+            scheduleApplication.writeEventPlanFile();
         }
     }
 
@@ -248,32 +210,42 @@ public class SettingMainFragment extends ListFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == ADD_CODE){
+            //region 予定の追加時
             if(resultCode == RESULT_OK) {
                 int pos = data.getIntExtra("Position",-1);
                 if (pos != -1) {
+                    //イベント日のチェック
                     checkUpdate();
+                    //追加する予定の日時が一番遅いかどうか true 一番遅い
                     if (pos == cards.size())
                         cards.add((Card) data.getSerializableExtra("Card"));
                     else
                         cards.add(pos, (Card) data.getSerializableExtra("Card"));
-                    updateListfragment();
                 }
-            }
+            }else
+                return;
+            //endregion
         }else if(requestCode == UPDATE_CODE){
+            //region 予定の更新時
             if(resultCode == RESULT_OK) {
                 int pos = data.getIntExtra("Position", -1);
                 if (pos != -1) {
-                    cards.add(position, before);
                     checkUpdate();
-                    cards.remove(position);
+                    //更新後の日時が一番遅いかどうか true 一番遅い
                     if (pos == cards.size())
                         cards.add((Card) data.getSerializableExtra("Card"));
                     else
                         cards.add(pos, (Card) data.getSerializableExtra("Card"));
-                }else
-                    cards.add(position, (Card) data.getSerializableExtra("Card"));
-                updateListfragment();
-            }
-        }
+                }else {
+                    //編集がなかった場合元のインデックスで追加する
+                    if (data.getIntExtra("EditPos", -1) != -1)
+                        cards.add(data.getIntExtra("EditPos", -1), (Card) data.getSerializableExtra("Card"));
+                }
+            }else
+                return;
+            //endregion
+        }else
+            return;
+        updateListFragment();
     }
 }

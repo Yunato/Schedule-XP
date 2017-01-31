@@ -42,7 +42,7 @@
         android:id="@+id/button_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="やるべきことの確認・追加"
+        android:text="すべきことの確認・追加"
         android:layout_below="@+id/button_2"
         android:textSize="20sp"
         android:layout_marginTop="20px"

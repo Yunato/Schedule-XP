@@ -7,9 +7,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,39 +25,46 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 public class SettingFragment extends ListFragment{
     private static ArrayList<ModelSchedule> model;
-    private SchedlueApplication schedlueApplication;
+    private ScheduleApplication scheduleApplication;
     private static final int REQUEST_CODE = 1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
-        schedlueApplication = (SchedlueApplication)getActivity().getApplication();
+        scheduleApplication = (ScheduleApplication)getActivity().getApplication();
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
         FloatingActionButton fab = (FloatingActionButton)view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(
-                        LAYOUT_INFLATER_SERVICE);
-                final View layout = inflater.inflate(R.layout.dialog_createpattern,
-                        (ViewGroup) getActivity().findViewById(R.id.layout_root));
+                //region 追加ボタンタップ時
+                //ダイアログの生成
+                LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(LAYOUT_INFLATER_SERVICE);
+                final View layout = inflater.inflate(R.layout.dialog_createpattern, (ViewGroup) getActivity().findViewById(R.id.layout_root));
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
                 ((TextView)layout.findViewById(R.id.input_textview)).setText("新たなパターンの名前を入力してください");
                 ((EditText)layout.findViewById(R.id.input_pattern)).setHint("パターン名を入力");
+
                 builder.setTitle("新規作成");
                 builder.setView(layout);
                 builder.setPositiveButton("作成", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        for(int i = 0; i < schedlueApplication.getEventplancards().size(); i++) {
-                            if(schedlueApplication.getEventplancards().get(i).getIndex() > (schedlueApplication.getModelSchedule().size() - 1)) {
-                                int buf = schedlueApplication.getEventplancards().get(i).getIndex();
-                                schedlueApplication.getEventplancards().get(i).setIndex(buf + 1);
+                        //region 作成ボタンのタップ時
+                        //削除された固定スケジュールのインデックスを1つずらす
+                        for(int i = 0; i < scheduleApplication.getEventplancards().size(); i++) {
+                            if(scheduleApplication.getEventplancards().get(i).getIndex() > (scheduleApplication.getModelSchedule().size() - 1)) {
+                                int buf = scheduleApplication.getEventplancards().get(i).getIndex();
+                                scheduleApplication.getEventplancards().get(i).setIndex(buf + 1);
                             }
                         }
-                        schedlueApplication.writeEventPlanFile();
+                        scheduleApplication.writeEventPlanFile();
+
                         ModelSchedule modelSch = new ModelSchedule();
                         modelSch.setName(((EditText)layout.findViewById(R.id.input_pattern)).getText().toString());
-                        schedlueApplication.getModelSchedule().add(modelSch);
-                        updateListfragment();
+                        scheduleApplication.getModelSchedule().add(modelSch);
+                        scheduleApplication.writeModelFile();
+                        updateListFragment();
+                        //endregion
                     }
                 });
                 builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
@@ -66,7 +73,7 @@ public class SettingFragment extends ListFragment{
                 });
                 final AlertDialog dialog = builder.create();
                 dialog.show();
-                dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 ((EditText)layout.findViewById(R.id.input_pattern)).addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -79,11 +86,12 @@ public class SettingFragment extends ListFragment{
                     @Override
                     public void afterTextChanged(Editable editable) {
                         if(inputCheck(layout))
-                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(true);
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                         else
-                            dialog.getButton(AlertDialog.BUTTON1).setEnabled(false);
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                     }
                 });
+                //endregion
             }
         });
         return view;
@@ -92,36 +100,37 @@ public class SettingFragment extends ListFragment{
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        ColorDrawable separate_line_color = new ColorDrawable(this.getResources().getColor(R.color.separate_line));
+        //ListViewの区切り線
+        ColorDrawable separate_line_color = new ColorDrawable(ContextCompat.getColor(getActivity(), R.color.separate_line));
         getListView().setDivider(separate_line_color);
         getListView().setDividerHeight(5);
-        model = schedlueApplication.getModelSchedule();
-        ArrayList<String> day = new ArrayList<String>();
-        for(int i = 0; i < model.size(); i++)
-            day.add(model.get(i).getName());
-        setListAdapter(new ArrayAdapter<String>(getActivity(), R.layout.rowdata, day));
+
+        //ListViewの値セット
+        model = scheduleApplication.getModelSchedule();
+        updateListFragment();
     }
 
-    public void updateListfragment(){
-        ArrayList<String> day = new ArrayList<String>();
+    //Listの要素更新
+    public void updateListFragment(){
+        ArrayList<String> day = new ArrayList<>();
         for(int i = 0; i < model.size(); i++)
             day.add(model.get(i).getName());
-        ArrayAdapter<String> days = new ArrayAdapter<String>(getActivity(), R.layout.rowdata, day);
+        ArrayAdapter<String> days = new ArrayAdapter<>(getActivity(), R.layout.rowdata, day);
         setListAdapter(days);
+        //画面更新
         days.notifyDataSetChanged();
-        schedlueApplication.writeModelFile();
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int pos, long id){
         Intent intent = new Intent(getActivity(), SettingModelActivity.class);
-        intent.putExtra("position", pos);
+        intent.putExtra("Position", pos);
         startActivityForResult(intent, REQUEST_CODE);
     }
 
+    //入力チェック
     public boolean inputCheck(View layout){
-        String end;
-        end = ((EditText)layout.findViewById(R.id.input_pattern)).getText().toString();
+        String end = ((EditText)layout.findViewById(R.id.input_pattern)).getText().toString();
         if(!(end.equals(""))) {
             return true;
         }
@@ -131,7 +140,8 @@ public class SettingFragment extends ListFragment{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        scheduleApplication.writeModelFile();
         if(resultCode == RESULT_OK)
-            updateListfragment();
+            updateListFragment();
     }
 }

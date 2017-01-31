@@ -162,7 +162,7 @@ public class CheckEventPlanFragment extends ListFragment {
             if(card.getIndex() < scheduleApplication.getModelSchedule().size())
                 textView2.setText(scheduleApplication.getModelSchedule().get(card.getIndex()).getName());
             else
-                textView2.setText(scheduleApplication.getModelSchedule().get(card.getIndex() - scheduleApplication.getModelSchedule().size()).getName());
+                textView2.setText(scheduleApplication.getEventmodel().get(card.getIndex() - scheduleApplication.getModelSchedule().size()).getName());
             return view;
         }
     }

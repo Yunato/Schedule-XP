@@ -1,20 +1,17 @@
 package com.example.yukinaito.schedule_xp;
 
-import android.util.Log;
-
 import java.io.Serializable;
-import java.util.Calendar;
 
 public class Card implements Serializable {
     private long calendar;
-    private int lentime;
+    private int lenTime;
     private String place;
     private String content;
     private String memo;
 
-    public void setInfo(long calendar, int lentime, String content, String place){
+    public void setInfo(long calendar, int lenTime, String content, String place){
         this.calendar = calendar;
-        this.lentime = lentime;
+        this.lenTime = lenTime;
         this.content = content;
         this.place = place;
     }
@@ -25,7 +22,7 @@ public class Card implements Serializable {
 
     public long getCalendar(){return this.calendar;}
 
-    public int getLentime(){return this.lentime;}
+    public int getLenTime(){return this.lenTime;}
 
     public String getPlace(){return this.place;}
 
@@ -35,5 +32,14 @@ public class Card implements Serializable {
 
     public Card getCard(){
         return this;
+    }
+
+    public boolean equals(Card card){
+        if(this.calendar == card.getCalendar() &&
+                this.lenTime == card.getLenTime() &&
+                this.place.equals(card.getPlace()) &&
+                this.content.equals(card.getContent()))
+            return true;
+        return false;
     }
 }

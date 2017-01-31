@@ -8,7 +8,7 @@ public class ModelSchedule implements Serializable{
     private ArrayList<Card> cards;
 
     public ModelSchedule(){
-        cards = new ArrayList<Card>();
+        cards = new ArrayList<>();
     }
 
     public void setName(String name){
@@ -17,9 +17,9 @@ public class ModelSchedule implements Serializable{
 
     public String getName(){return this.name;}
 
-    public void setCardproperty(long calendar, int lentime, String content, String place){
+    public void setCardProperty(long calendar, int lentTime, String content, String place){
         Card card = new Card();
-        card.setInfo(calendar, lentime, content, place);
+        card.setInfo(calendar, lentTime, content, place);
         this.cards.add(card);
     }
 

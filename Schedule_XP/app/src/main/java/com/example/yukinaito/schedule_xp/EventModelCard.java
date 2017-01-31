@@ -3,7 +3,7 @@ package com.example.yukinaito.schedule_xp;
 import java.io.Serializable;
 
 public class EventModelCard implements Serializable {
-    boolean update;
+    boolean visible;
     int index;
     Card card;
 
@@ -11,27 +11,22 @@ public class EventModelCard implements Serializable {
         this.card = new Card();
     }
 
-    public void setmodelInfo(boolean update, int index){
-        this.update = update;
-        this.index = index;
-    }
-
-    public void setmodelInfo(boolean update, int index, Card card){
-        this.update = update;
+    public void setModelInfo(boolean visible, int index, Card card){
+        this.visible = visible;
         this.index = index;
         this.card = card;
     }
 
-    public void setUpdate(boolean update){
-        this.update = update;
+    public void setVisible(boolean update){
+        this.visible = update;
     }
 
     public void setCard(Card card){
         this.card = card;
     }
 
-    public boolean getUpdate(){
-        return this.update;
+    public boolean getVisible(){
+        return this.visible;
     }
 
     public int getIndex(){
@@ -44,11 +39,15 @@ public class EventModelCard implements Serializable {
 
     public long getCardCalendar(){return card.getCalendar();}
 
-    public int getCardLentime(){return card.getLentime();}
+    public int getCardLenTime(){return card.getLenTime();}
 
     public String getCardPlace(){return card.getPlace();}
 
     public String getCardContent(){return card.getContent();}
 
     public String getCardMemo(){return card.getMemo();}
+
+    public boolean equalsCard(Card card){
+        return this.card.equals(card);
+    }
 }

@@ -17,37 +17,38 @@ public class CheckPlanFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle saveInstanceState) {
         super.onViewCreated(view, saveInstanceState);
+
+        //ボタンの選択による分岐
         view.findViewById(R.id.button_1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), CheckPlanActivity.class);
-                intent.putExtra("select",0);
-                startActivity(intent);
+                moveActivity(0);
             }
         });
         view.findViewById(R.id.button_2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), CheckPlanActivity.class);
-                intent.putExtra("select",1);
-                startActivity(intent);
+                moveActivity(1);
             }
         });
         view.findViewById(R.id.button_3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), CheckPlanActivity.class);
-                intent.putExtra("select",2);
-                startActivity(intent);
+                moveActivity(2);
             }
         });
         view.findViewById(R.id.button_4).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), CheckPlanActivity.class);
-                intent.putExtra("select",3);
-                startActivity(intent);
+                moveActivity(3);
             }
         });
+    }
+
+    //ボタンのタップによる画面遷移
+    public void moveActivity(int select){
+        Intent intent = new Intent(getActivity(), CheckPlanActivity.class);
+        intent.putExtra("select", select);
+        startActivity(intent);
     }
 }

@@ -84,10 +84,10 @@ public class CheckMustPlanFragment extends ListFragment {
                 //すべきことの生成
                 MustPlanCard card = new MustPlanCard();
                 card.setInfo(scheduleApplication.getHavetoplancards().get(position).getName(),
-                        scheduleApplication.getHavetoplancards().get(position).getHaveto(),
+                        scheduleApplication.getHavetoplancards().get(position).getMust(),
                         scheduleApplication.getHavetoplancards().get(position).getStart(),
                         scheduleApplication.getHavetoplancards().get(position).getLimit(),
-                        scheduleApplication.getHavetoplancards().get(position).getForcast(),
+                        scheduleApplication.getHavetoplancards().get(position).getForCast(),
                         scheduleApplication.getHavetoplancards().get(position).getPlace());
                 cards.remove(position);
 
@@ -154,7 +154,7 @@ public class CheckMustPlanFragment extends ListFragment {
             TextView textView3 = (TextView)view.findViewById(R.id.TextView3);
             TextView textView5 = (TextView)view.findViewById(R.id.TextView5);
 
-            bool.setChecked(card.getHaveto());
+            bool.setChecked(card.getMust());
             textView1.setText(card.getName());
             textView3.setText(start.substring(0, 4) + "/" + start.substring(4, 6) + "/" + start.substring(6, 8) + " " + start.substring(8, 10) + "/" + start.substring(10, 12));
             textView5.setText(end.substring(0, 4) + "/" + end.substring(4, 6) + "/" + end.substring(6, 8) + " " + end.substring(8, 10) + "/" + end.substring(10, 12));

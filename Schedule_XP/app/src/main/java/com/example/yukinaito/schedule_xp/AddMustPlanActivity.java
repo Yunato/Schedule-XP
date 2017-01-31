@@ -140,7 +140,7 @@ public class AddMustPlanActivity extends AppCompatActivity
             ((Button)findViewById(R.id.button_4)).setText(end.substring(8, 10) + "時" + end.substring(10, 12) + "分");
             ((Button)findViewById(R.id.button_5)).setText("更新");
             ((EditText)findViewById(R.id.editText1)).setText(card.getName());
-            ((EditText)findViewById(R.id.editText2)).setText(Integer.toString(card.getForcast()));
+            ((EditText)findViewById(R.id.editText2)).setText(Integer.toString(card.getForCast()));
             ((EditText)findViewById(R.id.editText3)).setText(card.getPlace());
             plan_Day1 = (int)(card.getStart() / 10000);
             plan_Time1 = (int)(card.getStart() % 10000);

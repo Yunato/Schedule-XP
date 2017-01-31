@@ -1,10 +1,7 @@
 package com.example.yukinaito.schedule_xp;
 
-import android.app.usage.UsageEvents;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class EventCard implements Serializable , Cloneable{
     int date;
@@ -12,7 +9,7 @@ public class EventCard implements Serializable , Cloneable{
     ArrayList<EventModelCard> cards;
 
     EventCard(){
-        cards = new ArrayList<EventModelCard>();
+        cards = new ArrayList<>();
     }
 
     public void setInfo(int date, int index){
@@ -38,5 +35,11 @@ public class EventCard implements Serializable , Cloneable{
 
     public void setContent(ArrayList<EventModelCard> cards){
         this.cards = cards;
+    }
+
+    public void deepCopy(ArrayList<EventModelCard> copy){
+        for(int i = 0; i < cards.size() ; i++){
+            cards.add(i, copy.get(i));
+        }
     }
 }

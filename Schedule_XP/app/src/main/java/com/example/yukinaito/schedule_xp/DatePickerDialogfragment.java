@@ -8,7 +8,7 @@ import android.widget.DatePicker;
 
 import java.util.Calendar;
 
-public class DatePickerDialogfragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+public class DatePickerDialogFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
     private int activity_check;
 
     @Override
@@ -37,10 +37,10 @@ public class DatePickerDialogfragment extends DialogFragment implements DatePick
             AddPlanActivity callingActivity = (AddPlanActivity) getActivity();
             callingActivity.onReturnValue(date, text, 1);
         }else if(activity_check == 2) {
-            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            AddMustPlanActivity callingActivity = (AddMustPlanActivity) getActivity();
             callingActivity.onReturnValue(date, text, 1);
         }else if(activity_check == 3) {
-            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            AddMustPlanActivity callingActivity = (AddMustPlanActivity) getActivity();
             callingActivity.onReturnValue(date, text, 3);
         }else if(activity_check == 4) {
             AddEventPlanActivity callingActivity = (AddEventPlanActivity) getActivity();

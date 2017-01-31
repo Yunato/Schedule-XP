@@ -30,12 +30,5 @@ public class WantPlanCard implements Serializable {
     public int getHow(){return this.how;}
 
     public String getPlace(){return this.place;}
-
-    public void setUpdate(WantPlanCard card){
-        this.name = card.getName();
-        this.want = card.getWant();
-        this.how = card.getHow();
-        this.place = card.getPlace();
-    }
 }
 

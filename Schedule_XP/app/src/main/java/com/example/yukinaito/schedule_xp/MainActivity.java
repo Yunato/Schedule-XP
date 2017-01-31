@@ -16,7 +16,7 @@ import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private SchedlueApplication schedlueApplication;
+    private ScheduleApplication schedlueApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,28 +28,33 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        schedlueApplication = (SchedlueApplication)this.getApplication();
+        schedlueApplication = (ScheduleApplication)this.getApplication();
+        //アプリケーション起動処理
         checkState();
 
+        //本日の予定表を描画
+        setTitle("本日の予定");
         TodayPlanFragment fragment = new TodayPlanFragment();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.content_main, fragment);
         transaction.commit();
-        setTitle("本日の予定");
     }
 
     @Override
     public void onBackPressed() {
+        //Backキータップ時の処理
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+            //drawerを閉じる
             drawer.closeDrawer(GravityCompat.START);
         } else {
+            //アプリを閉じる
             super.onBackPressed();
         }
     }
@@ -60,6 +65,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
+        //画面遷移
         if (id == R.id.menu_item0) {
             setTitle("本日の予定");
             TodayPlanFragment fragment = new TodayPlanFragment();
@@ -86,18 +92,20 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //初回起動であるか判別 起動処理
     public void checkState(){
         SharedPreferences preference = getSharedPreferences("Preference Name", MODE_PRIVATE);
         SharedPreferences.Editor editor = preference.edit();
         if(preference.getBoolean("Launched", false) == false) {
-
             try {
+                //初回起動時にてデフォルトファイルの生成
                 OutputStream out = openFileOutput("default.txt", MODE_PRIVATE | MODE_APPEND);
                 out.write((getResources().getString(R.string.default_text)).getBytes());
             }catch(IOException e){
             }
             editor.putBoolean("Launched", true).commit();
         }
+        //テキストファイルの読み込み
         schedlueApplication.readFile();
     }
 }

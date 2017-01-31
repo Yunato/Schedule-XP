@@ -8,7 +8,7 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 
-public class TimePickerDialogfragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+public class TimePickerDialogFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
     private int activity_check;
 
     @Override
@@ -45,10 +45,10 @@ public class TimePickerDialogfragment extends DialogFragment implements TimePick
             AddModelActivity callingActivity = (AddModelActivity) getActivity();
             callingActivity.onReturnValue(time, text, 2);
         }else if(activity_check == 3) {
-            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            AddMustPlanActivity callingActivity = (AddMustPlanActivity) getActivity();
             callingActivity.onReturnValue(time, text, 2);
         }else if(activity_check == 4) {
-            AddHavetoPlanActivity callingActivity = (AddHavetoPlanActivity) getActivity();
+            AddMustPlanActivity callingActivity = (AddMustPlanActivity) getActivity();
             callingActivity.onReturnValue(time, text, 4);
         }else{
             return;
