@@ -4,35 +4,5 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="drawer_open">Drawer Open</string>
-    <string name="drawer_close">Drawer Close</string>
-
-    <string name="AddPlan">予定の追加</string>
-    <string name="AddPlan_1">日時・行動の追加</string>
-
-    <integer name="menu_integer0">0</integer>
-    <integer name="menu_integer1">1</integer>
-    <integer name="menu_integer2">2</integer>
-    <integer name="menu_integer3">3</integer>
-    <integer name="menu_integer4">4</integer>
-    <string name="title_activity_main22">Main22Activity</string>
-
-    <string name="hint_default1">入力</string>
-    <string name="hint_default2">内容を入力</string>
-    <string name="hint_default3">場所を入力</string>
-    <string name="hint_default4">内容を入力</string>
-
-    <string name="model_delete">ひな形の削除</string>
-
-    <string name = "default_text">
-        <![CDATA[
-            0 0 日曜日・祝日
-            \n1 0 月曜日
-            \n2 0 火曜日
-            \n3 0 水曜日
-            \n4 0 木曜日
-            \n5 0 金曜日
-            \n6 0 土曜日
-            \n]]>
-    </string>
+    <string name="action_settings">Settings</string>
 </resources>

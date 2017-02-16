@@ -3,39 +3,36 @@ package com.example.yukinaito.schedule_xp;
 import java.io.Serializable;
 
 public class MustPlanCard implements Serializable {
-    String name;
-    boolean must;
-    long start;
-    long limit;
-    int forCast;
+    String content;
+    boolean active;
+    int limitDate;
+    int limitTime;
     String place;
+    String memo;
 
-    public void setInfo(String name, boolean must, long start, long limit, int forCast, String place){
-        this.name = name;
-        this.must = must;
-        this.start = start;
-        this.limit = limit;
-        this.forCast = forCast;
+    public void setInfo(String content, boolean active, int limitDate, int limitTime, String place){
+        this.content = content;
+        this.active = active;
+        this.limitDate = limitDate;
+        this.limitTime = limitTime;
         this.place = place;
     }
 
     public void setName(String name){
-        this.name = name;
+        this.content = name;
     }
 
-    public void setWant(boolean want){
-        this.must = want;
+    public void setActive(boolean active){
+        this.active = active;
     }
 
-    public String getName(){return this.name;}
+    public String getContent(){return this.content;}
 
-    public boolean getMust(){return this.must;}
+    public boolean getActive(){return this.active;}
 
-    public long getStart(){return this.start;}
+    public int getLimitDate(){return this.limitDate;}
 
-    public long getLimit(){return this.limit;}
-
-    public int getForCast(){return this.forCast;}
+    public int getLimitTime(){return this.limitTime;}
 
     public String getPlace(){return this.place;}
 }

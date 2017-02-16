@@ -3,31 +3,31 @@ package com.example.yukinaito.schedule_xp;
 import java.io.Serializable;
 
 public class WantPlanCard implements Serializable {
-    String name;
-    boolean want;
-    int how;
+    String content;
+    boolean active;
+    int ratio;
     String place;
 
-    public void setInfo(String name, boolean want, int how, String place){
-        this.name = name;
-        this.want = want;
-        this.how = how;
+    public void setInfo(String content, boolean active, int ratio, String place){
+        this.content = content;
+        this.active = active;
+        this.ratio = ratio;
         this.place = place;
     }
 
-    public void setName(String name){
-        this.name = name;
+    public void setContent(String name){
+        this.content = name;
     }
 
-    public void setWant(boolean want){
-        this.want = want;
+    public void setActive(boolean want){
+        this.active = want;
     }
 
-    public String getName(){return this.name;}
+    public String getContent(){return this.content;}
 
-    public boolean getWant(){return this.want;}
+    public boolean getActive(){return this.active;}
 
-    public int getHow(){return this.how;}
+    public int getRatio(){return this.ratio;}
 
     public String getPlace(){return this.place;}
 }
