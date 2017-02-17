@@ -1,5 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -73,6 +74,15 @@ public class TestActivity extends AppCompatActivity {
             public void onClick(View v)
             {
                 sqLiteApplication.Test_getCards(null, null);
+            }
+        });
+        (findViewById(R.id.button7)).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent intent = new Intent(getApplicationContext(), AddModelActivity.class);
+                startActivity(intent);
             }
         });
     }
