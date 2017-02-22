@@ -8,6 +8,8 @@
     <color name="colorGray">#BDBDBD</color>
 
     <color name="separate_line">#9E9E9E</color>
+    <color name="colorTextDecided">#424242</color>
+    <color name="colorTextUndecided">#757575</color>
     <color name="item">#26A69A</color>
     <color name="input">#FFFFFF</color>
 </resources>

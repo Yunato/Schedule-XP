@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".TestActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -21,7 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddModelActivity"></activity>
+        <activity android:name=".AddModelActivity" />
+        <activity android:name=".AddPlanActivity" />
+        <activity android:name=".AddMustActivity" />
+        <activity android:name=".AddEventActivity" />
+        <activity android:name=".CheckAddWantActivity"></activity>
     </application>
 
 </manifest>

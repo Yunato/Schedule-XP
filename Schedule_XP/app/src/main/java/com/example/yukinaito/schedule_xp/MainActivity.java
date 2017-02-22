@@ -3,6 +3,8 @@ package com.example.yukinaito.schedule_xp;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -49,21 +51,30 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
+
+        //StackされたFragmentをClearする
+        getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         if (id == R.id.menu_item0) {
             // Handle the camera action
         } else if (id == R.id.menu_item1) {
-
+            setTitle("予定の確認・追加");
+            CheckMainFragment fragment = new CheckMainFragment();
+            transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item2) {
 
         } else if (id == R.id.menu_item3) {
-
+            setTitle("モデル一覧");
+            SettingMainFragment fragment = new SettingMainFragment();
+            transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item4) {
 
         }
 
+        transaction.commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

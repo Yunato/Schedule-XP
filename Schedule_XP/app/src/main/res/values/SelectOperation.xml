@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="checkmain_items">
+        <item>日時・行動一覧</item>
+        <item>やりたいこと一覧</item>
+        <item>すべきこと一覧</item>
+        <item>イベント日一覧</item>
+    </array>
+</resources>

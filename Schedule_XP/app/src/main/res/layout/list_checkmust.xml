@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/Layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="#ffffff">
+
+    <RelativeLayout
+        android:id="@+id/Layout4"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="#ffffff">
+
+        <Switch
+            android:id="@+id/Active"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="10px"
+            android:paddingTop="10px"
+            android:paddingRight="10px"
+            android:paddingBottom="10px"
+            android:focusableInTouchMode="false"
+            android:focusable="false" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/Layout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/line_left">
+
+        <TextView
+            android:id="@+id/Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="45sp"
+            android:textColor="#424242"
+            android:paddingLeft="40px"
+            android:paddingTop="10px"
+            android:paddingRight="40px"
+            android:paddingBottom="10px"
+            android:background="@drawable/dotted_bottom"/>
+
+        <LinearLayout
+            android:id="@+id/Layout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/dotted_bottom">
+
+            <TextView
+                android:id="@+id/TextView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="締切日時"
+                android:textSize="20sp"
+                android:textColor="#424242"
+                android:paddingLeft="10px"
+                android:paddingTop="10px"
+                android:paddingRight="10px"
+                android:paddingBottom="10px"
+                android:background="@drawable/dotted_bottom"/>
+
+            <TextView
+                android:id="@+id/limitTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="#424242"
+                android:paddingLeft="10px"
+                android:paddingTop="10px"
+                android:paddingRight="10px"
+                android:paddingBottom="10px"
+                android:background="@drawable/dotted_left"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

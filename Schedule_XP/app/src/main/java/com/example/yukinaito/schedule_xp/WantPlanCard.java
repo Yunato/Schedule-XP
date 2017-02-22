@@ -8,7 +8,7 @@ public class WantPlanCard implements Serializable {
     int ratio;
     String place;
 
-    public void setInfo(String content, boolean active, int ratio, String place){
+    public WantPlanCard(String content, boolean active, int ratio, String place){
         this.content = content;
         this.active = active;
         this.ratio = ratio;

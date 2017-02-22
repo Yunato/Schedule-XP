@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/Layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffffff"
+    android:paddingLeft="10px"
+    android:paddingTop="10px"
+    android:paddingRight="10px"
+    android:paddingBottom="10px">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="45sp"
+        android:textColor="#424242"
+        android:paddingLeft="10px"
+        android:paddingTop="10px"
+        android:paddingRight="10px"
+        android:paddingBottom="5px"
+        android:background="@drawable/dotted_bottom"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="モデル"
+            android:textSize="20sp"
+            android:textColor="#424242"
+            android:paddingLeft="10px"
+            android:paddingTop="5px"
+            android:paddingRight="10px"
+            android:paddingBottom="10px"
+            android:gravity="right"/>
+        <TextView
+            android:id="@+id/modelIndex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="#424242"
+            android:paddingLeft="10px"
+            android:paddingTop="5px"
+            android:paddingRight="10px"
+            android:paddingBottom="10px"
+            android:gravity="right"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
