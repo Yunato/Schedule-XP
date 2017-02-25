@@ -17,6 +17,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
+
 public class CheckEventFragment extends ListFragment {
     //requestCode
     private static final int ADD_PLAN = 1;
@@ -29,6 +31,7 @@ public class CheckEventFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_listandfbutton, container, false);
+        cards = ((ScheduleApplication)getActivity().getApplication()).getEventCards();
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -50,7 +53,6 @@ public class CheckEventFragment extends ListFragment {
         getListView().setDividerHeight(5);
 
         //Listの描画
-        cards = new ArrayList<>();
         cardAdapter = new CheckEventFragment.CardAdapter();
         updateList();
     }
@@ -109,20 +111,23 @@ public class CheckEventFragment extends ListFragment {
 
             //レイアウトの生成
             if(view == null)
-                view = (LayoutInflater.from(context)).inflate(R.layout.list_settingmodel, null);
+                view = (LayoutInflater.from(context)).inflate(R.layout.list_checkevent, null);
 
             //宣言&初期化
             String date = Integer.toString(card.getDate());
             TextView textView1 = (TextView) view.findViewById(R.id.date);
-            TextView textView2 = (TextView) view.findViewById(R.id.time);
+            TextView textView2 = (TextView) view.findViewById(R.id.title);
+            TextView textView3 = (TextView) view.findViewById(R.id.modelIndex);
 
             //この処理がないとList更新時前のデータが残る
             textView1.setText("");
             textView2.setText("");
+            textView3.setText("");
 
             //値のセット
             textView1.setText(date.substring(0, 4) + "/" + date.substring(4, 6) + "/" + date.substring(6, 8));
-            textView2.setText("ソースコード変更必須");
+            textView2.setText(card.getTitle());
+            textView3.setText("ソースコード変更必須");
 
             return view;
         }
@@ -138,15 +143,23 @@ public class CheckEventFragment extends ListFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
-        if(requestCode == ADD_PLAN){
-            //region イベント日の追加時
-            //endregion
-        }else if(requestCode == EDIT_PLAN){
-            //region イベント日の更新時
-            //endregion
-        }else {
-            return;
+        if(resultCode == RESULT_OK){
+            if(requestCode == ADD_PLAN){
+                //region イベント日の追加時
+                int index = intent.getIntExtra("Index", -1);
+                if(index == cards.size()){
+                    cards.add((EventPlanCard) intent.getSerializableExtra("AddCard"));
+                }else{
+                    cards.add(index, (EventPlanCard)intent.getSerializableExtra("AddCard"));
+                }
+                //endregion
+            }else if(requestCode == EDIT_PLAN){
+                //region イベント日の更新時
+                //endregion
+            }else {
+                return;
+            }
+            updateList();
         }
-        updateList();
     }
 }

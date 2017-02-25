@@ -21,6 +21,8 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
+
 public class SettingModelFragment extends ListFragment {
     //requestCode
     private static final int ADD_PLAN = 1;
@@ -33,6 +35,7 @@ public class SettingModelFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState) {
         View view = inflater.inflate(R.layout.fragment_listandfbutton, container, false);
+        cards = ((ScheduleApplication)getActivity().getApplication()).getModelCards();
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,7 +75,6 @@ public class SettingModelFragment extends ListFragment {
         getListView().setDividerHeight(5);
 
         //Listの描画
-        cards = new ArrayList<>();
         cardAdapter = new CardAdapter();
         updateList();
     }
@@ -184,15 +186,28 @@ public class SettingModelFragment extends ListFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
-        if(requestCode == ADD_PLAN){
-            //region 予定の追加時
-            //endregion
-        }else if(requestCode == EDIT_PLAN){
-            //region 予定の更新時
-            //endregion
-        }else {
-            return;
+        if(resultCode == RESULT_OK){
+            if(requestCode == ADD_PLAN){
+                //region 予定の追加時
+                int index = intent.getIntExtra("Index", -1);
+                ArrayList<Card> addCards = ((ArrayList<Card>) intent.getSerializableExtra("AddCards"));
+                if(index == cards.size()){
+                    for(int i = 0; i < addCards.size(); i++){
+                        cards.add(addCards.get(i));
+                    }
+                }else{
+                    for(int i = 0; i < addCards.size(); i++){
+                        cards.add(index + i, addCards.get(i));
+                    }
+                }
+                //endregion
+            }else if(requestCode == EDIT_PLAN){
+                //region 予定の更新時
+                //endregion
+            }else {
+                return;
+            }
+            updateList();
         }
-        updateList();
     }
 }

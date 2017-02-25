@@ -4,11 +4,12 @@ import java.io.Serializable;
 
 public class EventPlanCard implements Serializable , Cloneable{
     private int date;
-    private int modelIndex;
     private String title;
+    private int modelIndex;
 
-    public void setInfo(int date, int modelIndex){
+    public EventPlanCard(int date, String title, int modelIndex){
         this.date = date;
+        this.title = title;
         this.modelIndex = modelIndex;
     }
 

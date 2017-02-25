@@ -18,6 +18,10 @@ import java.util.Comparator;
 
 public class ScheduleApplication extends Application {
     static DBAdapter dbAdapter;
+    private ArrayList<Card> modelCards;
+    private ArrayList<Card> planCards;
+    private ArrayList<MustPlanCard> mustCards;
+    private ArrayList<EventPlanCard> eventCards;
 
     @Override
     public void onCreate() {
@@ -25,6 +29,7 @@ public class ScheduleApplication extends Application {
         dbAdapter = new DBAdapter(this);
     }
 
+    //region DBアクセス
     public void saveCard(Card card){
         dbAdapter.open();
         dbAdapter.saveWord(card);
@@ -63,5 +68,30 @@ public class ScheduleApplication extends Application {
         }
         cursor.close();
         dbAdapter.close();
+    }
+    //endregion
+
+    public ArrayList<Card> getModelCards(){
+        if(modelCards == null)
+            modelCards = new ArrayList<Card>();
+        return modelCards;
+    }
+
+    public ArrayList<Card> getPlanCards(){
+        if(planCards == null)
+            planCards = new ArrayList<Card>();
+        return planCards;
+    }
+
+    public ArrayList<MustPlanCard> getMustCards(){
+        if(mustCards == null)
+            mustCards = new ArrayList<MustPlanCard>();
+        return mustCards;
+    }
+
+    public ArrayList<EventPlanCard> getEventCards(){
+        if(eventCards == null)
+            eventCards = new ArrayList<EventPlanCard>();
+        return eventCards;
     }
 }

@@ -4,11 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#ffffff"
-    android:paddingLeft="10px"
-    android:paddingTop="10px"
-    android:paddingRight="10px"
-    android:paddingBottom="10px">
+    android:background="#ffffff">
 
     <TextView
         android:id="@+id/date"
@@ -20,6 +16,7 @@
         android:paddingTop="10px"
         android:paddingRight="10px"
         android:paddingBottom="5px"
+        android:gravity="center"
         android:background="@drawable/dotted_bottom"/>
 
     <LinearLayout
@@ -27,11 +24,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/title"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="モデル"
+            android:layout_weight="1"
             android:textSize="20sp"
             android:textColor="#424242"
+            android:ellipsize="end"
+            android:lines="1"
             android:paddingLeft="10px"
             android:paddingTop="5px"
             android:paddingRight="10px"
@@ -41,13 +41,17 @@
             android:id="@+id/modelIndex"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:textSize="20sp"
             android:textColor="#424242"
+            android:ellipsize="end"
+            android:lines="1"
             android:paddingLeft="10px"
             android:paddingTop="5px"
             android:paddingRight="10px"
             android:paddingBottom="10px"
-            android:gravity="right"/>
+            android:gravity="right"
+            android:background="@drawable/dotted_left"/>
 
     </LinearLayout>
 

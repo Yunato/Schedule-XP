@@ -21,6 +21,10 @@ public class Card implements Serializable {
         this.memo = null;
     }
 
+    public void setConnect(boolean connect){
+        this.connect = connect;
+    }
+
     public void setMemo(String memo){
         this.memo = memo;
     }

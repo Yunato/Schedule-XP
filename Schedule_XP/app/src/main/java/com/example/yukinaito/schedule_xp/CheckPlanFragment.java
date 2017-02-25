@@ -19,6 +19,8 @@ import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
+
 public class CheckPlanFragment extends ListFragment{
     //requestCode
     private static final int ADD_PLAN = 1;
@@ -31,6 +33,7 @@ public class CheckPlanFragment extends ListFragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_listandfbutton, container, false);
+        cards = ((ScheduleApplication)getActivity().getApplication()).getPlanCards();
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,7 +55,6 @@ public class CheckPlanFragment extends ListFragment{
         getListView().setDividerHeight(5);
 
         //Listの描画
-        cards = new ArrayList<>();
         cardAdapter = new CheckPlanFragment.CardAdapter();
         updateList();
     }
@@ -104,14 +106,14 @@ public class CheckPlanFragment extends ListFragment{
         }
 
         @Override
-        public View getView(int pos, View view, ViewGroup parent){
+        public View getView(int index, View view, ViewGroup parent){
             Context context = getActivity().getApplication();
             //ListViewの要素として表示する予定情報
-            Card card = cards.get(pos);
+            Card card = cards.get(index);
 
             //レイアウトの生成
             if(view == null)
-                view = (LayoutInflater.from(context)).inflate(R.layout.list_settingmodel, null);
+                view = (LayoutInflater.from(context)).inflate(R.layout.list_checkplan, null);
 
             //宣言&初期化
             Format format = new DecimalFormat("00");
@@ -159,15 +161,23 @@ public class CheckPlanFragment extends ListFragment{
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
-        if(requestCode == ADD_PLAN){
-            //region 予定の追加時
-            //endregion
-        }else if(requestCode == EDIT_PLAN){
-            //region 予定の更新時
-            //endregion
-        }else {
-            return;
+        if(resultCode == RESULT_OK){
+            if(requestCode == ADD_PLAN){
+                //region 予定の追加時
+                int index = intent.getIntExtra("Index", -1);
+                if(index == cards.size()){
+                    cards.add((Card)intent.getSerializableExtra("AddCard"));
+                }else{
+                    cards.add(index, (Card)intent.getSerializableExtra("AddCard"));
+                }
+                //endregion
+            }else if(requestCode == EDIT_PLAN){
+                //region 予定の更新時
+                //endregion
+            }else {
+                return;
+            }
+            updateList();
         }
-        updateList();
     }
 }

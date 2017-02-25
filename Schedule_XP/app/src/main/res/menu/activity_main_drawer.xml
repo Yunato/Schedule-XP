@@ -16,7 +16,7 @@
         <item
             android:id="@+id/menu_item3"
             android:icon="@android:drawable/ic_menu_manage"
-            android:title="ひな形(モデル)の編集" />
+            android:title="モデルの編集" />
         <item
             android:id="@+id/menu_item4"
             android:icon="@android:drawable/ic_menu_manage"

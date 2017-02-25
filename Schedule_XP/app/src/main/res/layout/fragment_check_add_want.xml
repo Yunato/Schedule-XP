@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,7 +11,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
         <LinearLayout
             android:id="@+id/activity_add_model"
             android:layout_width="match_parent"
@@ -35,20 +36,7 @@
                     android:paddingBottom="30px"
                     android:textColor="@color/input"
                     android:background="@drawable/enclosure_item"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toRightOf="@+id/text_investment"
-                    android:layout_toLeftOf="@+id/add_investment"
-                    android:text="個"
-                    android:textSize="22sp"
-                    android:gravity="right"
-                    android:paddingLeft="15px"
-                    android:paddingTop="30px"
-                    android:paddingRight="15px"
-                    android:paddingBottom="30px"
-                    android:textColor="@color/colorTextDecided"
-                    android:background="@drawable/enclosure_input"/>
+
                 <Button
                     android:id="@+id/add_investment"
                     android:layout_width="wrap_content"
@@ -64,14 +52,36 @@
                     android:textColor="@color/input"
                     android:background="@drawable/enclosure_item"/>
 
+                <TextView
+                    android:id="@+id/number_investment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/text_investment"
+                    android:layout_toLeftOf="@+id/add_investment"
+                    android:textSize="22sp"
+                    android:gravity="right"
+                    android:paddingLeft="15px"
+                    android:paddingTop="30px"
+                    android:paddingRight="15px"
+                    android:paddingBottom="30px"
+                    android:textColor="@color/colorTextDecided"
+                    android:background="@drawable/enclosure_input" />
+
             </RelativeLayout>
 
-            <ListView
-                android:id="@+id/list_investment"
+            <LinearLayout
+                android:id="@+id/list_investmentLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:layout_weight="5">
+                <ListView
+                    android:id="@+id/list_investment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-            </ListView>
+                </ListView>
+
+            </LinearLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -91,12 +101,13 @@
                     android:paddingBottom="30px"
                     android:textColor="@color/input"
                     android:background="@drawable/enclosure_item"/>
+
                 <TextView
+                    android:id="@+id/number_waste"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@+id/text_waste"
                     android:layout_toLeftOf="@+id/add_waste"
-                    android:text="個"
                     android:textSize="22sp"
                     android:gravity="right"
                     android:paddingLeft="15px"
@@ -105,11 +116,11 @@
                     android:paddingBottom="30px"
                     android:textColor="@color/colorTextDecided"
                     android:background="@drawable/enclosure_input"/>
+
                 <Button
                     android:id="@+id/add_waste"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
                     android:text="追加"
                     android:textSize="22sp"
                     android:gravity="center"
@@ -118,18 +129,26 @@
                     android:paddingRight="15px"
                     android:paddingBottom="30px"
                     android:textColor="@color/input"
-                    android:background="@drawable/enclosure_item" />
+                    android:background="@drawable/enclosure_item"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true" />
 
             </RelativeLayout>
 
-            <ListView
-                android:id="@+id/list_waste"
+            <LinearLayout
+                android:id="@+id/list_wasteLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:layout_weight="8">
+                <ListView
+                    android:id="@+id/list_waste"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-            </ListView>
+                </ListView>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
-</FrameLayout>
+</LinearLayout>

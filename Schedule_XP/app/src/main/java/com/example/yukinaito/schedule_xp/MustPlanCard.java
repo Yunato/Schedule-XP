@@ -10,7 +10,7 @@ public class MustPlanCard implements Serializable {
     String place;
     String memo;
 
-    public void setInfo(String content, boolean active, int limitDate, int limitTime, String place){
+    public MustPlanCard(String content, boolean active, int limitDate, int limitTime, String place){
         this.content = content;
         this.active = active;
         this.limitDate = limitDate;

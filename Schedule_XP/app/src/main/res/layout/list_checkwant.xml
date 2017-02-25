@@ -5,25 +5,33 @@
     android:layout_height="wrap_content"
     android:background="#ffffff">
 
-    <Switch
-        android:id="@+id/Switch1"
+    <LinearLayout
+        android:id="@+id/switchLayout"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingLeft="10px"
-        android:paddingTop="10px"
-        android:paddingRight="10px"
-        android:paddingBottom="10px"
-        android:focusableInTouchMode="false"
-        android:focusable="false"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignBottom="@+id/Layout2"
         android:layout_alignParentStart="true"
-        android:layout_alignBottom="@+id/Layout2" />
+        android:gravity="center_vertical">
+        <Switch
+            android:id="@+id/Switch1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="10px"
+            android:paddingTop="10px"
+            android:paddingRight="10px"
+            android:paddingBottom="10px"
+            android:focusableInTouchMode="false"
+            android:focusable="false"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/Layout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_toRightOf="@+id/Switch1"
+        android:layout_toRightOf="@+id/switchLayout"
         android:layout_toLeftOf="@+id/ratio"
         android:background="@drawable/line_left">
 
@@ -38,7 +46,7 @@
             android:paddingTop="10px"
             android:paddingRight="10px"
             android:paddingBottom="10px"
-            android:gravity="right"
+            android:gravity="left"
             android:background="@drawable/dotted_bottom"/>
 
         <TextView
@@ -52,7 +60,7 @@
             android:paddingTop="10px"
             android:paddingRight="10px"
             android:paddingBottom="10px"
-            android:gravity="right"/>
+            android:gravity="left"/>
 
     </LinearLayout>
 
@@ -69,6 +77,6 @@
         android:paddingTop="10px"
         android:paddingRight="10px"
         android:paddingBottom="10px"
-        android:background="@drawable/line_right"/>
+        android:background="@drawable/line_left"/>
 
 </RelativeLayout>

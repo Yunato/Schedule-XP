@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/textview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="作成するモデルの名前を入力してください。"/>
 

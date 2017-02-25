@@ -1,5 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +12,11 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+import java.util.ArrayList;
 
 public class AddEventActivity extends AppCompatActivity {
 
@@ -27,6 +33,9 @@ public class AddEventActivity extends AppCompatActivity {
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         //endregion
+
+        CalendarView calendarView = (CalendarView)findViewById(R.id.input_date);
+        //編集のときはset()メソッドを呼ぶ
     }
 
     @Override
@@ -38,9 +47,6 @@ public class AddEventActivity extends AppCompatActivity {
         inflater.inflate(R.menu.add_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
-
-    public void FindError(){}
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -58,10 +64,53 @@ public class AddEventActivity extends AppCompatActivity {
         if (id == android.R.id.home) {
             finish();
         }else if (id == R.id.add_action) {
+            //入力チェック
+            int index = addCheck();
+            if(!inputCheck() && index > -1){
+                //ダイアログの生成(失敗)
+                return super.onOptionsItemSelected(item);
+            }
+            //追加するオブジェクトを作成
+            EventPlanCard addCard = new EventPlanCard(((CalendarView)findViewById(R.id.input_date)).getInfo(),
+                    ((EditText)findViewById(R.id.input_title)).getText().toString(),
+                    ((Spinner)findViewById(R.id.input_model)).getSelectedItemPosition());
+            //intent作成
+            Intent intent = new Intent();
+            intent.putExtra("AddCard", addCard);
+            intent.putExtra("Index", index);
+            setResult(RESULT_OK, intent);
             finish();
         }else if (id == R.id.update_action) {
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //入力チェック 未選択|空欄でないかどうか
+    public boolean inputCheck(){
+        if(((Spinner)findViewById(R.id.input_model)).getSelectedItemPosition() != 0 &&
+                ((EditText)findViewById(R.id.input_title)).getText().toString().trim().length() != 0)
+            return true;
+        return false;
+    }
+
+    //追加する予定が他の予定と重なっていないかチェック&追加位置を返す
+    public int addCheck(){
+        //後で変更 アプリケーションから取得
+        ArrayList<EventPlanCard> planCards = ((ScheduleApplication)getApplication()).getEventCards();
+        int date = ((CalendarView)findViewById(R.id.input_date)).getInfo();
+
+        //予定が空のとき
+        if(planCards.size() == 0)
+            return 0;
+
+        //確認処理
+        for(int index = 0; index < planCards.size(); index++) {
+            int originalDate = planCards.get(index).getDate();
+            if (originalDate > date) {
+                return index;
+            }
+        }
+        return planCards.size();
     }
 }

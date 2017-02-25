@@ -3,21 +3,22 @@ package com.example.yukinaito.schedule_xp;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
-import java.text.Format;
 import java.util.ArrayList;
 
 public class CheckAddWantFragment extends Fragment {
@@ -30,12 +31,36 @@ public class CheckAddWantFragment extends Fragment {
     //ListView
     private ListView investmentWant;
     private ListView wasteWant;
+    //LinearLayout
+    private LinearLayout investmentLayout;
+    private LinearLayout wasteLayout;
+    //TextVie
+    private TextView investmentSum;
+    private TextView wasteSum;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_check_add_want, container, false);
         investmentWant = (ListView)view.findViewById(R.id.list_investment);
         wasteWant = (ListView)view.findViewById(R.id.list_waste);
+        investmentSum = (TextView)view.findViewById(R.id.number_investment);
+        wasteSum = (TextView)view.findViewById(R.id.number_waste);
+
+        //region リスナーの登録
+        view.findViewById(R.id.add_investment).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(0);
+            }
+        });
+        view.findViewById(R.id.add_waste).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createDialog(1);
+            }
+        });
+        //endregion
+
         return view;
     }
 
@@ -57,17 +82,6 @@ public class CheckAddWantFragment extends Fragment {
 
         investmentWant.setAdapter(investmentAdapter);
         wasteWant.setAdapter(wasteAdapter);
-
-        WantPlanCard test1 = new WantPlanCard("読書", false, 37, "部屋");
-        investmentCards.add(test1);
-        WantPlanCard test2 = new WantPlanCard("ゲーム作り", false, 37, "部屋");
-        investmentCards.add(test2);
-        WantPlanCard test3 = new WantPlanCard("プログラミング学習", false, 37, "部屋");
-        investmentCards.add(test3);
-        WantPlanCard test4 = new WantPlanCard("ポケモン", false, 37, "部屋");
-        wasteCards.add(test4);
-        WantPlanCard test5 = new WantPlanCard("GTA", false, 37, "部屋");
-        wasteCards.add(test5);
 
         updateInvestmentList();
         updateWasteList();
@@ -192,16 +206,99 @@ public class CheckAddWantFragment extends Fragment {
         }
     }
 
-    //Listの更新
-    public void updateWasteList(){
-        //setListAdapter(cardAdapter);
-        //画面更新
-        wasteAdapter.notifyDataSetChanged();
+    public void createDialog(final int id){
+        //region ダイアログの生成
+        LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View layout = inflater.inflate(R.layout.dialog_createwant, (ViewGroup)getActivity().findViewById(R.id.layout_root));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        if(id == 0)
+            builder.setTitle("新規作成(投資)");
+        else if(id == 1)
+            builder.setTitle("新規作成(浪費)");
+        builder.setView(layout);
+        builder.setPositiveButton("作成", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //region "作成"のタップ時
+                //変更必要
+                WantPlanCard addCard = new WantPlanCard(((EditText)layout.findViewById(R.id.input_content)).getText().toString(),
+                        false, 0, ((EditText)layout.findViewById(R.id.input_place)).getText().toString());
+                if(id == 0){
+                    investmentCards.add(addCard);
+                    updateInvestmentList();
+                }
+                else{
+                    wasteCards.add(addCard);
+                    updateWasteList();
+                }
+                //endregion
+            }
+        });
+        builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //region "キャンセル"のタップ時
+                //endregion
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        ((EditText)layout.findViewById(R.id.input_content)).addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //入力チェック 空欄でないかどうか
+                if(((EditText)layout.findViewById(R.id.input_content)).getText().toString().trim().length() != 0
+                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().trim().length() != 0)
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                else
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            }
+        });
+        ((EditText)layout.findViewById(R.id.input_place)).addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //入力チェック 空欄でないかどうか
+                if(((EditText)layout.findViewById(R.id.input_content)).getText().toString().trim().length() != 0
+                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().trim().length() != 0)
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                else
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            }
+        });
+        //endregion
     }
+
     //Listの更新
     public void updateInvestmentList(){
         //setListAdapter(cardAdapter);
         //画面更新
+        investmentSum.setText(investmentCards.size() + "個");
         investmentAdapter.notifyDataSetChanged();
+    }
+
+    //Listの更新
+    public void updateWasteList(){
+        //setListAdapter(cardAdapter);
+        //画面更新
+        wasteSum.setText(wasteCards.size() + "個");
+        wasteAdapter.notifyDataSetChanged();
     }
 }

@@ -30,7 +30,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="日付"
+                    android:text="締切日"
                     android:textSize="22sp"
                     android:gravity="center"
                     android:paddingLeft="15px"
