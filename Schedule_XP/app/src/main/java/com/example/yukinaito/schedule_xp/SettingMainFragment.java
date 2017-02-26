@@ -26,6 +26,7 @@ public class SettingMainFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_listandfbutton, container, false);
+        modelName = ((ScheduleApplication)getActivity().getApplication()).getModelNames();
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -42,6 +43,7 @@ public class SettingMainFragment extends ListFragment {
                         //region "作成"のタップ時
                         //変更必要
                         modelName.add(((EditText)layout.findViewById(R.id.input_name)).getText().toString());
+                        ((ScheduleApplication)getActivity().getApplication()).writeFile();
                         updateList();
                         //endregion
                     }
@@ -90,8 +92,6 @@ public class SettingMainFragment extends ListFragment {
 
         //Listの描画
         //変更必要
-        modelName = new ArrayList<>();
-        modelName.add("日曜日");
         drawItem = new ArrayAdapter<>(getActivity(), R.layout.rowdata, modelName);
 
         updateList();

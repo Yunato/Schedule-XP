@@ -15,9 +15,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class ScheduleApplication extends Application {
     static DBAdapter dbAdapter;
+
+    private ArrayList<String> modelNames;
     private ArrayList<Card> modelCards;
     private ArrayList<Card> planCards;
     private ArrayList<WantPlanCard> investmentCards;
@@ -73,6 +76,12 @@ public class ScheduleApplication extends Application {
     }
     //endregion
 
+    public ArrayList<String> getModelNames(){
+        if(modelCards == null)
+            readFile();
+        return modelNames;
+    }
+
     public ArrayList<Card> getModelCards(){
         if(modelCards == null)
             modelCards = new ArrayList<>();
@@ -107,5 +116,34 @@ public class ScheduleApplication extends Application {
         if(eventCards == null)
             eventCards = new ArrayList<>();
         return eventCards;
+    }
+
+    public void readFile() {
+        String tmp;
+        modelNames = new ArrayList<>();
+        try {
+            FileInputStream in = openFileInput("modelName.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            while ((tmp = reader.readLine()) != null) {
+                Log.d("TEST",tmp);
+                modelNames.add(tmp);
+            }
+        } catch (IOException e) {
+        }
+    }
+
+    public void writeFile(){
+        String addName = "";
+        this.deleteFile("modelName.txt");
+        Iterator iterator = modelNames.iterator();
+        while(iterator.hasNext()){
+            addName += iterator.next() + "\n";
+        }
+        try {
+            FileOutputStream out = this.openFileOutput("modelName.txt", this.MODE_APPEND | this.MODE_WORLD_READABLE);
+            out.write(addName.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -7,4 +7,16 @@
     <string name="action_settings">Settings</string>
 
     <string name="format_month_year">yyyy年MM月</string>
+
+    <string name="modelName_text">
+        <![CDATA[
+            日曜日・祝日
+            \n月曜日
+            \n火曜日
+            \n水曜日
+            \n木曜日
+            \n金曜日
+            \n土曜日
+            \n]]>
+    </string>
 </resources>

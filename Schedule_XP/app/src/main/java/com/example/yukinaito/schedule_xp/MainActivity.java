@@ -1,5 +1,6 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -33,6 +37,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //アプリケーション起動処理
+        checkState();
     }
 
     @Override
@@ -78,5 +85,20 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    //初回起動であるか判別 起動処理
+    public void checkState(){
+        SharedPreferences preference = getSharedPreferences("Preference Name", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preference.edit();
+        if(preference.getBoolean("Launched", false) == false) {
+            try {
+                //初回起動時にてデフォルトファイルの生成
+                OutputStream out = openFileOutput("modelName.txt", MODE_PRIVATE | MODE_APPEND);
+                out.write((getResources().getString(R.string.modelName_text)).getBytes());
+            }catch(IOException e){
+            }
+            editor.putBoolean("Launched", true).commit();
+        }
     }
 }
