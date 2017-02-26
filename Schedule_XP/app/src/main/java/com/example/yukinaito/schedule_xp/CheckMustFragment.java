@@ -24,8 +24,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class CheckMustFragment extends ListFragment {
     //requestCode
-    private static final int ADD_PLAN = 1;
-    private static final int EDIT_PLAN = 2;
+    private static final int ADD_EDIT_PLAN = 1;
 
     //データ
     private CheckMustFragment.CardAdapter cardAdapter;
@@ -40,7 +39,7 @@ public class CheckMustFragment extends ListFragment {
             public void onClick(View view) {
                 //region すべきことの追加画面へ遷移
                 Intent intent = new Intent(getActivity(), AddMustActivity.class);
-                startActivityForResult(intent, ADD_PLAN);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -70,6 +69,19 @@ public class CheckMustFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region すべきことの編集画面へ遷移
+                MustPlanCard editCard = new MustPlanCard(cards.get(position).getContent(),
+                        cards.get(position).getActive(),
+                        cards.get(position).getLimitDate(),
+                        cards.get(position).getLimitTime(),
+                        cards.get(position).getPlace());
+                editCard.setMemo(cards.get(position).getMemo());
+                cards.remove(position);
+
+                //生成した予定をAddPlanActivityへ渡す
+                Intent intent = new Intent(getActivity(), AddMustActivity.class);
+                intent.putExtra("EditCard", editCard);
+                intent.putExtra("Index", position);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -84,6 +96,8 @@ public class CheckMustFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region すべきことを削除
+                cards.remove(position);
+                updateList();
                 //endregion
             }
         });
@@ -151,19 +165,16 @@ public class CheckMustFragment extends ListFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
         if(resultCode == RESULT_OK){
-            if(requestCode == ADD_PLAN){
-                //region すべきことの追加時
+            if(requestCode == ADD_EDIT_PLAN){
+                //region すべきことの追加|更新時
                 int index = intent.getIntExtra("Index", -1);
                 if(index == cards.size()){
-                    cards.add((MustPlanCard) intent.getSerializableExtra("AddCard"));
+                    cards.add((MustPlanCard)intent.getSerializableExtra("AddEditCard"));
                 }else{
-                    cards.add(index, (MustPlanCard)intent.getSerializableExtra("AddCard"));
+                    cards.add(index, (MustPlanCard)intent.getSerializableExtra("AddEditCard"));
                 }
                 //endregion
-            }else if(requestCode == EDIT_PLAN){
-                //region すべきことの更新時
-                //endregion
-            }else {
+            }else{
                 return;
             }
             updateList();

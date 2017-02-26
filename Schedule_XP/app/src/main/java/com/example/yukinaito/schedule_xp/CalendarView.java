@@ -34,9 +34,9 @@ public class CalendarView extends LinearLayout {
 
     //タップされているTextViewとその日のデータ
     private TextView TapTextView;
-    private int TapYear;
-    private int TapMonth;
-    private int TapDay;
+    private int TapYear = 0;
+    private int TapMonth = 0;
+    private int TapDay = 0;
 
     //データ
     private int drawYear;
@@ -189,6 +189,13 @@ public class CalendarView extends LinearLayout {
         }
     }
 
+    public void set(int year, int month, int day){
+        TapYear = year;
+        TapMonth = month;
+        TapDay = day;
+        set(year, month);
+    }
+
     public void set(int year, int month){
         setTitle(year, month);
         setWeeks();
@@ -253,7 +260,7 @@ public class CalendarView extends LinearLayout {
                                   todayMonth == month &&
                                   todayDay == dayCounter;
 
-                if(TapTextView != null){
+                if(TapYear != 0 && TapMonth != 0 && TapDay != 0){
                     isToday = TapYear == year &&
                               TapMonth == month &&
                               TapDay == dayCounter;

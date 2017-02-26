@@ -21,8 +21,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class CheckEventFragment extends ListFragment {
     //requestCode
-    private static final int ADD_PLAN = 1;
-    private static final int EDIT_PLAN = 2;
+    private static final int ADD_EDIT_PLAN = 1;
 
     //データ
     private CheckEventFragment.CardAdapter cardAdapter;
@@ -37,7 +36,7 @@ public class CheckEventFragment extends ListFragment {
             public void onClick(View view) {
                 //region イベント日の追加画面へ遷移
                 Intent intent = new Intent(getActivity(), AddEventActivity.class);
-                startActivityForResult(intent, ADD_PLAN);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -67,6 +66,16 @@ public class CheckEventFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region イベント日の編集画面へ遷移
+                EventPlanCard editCard = new EventPlanCard(cards.get(position).getDate(),
+                        cards.get(position).getTitle(),
+                        cards.get(position).getIndex());
+                cards.remove(position);
+
+                //生成した予定をAddPlanActivityへ渡す
+                Intent intent = new Intent(getActivity(), AddEventActivity.class);
+                intent.putExtra("EditCard", editCard);
+                intent.putExtra("Index", position);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -81,6 +90,8 @@ public class CheckEventFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region イベント日を削除
+                cards.remove(position);
+                updateList();
                 //endregion
             }
         });
@@ -144,19 +155,16 @@ public class CheckEventFragment extends ListFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
         if(resultCode == RESULT_OK){
-            if(requestCode == ADD_PLAN){
-                //region イベント日の追加時
+            if(requestCode == ADD_EDIT_PLAN){
+                //region イベント日の追加|更新時
                 int index = intent.getIntExtra("Index", -1);
                 if(index == cards.size()){
-                    cards.add((EventPlanCard) intent.getSerializableExtra("AddCard"));
+                    cards.add((EventPlanCard) intent.getSerializableExtra("AddEditCard"));
                 }else{
-                    cards.add(index, (EventPlanCard)intent.getSerializableExtra("AddCard"));
+                    cards.add(index, (EventPlanCard)intent.getSerializableExtra("AddEditCard"));
                 }
                 //endregion
-            }else if(requestCode == EDIT_PLAN){
-                //region イベント日の更新時
-                //endregion
-            }else {
+            }else{
                 return;
             }
             updateList();

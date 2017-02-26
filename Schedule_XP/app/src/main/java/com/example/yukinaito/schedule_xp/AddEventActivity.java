@@ -16,9 +16,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 
 public class AddEventActivity extends AppCompatActivity {
+    private boolean editFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,17 +37,30 @@ public class AddEventActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         //endregion
 
-        CalendarView calendarView = (CalendarView)findViewById(R.id.input_date);
         //編集のときはset()メソッドを呼ぶ
+
+        //region 編集かどうか
+        EventPlanCard editCard;
+        if((editCard = (EventPlanCard) getIntent().getSerializableExtra("EditCard")) != null){
+            editFlag = true;
+            String date = Integer.toString(editCard.getDate());
+            CalendarView calendarView = (CalendarView)findViewById(R.id.input_date);
+            calendarView.set(Integer.parseInt(date.substring(0, 4)),
+                    Integer.parseInt(date.substring(4, 6)),
+                    Integer.parseInt(date.substring(6, 8)));
+            ((EditText)findViewById(R.id.input_title)).setText(editCard.getTitle());
+            ((Spinner)findViewById(R.id.input_model)).setSelection(editCard.getIndex());
+        }
+        //endregion
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final MenuInflater inflater = getMenuInflater();
-        //if(update_model != null)
-        //inflater.inflate(R.menu.edit_menu, menu);
-        //else
-        inflater.inflate(R.menu.add_menu, menu);
+        if(editFlag)
+            inflater.inflate(R.menu.edit_menu, menu);
+        else
+            inflater.inflate(R.menu.add_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -52,6 +68,12 @@ public class AddEventActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //戻るキーを押されたときの処理
+            if(editFlag){
+                Intent intent = new Intent();
+                intent.putExtra("AddEditCard", getIntent().getSerializableExtra("EditCard"));
+                intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
+                setResult(RESULT_OK, intent);
+            }
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -62,11 +84,21 @@ public class AddEventActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            //region 前画面に戻るボタンタップ時
+            EventPlanCard editCard;
+            if((editCard = (EventPlanCard) getIntent().getSerializableExtra("EditCard")) != null){
+                Intent intent = new Intent();
+                intent.putExtra("AddEditCard", editCard);
+                intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
+                setResult(RESULT_OK, intent);
+            }
             finish();
-        }else if (id == R.id.add_action) {
+            //endregion
+        }else if (id == R.id.add_action || id == R.id.update_action) {
+            //region 追加|更新ボタンタップ時
             //入力チェック
             int index = addCheck();
-            if(!inputCheck() && index > -1){
+            if(!inputCheck() || index < 0){
                 //ダイアログの生成(失敗)
                 return super.onOptionsItemSelected(item);
             }
@@ -76,12 +108,11 @@ public class AddEventActivity extends AppCompatActivity {
                     ((Spinner)findViewById(R.id.input_model)).getSelectedItemPosition());
             //intent作成
             Intent intent = new Intent();
-            intent.putExtra("AddCard", addCard);
+            intent.putExtra("AddEditCard", addCard);
             intent.putExtra("Index", index);
             setResult(RESULT_OK, intent);
             finish();
-        }else if (id == R.id.update_action) {
-            finish();
+            //endregion
         }
         return super.onOptionsItemSelected(item);
     }
@@ -109,6 +140,8 @@ public class AddEventActivity extends AppCompatActivity {
             int originalDate = planCards.get(index).getDate();
             if (originalDate > date) {
                 return index;
+            }else if(originalDate == date){
+                return -1 * index - 1;
             }
         }
         return planCards.size();

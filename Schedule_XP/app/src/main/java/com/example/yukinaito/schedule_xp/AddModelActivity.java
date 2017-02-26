@@ -30,6 +30,8 @@ import android.widget.TimePicker;
 import org.w3c.dom.Text;
 
 import java.sql.BatchUpdateException;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 
 public class AddModelActivity extends AppCompatActivity {
@@ -38,11 +40,12 @@ public class AddModelActivity extends AppCompatActivity {
     private Button addButton;
     //生成したモデルの個数 削除でデクリメントしない
     private int planCount = 0;
+    //ダイアログを表示させるボタンのタグを保持
+    private String Tag;
     //データ
     private int startTime;
     private int overTime;
-    //ダイアログを表示させるボタンのタグを保持
-    private String Tag;
+    private boolean editFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,30 +61,41 @@ public class AddModelActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         //endregion
 
+        Log.d("TEST ac", "OK");
+        int count = 1;
+        //region 編集かどうか
+        ArrayList<Card> editCards;
+        if((editCards = (ArrayList<Card>) getIntent().getSerializableExtra("EditCard")) != null){
+            editFlag = true;
+            count = editCards.size();
+            Log.d("TEST", count + " ");
+        }
+        //endregion
+
         //レイアウトの生成
         layout = (LinearLayout) findViewById(R.id.activity_add_model);
         addButton = (Button) findViewById(R.id.AddButton);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createObject(1);
+                createObject(1, null);
             }
         });
-        createObject(1);
+        createObject(count, editCards);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final MenuInflater inflater = getMenuInflater();
-        //if(update_model != null)
-        //inflater.inflate(R.menu.edit_menu, menu);
-        //else
-        inflater.inflate(R.menu.add_menu, menu);
+        if(editFlag)
+            inflater.inflate(R.menu.edit_menu, menu);
+        else
+            inflater.inflate(R.menu.add_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     //初回処理・最下にあるボタンがタップされたときの処理 入力欄の追加 / count 追加する回数
-    public void createObject(int count) {
+    public void createObject(int count, ArrayList<Card> editCards) {
         String viewTag1, viewTag2, viewTag3, viewTag4;
         for(int i = 0; i < count; i++, planCount++){
             //region 1つの固まった入力欄の生成
@@ -211,13 +225,11 @@ public class AddModelActivity extends AppCompatActivity {
             back = ResourcesCompat.getDrawable(getResources(), id, null);
             Button button1 = new Button(this);
             button1.setTag(viewTag1);
-            button1.setText("時刻の指定[タップ]");
             button1.setTextSize(22.0f);
             button1.setGravity(Gravity.CENTER);
             button1.setBackground(back);
             Button button2 = new Button(this);
             button2.setTag(viewTag2);
-            button2.setText("時刻の指定[タップ]");
             button2.setTextSize(22.0f);
             button2.setGravity(Gravity.CENTER);
             button2.setBackground(back);
@@ -281,6 +293,27 @@ public class AddModelActivity extends AppCompatActivity {
             ));
 
             tableLayout.addView(inputLayout);
+
+            //編集のとき値を格納する
+            if(editCards != null){
+                Format format = new DecimalFormat("00");
+                startTime = editCards.get(i).getStartTime();
+                overTime = editCards.get(i).getOverTime();
+                button1.setText(format.format(startTime / 100) + "時"
+                        + format.format(startTime % 100) + "分");
+                editText1.setText(editCards.get(i).getContent());
+                editText2.setText(editCards.get(i).getPlace());
+                if(overTime != -1){
+                    button2.setText(format.format(overTime / 100) + "時"
+                            + format.format(overTime % 100) + "分");
+                }else{
+                    button2.setText("時刻の指定[タップ]");
+                }
+            }else{
+                button1.setText("時刻の指定[タップ]");
+                button2.setText("時刻の指定[タップ]");
+            }
+
             //endregion
             //endregion
             blockLayout.addView(tableLayout);
@@ -301,6 +334,12 @@ public class AddModelActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //戻るキーを押されたときの処理
+            if(editFlag){
+                Intent intent = new Intent();
+                intent.putExtra("AddEditCards", getIntent().getSerializableExtra("EditCard"));
+                intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
+                setResult(RESULT_OK, intent);
+            }
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -311,8 +350,17 @@ public class AddModelActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            //region 前画面に戻るボタンタップ時
+            ArrayList<Card> editCards;
+            if((editCards = (ArrayList<Card>) getIntent().getSerializableExtra("EditCard")) != null){
+                Intent intent = new Intent();
+                intent.putExtra("AddEditCards", editCards);
+                intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
+                setResult(RESULT_OK, intent);
+            }
             finish();
-        }else if (id == R.id.add_action) {
+            //endregion
+        }else if (id == R.id.add_action || id == R.id.update_action) {
             //入力チェック
             int index = 0;
 
@@ -325,11 +373,9 @@ public class AddModelActivity extends AppCompatActivity {
             ArrayList<Card> addCards = createAddCards();
             //intent作成
             Intent intent = new Intent();
-            intent.putExtra("AddCards", addCards);
+            intent.putExtra("AddEditCards", addCards);
             intent.putExtra("Index", index);
             setResult(RESULT_OK, intent);
-            finish();
-        }else if (id == R.id.update_action) {
             finish();
         }
         return super.onOptionsItemSelected(item);

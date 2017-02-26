@@ -6,8 +6,7 @@
     android:id="@+id/activity_check_add_want"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.example.yukinaito.schedule_xp.CheckAddWantActivity">
+    android:orientation="vertical">
 
     <ScrollView
         android:layout_width="match_parent"

@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 
 public class AddPlanActivity extends AppCompatActivity {
@@ -24,6 +26,8 @@ public class AddPlanActivity extends AppCompatActivity {
     private int date = 0;
     private int startTime = 0;
     private int overTime = 0;
+
+    private boolean editFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +81,38 @@ public class AddPlanActivity extends AppCompatActivity {
             }
         });
         //endregion
+
+        //region 編集かどうか
+        Card editCard;
+        if((editCard = (Card) getIntent().getSerializableExtra("EditCard")) != null){
+            editFlag = true;
+            Format format = new DecimalFormat("00");
+            date = editCard.getDate();
+            startTime = editCard.getStartTime();
+            overTime = editCard.getOverTime();
+            ((Button)findViewById(R.id.input_date)).setText(Integer.toString(date).substring(0, 4) + "年"
+                                                          + Integer.toString(date).substring(4, 6) + "月"
+                                                          + Integer.toString(date).substring(6, 8) + "日");
+            ((Button)findViewById(R.id.input_startTime)).setText(format.format(startTime / 100) + "時"
+                                                               + format.format(startTime % 100) + "分");
+            ((Button)findViewById(R.id.input_overTime)).setText(format.format(overTime / 100) + "時"
+                                                              + format.format(overTime % 100) + "分");
+            ((EditText)findViewById(R.id.input_content)).setText(editCard.getContent());
+            ((EditText)findViewById(R.id.input_place)).setText(editCard.getPlace());
+            if(editCard.getMemo() != null){
+                ((EditText)findViewById(R.id.input_memo)).setText(editCard.getMemo());
+            }
+        }
+        //endregion
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final MenuInflater inflater = getMenuInflater();
-        //if(update_model != null)
-        //inflater.inflate(R.menu.edit_menu, menu);
-        //else
-        inflater.inflate(R.menu.add_menu, menu);
+        if(editFlag)
+            inflater.inflate(R.menu.edit_menu, menu);
+        else
+            inflater.inflate(R.menu.add_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -110,6 +137,12 @@ public class AddPlanActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //戻るキーを押されたときの処理
+            if(editFlag){
+                Intent intent = new Intent();
+                intent.putExtra("AddEditCard", getIntent().getSerializableExtra("EditCard"));
+                intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
+                setResult(RESULT_OK, intent);
+            }
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -120,27 +153,43 @@ public class AddPlanActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
+            //region 前画面に戻るボタンタップ時
+            Card editCard;
+            if((editCard = (Card) getIntent().getSerializableExtra("EditCard")) != null){
+                Intent intent = new Intent();
+                intent.putExtra("AddEditCard", editCard);
+                intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
+                setResult(RESULT_OK, intent);
+            }
             finish();
-        }else if (id == R.id.add_action) {
+            //endregion
+        }
+        if(id == R.id.add_action || id == R.id.update_action){
+            //region 追加|更新ボタンタップ時
             //入力チェック
             int index = addCheck();
-            if(!inputCheck() && index > -1){
+            if(!inputCheck() || index < 0){
                 //ダイアログの生成(失敗)
                 return super.onOptionsItemSelected(item);
             }
+
             //追加するオブジェクトを作成
             Card addCard = new Card(date, startTime, overTime, false,
                     ((EditText)findViewById(R.id.input_content)).getText().toString(),
                     ((EditText)findViewById(R.id.input_place)).getText().toString());
+            if(!((EditText)findViewById(R.id.input_memo)).getText().toString().equals("")){
+                addCard.setMemo(((EditText)findViewById(R.id.input_memo)).getText().toString());
+            }
+
             //intent作成
             Intent intent = new Intent();
-            intent.putExtra("AddCard", addCard);
+            intent.putExtra("AddEditCard", addCard);
             intent.putExtra("Index", index);
             setResult(RESULT_OK, intent);
             finish();
-        }else if (id == R.id.update_action) {
-            finish();
+            //endregion
         }
+
         return super.onOptionsItemSelected(item);
     }
 

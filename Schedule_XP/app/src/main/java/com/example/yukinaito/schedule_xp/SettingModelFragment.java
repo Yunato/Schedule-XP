@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +26,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class SettingModelFragment extends ListFragment {
     //requestCode
-    private static final int ADD_PLAN = 1;
-    private static final int EDIT_PLAN = 2;
+    private static final int ADD_EDIT_PLAN = 1;
 
     //データ
     private CardAdapter cardAdapter;
@@ -41,24 +41,7 @@ public class SettingModelFragment extends ListFragment {
             public void onClick(View view) {
                 //region 予定の追加画面へ遷移
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
-                startActivityForResult(intent, ADD_PLAN);
-                //endregion
-            }
-        });
-
-        //Backキー用
-        view.setFocusableInTouchMode(true);
-        view.setOnKeyListener(new View.OnKeyListener(){
-            @Override
-            public boolean onKey(View view, int keyCode, KeyEvent event){
-                //region Backキーがタップされたとき
-                if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP){
-                    int backStackCnt = getActivity().getSupportFragmentManager().getBackStackEntryCount();
-                    if(backStackCnt != 0)
-                        getActivity().getSupportFragmentManager().popBackStack();
-                    return true;
-                }
-                return false;
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -89,6 +72,55 @@ public class SettingModelFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定の編集画面へ遷移
+                ArrayList<Card> editCards = new ArrayList<>();
+
+                //region 基準となる(タップされた)予定の生成
+                Card editCard = new Card(cards.get(position).getDate(),
+                        cards.get(position).getStartTime(),
+                        cards.get(position).getOverTime(),
+                        cards.get(position).getConnect(),
+                        cards.get(position).getContent(),
+                        cards.get(position).getPlace());
+                editCard.setMemo(cards.get(position).getMemo());
+                cards.remove(position);
+                editCards.add(editCard);
+                //endregion
+
+                int index = position;
+                //region 基準の予定より後の連結予定を抽出
+                while(editCard.getConnect() && index < cards.size()){
+                    editCard = new Card(cards.get(index).getDate(),
+                            cards.get(index).getStartTime(),
+                            cards.get(index).getOverTime(),
+                            cards.get(index).getConnect(),
+                            cards.get(index).getContent(),
+                            cards.get(index).getPlace());
+                    editCard.setMemo(cards.get(index).getMemo());
+                    cards.remove(index);
+                    editCards.add(editCard);
+                }
+                //endregion
+                index = position - 1;
+                //region 基準の予定より前の連結予定を抽出
+                while(index >= 0 && cards.get(index).getConnect()){
+                    editCard = new Card(cards.get(index).getDate(),
+                            cards.get(index).getStartTime(),
+                            cards.get(index).getOverTime(),
+                            cards.get(index).getConnect(),
+                            cards.get(index).getContent(),
+                            cards.get(index).getPlace());
+                    editCard.setMemo(cards.get(index).getMemo());
+                    cards.remove(index);
+                    editCards.add(0, editCard);
+                    index--;
+                }
+                //endregion
+
+                //生成した予定をAddPlanActivityへ渡す
+                Intent intent = new Intent(getActivity(), AddModelActivity.class);
+                intent.putExtra("EditCard", editCards);
+                intent.putExtra("Index", ++index);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -103,6 +135,8 @@ public class SettingModelFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定を削除
+                cards.remove(position);
+                updateList();
                 //endregion
             }
         });
@@ -145,10 +179,16 @@ public class SettingModelFragment extends ListFragment {
             TextView textView4 = (TextView) view.findViewById(R.id.place);
 
             //trueならば連結している
-            if(card.getConnect())
-                finish = cards.get(pos + 1).getStartTime();
-            else
+            if(card.getConnect()){
+                if(cards.size() == (pos + 1)){
+                    finish = 2400;
+                }else{
+                    finish = cards.get(pos + 1).getStartTime();
+                }
+            }
+            else{
                 finish = card.getOverTime();
+            }
 
             //データの形式変更
             start = (start / 100) * 60 + (start % 100);
@@ -187,10 +227,10 @@ public class SettingModelFragment extends ListFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
         if(resultCode == RESULT_OK){
-            if(requestCode == ADD_PLAN){
+            if(requestCode == ADD_EDIT_PLAN){
                 //region 予定の追加時
                 int index = intent.getIntExtra("Index", -1);
-                ArrayList<Card> addCards = ((ArrayList<Card>) intent.getSerializableExtra("AddCards"));
+                ArrayList<Card> addCards = ((ArrayList<Card>) intent.getSerializableExtra("AddEditCards"));
                 if(index == cards.size()){
                     for(int i = 0; i < addCards.size(); i++){
                         cards.add(addCards.get(i));
@@ -200,9 +240,6 @@ public class SettingModelFragment extends ListFragment {
                         cards.add(index + i, addCards.get(i));
                     }
                 }
-                //endregion
-            }else if(requestCode == EDIT_PLAN){
-                //region 予定の更新時
                 //endregion
             }else {
                 return;

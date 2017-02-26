@@ -26,6 +26,10 @@ public class MustPlanCard implements Serializable {
         this.active = active;
     }
 
+    public void setMemo(String memo){
+        this.memo = memo;
+    }
+
     public String getContent(){return this.content;}
 
     public boolean getActive(){return this.active;}
@@ -35,4 +39,8 @@ public class MustPlanCard implements Serializable {
     public int getLimitTime(){return this.limitTime;}
 
     public String getPlace(){return this.place;}
+
+    public String getMemo(){
+        return this.memo;
+    }
 }

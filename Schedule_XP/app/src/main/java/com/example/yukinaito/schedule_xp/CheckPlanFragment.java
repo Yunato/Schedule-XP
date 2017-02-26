@@ -23,8 +23,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class CheckPlanFragment extends ListFragment{
     //requestCode
-    private static final int ADD_PLAN = 1;
-    private static final int EDIT_PLAN = 2;
+    private static final int ADD_EDIT_PLAN = 1;
 
     //データ
     private CheckPlanFragment.CardAdapter cardAdapter;
@@ -39,7 +38,7 @@ public class CheckPlanFragment extends ListFragment{
             public void onClick(View view) {
                 //region 予定の追加画面へ遷移
                 Intent intent = new Intent(getActivity(), AddPlanActivity.class);
-                startActivityForResult(intent, ADD_PLAN);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -69,6 +68,20 @@ public class CheckPlanFragment extends ListFragment{
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定の編集画面へ遷移
+                Card editCard = new Card(cards.get(position).getDate(),
+                        cards.get(position).getStartTime(),
+                        cards.get(position).getOverTime(),
+                        false,
+                        cards.get(position).getContent(),
+                        cards.get(position).getPlace());
+                editCard.setMemo(cards.get(position).getMemo());
+                cards.remove(position);
+
+                //生成した予定をAddPlanActivityへ渡す
+                Intent intent = new Intent(getActivity(), AddPlanActivity.class);
+                intent.putExtra("EditCard", editCard);
+                intent.putExtra("Index", position);
+                startActivityForResult(intent, ADD_EDIT_PLAN);
                 //endregion
             }
         });
@@ -83,6 +96,8 @@ public class CheckPlanFragment extends ListFragment{
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定を削除
+                cards.remove(position);
+                updateList();
                 //endregion
             }
         });
@@ -162,17 +177,14 @@ public class CheckPlanFragment extends ListFragment{
     public void onActivityResult(int requestCode, int resultCode, Intent intent){
         super.onActivityResult(requestCode, resultCode, intent);
         if(resultCode == RESULT_OK){
-            if(requestCode == ADD_PLAN){
-                //region 予定の追加時
+            if(requestCode == ADD_EDIT_PLAN){
+                //region 予定の追加|更新時
                 int index = intent.getIntExtra("Index", -1);
                 if(index == cards.size()){
-                    cards.add((Card)intent.getSerializableExtra("AddCard"));
+                    cards.add((Card)intent.getSerializableExtra("AddEditCard"));
                 }else{
-                    cards.add(index, (Card)intent.getSerializableExtra("AddCard"));
+                    cards.add(index, (Card)intent.getSerializableExtra("AddEditCard"));
                 }
-                //endregion
-            }else if(requestCode == EDIT_PLAN){
-                //region 予定の更新時
                 //endregion
             }else {
                 return;

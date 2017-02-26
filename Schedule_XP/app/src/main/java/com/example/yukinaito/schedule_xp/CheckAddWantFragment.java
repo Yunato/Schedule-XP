@@ -31,9 +31,6 @@ public class CheckAddWantFragment extends Fragment {
     //ListView
     private ListView investmentWant;
     private ListView wasteWant;
-    //LinearLayout
-    private LinearLayout investmentLayout;
-    private LinearLayout wasteLayout;
     //TextVie
     private TextView investmentSum;
     private TextView wasteSum;
@@ -45,6 +42,8 @@ public class CheckAddWantFragment extends Fragment {
         wasteWant = (ListView)view.findViewById(R.id.list_waste);
         investmentSum = (TextView)view.findViewById(R.id.number_investment);
         wasteSum = (TextView)view.findViewById(R.id.number_waste);
+        investmentCards = ((ScheduleApplication)getActivity().getApplication()).getInvestmentCards();
+        wasteCards = ((ScheduleApplication)getActivity().getApplication()).getWasteCards();
 
         //region リスナーの登録
         view.findViewById(R.id.add_investment).setOnClickListener(new View.OnClickListener() {
@@ -75,8 +74,6 @@ public class CheckAddWantFragment extends Fragment {
         wasteWant.setDividerHeight(5);
 
         //Listの描画
-        investmentCards = new ArrayList<>();
-        wasteCards = new ArrayList<>();
         investmentAdapter = new CheckAddWantFragment.InvestmentAdapter();
         wasteAdapter = new CheckAddWantFragment.WasteAdapter();
 

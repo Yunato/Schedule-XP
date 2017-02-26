@@ -38,7 +38,7 @@ public class CheckMainFragment extends ListFragment {
             CheckPlanFragment fragment = new CheckPlanFragment();
             transaction.replace(R.id.content_main, fragment);
         }else if(position == 1){
-            getActivity().setTitle("やりたいこと一覧");
+            getActivity().setTitle("したいこと一覧");
             CheckAddWantFragment fragment = new CheckAddWantFragment();
             transaction.replace(R.id.content_main, fragment);
         }else if(position == 2){

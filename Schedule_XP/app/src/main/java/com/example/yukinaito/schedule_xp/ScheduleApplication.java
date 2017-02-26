@@ -20,6 +20,8 @@ public class ScheduleApplication extends Application {
     static DBAdapter dbAdapter;
     private ArrayList<Card> modelCards;
     private ArrayList<Card> planCards;
+    private ArrayList<WantPlanCard> investmentCards;
+    private ArrayList<WantPlanCard> wasteCards;
     private ArrayList<MustPlanCard> mustCards;
     private ArrayList<EventPlanCard> eventCards;
 
@@ -73,25 +75,37 @@ public class ScheduleApplication extends Application {
 
     public ArrayList<Card> getModelCards(){
         if(modelCards == null)
-            modelCards = new ArrayList<Card>();
+            modelCards = new ArrayList<>();
         return modelCards;
     }
 
     public ArrayList<Card> getPlanCards(){
         if(planCards == null)
-            planCards = new ArrayList<Card>();
+            planCards = new ArrayList<>();
         return planCards;
+    }
+
+    public ArrayList<WantPlanCard> getInvestmentCards(){
+        if(investmentCards == null)
+            investmentCards = new ArrayList<>();
+        return investmentCards;
+    }
+
+    public ArrayList<WantPlanCard> getWasteCards(){
+        if(wasteCards == null)
+            wasteCards = new ArrayList<>();
+        return wasteCards;
     }
 
     public ArrayList<MustPlanCard> getMustCards(){
         if(mustCards == null)
-            mustCards = new ArrayList<MustPlanCard>();
+            mustCards = new ArrayList<>();
         return mustCards;
     }
 
     public ArrayList<EventPlanCard> getEventCards(){
         if(eventCards == null)
-            eventCards = new ArrayList<EventPlanCard>();
+            eventCards = new ArrayList<>();
         return eventCards;
     }
 }
