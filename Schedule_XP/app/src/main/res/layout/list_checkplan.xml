@@ -103,19 +103,6 @@
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/memo"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textSize="20sp"
-                android:textColor="#ffffff"
-                android:paddingLeft="10px"
-                android:paddingTop="10px"
-                android:paddingRight="10px"
-                android:paddingBottom="10px"
-                android:focusableInTouchMode="false"
-                android:focusable="false"/>
-
         </LinearLayout>
 
 

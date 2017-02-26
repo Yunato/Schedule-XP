@@ -7,6 +7,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
@@ -362,11 +363,46 @@ public class AddModelActivity extends AppCompatActivity {
             //endregion
         }else if (id == R.id.add_action || id == R.id.update_action) {
             //入力チェック
-            int index = 0;
+            boolean check = inputCheck();
+            int index= addCheck();
+            if(!check || index < 0){
+                //ダイアログの生成
+                String message = "追加できませんでした。以下の項目を確認してください。\n";
+                if(!check){
+                    message += "\n・表示している全ての予定の入力欄の開始時刻、内容、場所が入力されているか" +
+                              "\n・最下位の予定に制限(終了)時刻が入力されているか";
+                }
+                if(index < 0){
+                    index = (index + 1) * -1;
+                    ArrayList<Card> cards = ((ScheduleApplication) getApplication()).getModelCards();
+                    Card overlapCard = cards.get(index);
+                    Format format = new DecimalFormat("00");
+                    int start = overlapCard.getStartTime();
+                    int finish;
+                    if(overlapCard.getConnect()){
+                        if(cards.size() == (index + 1)){
+                            finish = 2400;
+                        }else{
+                            finish = cards.get(index + 1).getStartTime();
+                        }
+                    }
+                    else{
+                        finish = overlapCard.getOverTime();
+                    }
+                    start = (start / 100) * 60 + (start % 100);
+                    finish = (finish / 100) * 60 + (finish % 100);
 
-            if(!inputCheck() || (index= addCheck()) < 0){
-                //ダイアログの生成(失敗)
-                Log.d("TEST", Boolean.toString(inputCheck()) + " " + index);
+                    message += "\n・次の予定と時間が重なっています。\n　　"
+                                + "時刻 : " + format.format(start / 60) + ":" + format.format(start % 60) +
+                                    " - " + format.format(finish / 60) + ":" + format.format(finish % 60) + "\n　　"
+                                + "内容 : " + overlapCard.getContent() + "\n　　"
+                                + "場所 : " + overlapCard.getPlace();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(message);
+                builder.setPositiveButton("OK", null);
+                builder.show();
                 return super.onOptionsItemSelected(item);
             }
             //追加するオブジェクトを作成

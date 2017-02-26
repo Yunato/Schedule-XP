@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -146,9 +147,14 @@ public class AddMustActivity extends AppCompatActivity {
         if(id == R.id.add_action || id == R.id.update_action){
             //region 追加|更新ボタンタップ時
             //入力チェック
-            int index = addCheck();
-            if(!inputCheck() && index > -1){
-                //ダイアログの生成(失敗)
+            if(!inputCheck()){
+                //ダイアログの生成
+                String message = "追加できませんでした。以下の項目を確認してください。\n"
+                                + "・表示している入力欄の締切日、締切時刻、終了時刻、内容、場所が入力されているか";
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(message);
+                builder.setPositiveButton("OK", null);
+                builder.show();
                 return super.onOptionsItemSelected(item);
             }
 
@@ -162,7 +168,7 @@ public class AddMustActivity extends AppCompatActivity {
             //intent作成
             Intent intent = new Intent();
             intent.putExtra("AddEditCard", addCard);
-            intent.putExtra("Index", index);
+            intent.putExtra("Index", addCheck());
             setResult(RESULT_OK, intent);
             finish();
             //endregion

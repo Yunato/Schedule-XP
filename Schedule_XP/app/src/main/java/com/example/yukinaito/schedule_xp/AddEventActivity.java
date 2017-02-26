@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -97,9 +98,29 @@ public class AddEventActivity extends AppCompatActivity {
         }else if (id == R.id.add_action || id == R.id.update_action) {
             //region 追加|更新ボタンタップ時
             //入力チェック
-            int index = addCheck();
-            if(!inputCheck() || index < 0){
-                //ダイアログの生成(失敗)
+            boolean check = inputCheck();
+            int index= addCheck();
+            if(!check || index < 0){
+                //ダイアログの生成
+                String message = "追加できませんでした。以下の項目を確認してください。\n";
+                if(!check){
+                    message += "\n・イベント名の入力とモデルの選択ができているか";
+                }
+                if(index < 0){
+                    index = (index + 1) * -1;
+                    ArrayList<EventPlanCard> cards = ((ScheduleApplication) getApplication()).getEventCards();
+                    EventPlanCard overlapCard = cards.get(index);
+                    String date = Integer.toString(overlapCard.getDate());
+
+                    message += "\n・次の予定と日付が重なっています。\n　　"
+                            + "日付 : " + date.substring(0, 4) + "/" + date.substring(4, 6) + "/" + date.substring(6, 8) + "\n　　"
+                            + "イベント名 : " + overlapCard.getTitle();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(message);
+                builder.setPositiveButton("OK", null);
+                builder.show();
                 return super.onOptionsItemSelected(item);
             }
             //追加するオブジェクトを作成

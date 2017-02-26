@@ -167,9 +167,47 @@ public class AddPlanActivity extends AppCompatActivity {
         if(id == R.id.add_action || id == R.id.update_action){
             //region 追加|更新ボタンタップ時
             //入力チェック
-            int index = addCheck();
-            if(!inputCheck() || index < 0){
-                //ダイアログの生成(失敗)
+            boolean check = inputCheck();
+            int index= addCheck();
+            if(!check || index < 0){
+                //ダイアログの生成
+                String message = "追加できませんでした。以下の項目を確認してください。\n";
+                if(!check){
+                    message += "\n・表示している予定の入力欄の日付、開始時刻、終了時刻、内容、場所が入力されているか";
+                }
+                if(index < 0){
+                    index = (index + 1) * -1;
+                    ArrayList<Card> cards = ((ScheduleApplication) getApplication()).getPlanCards();
+                    Card overlapCard = cards.get(index);
+                    Format format = new DecimalFormat("00");
+                    String date = Integer.toString(overlapCard.getDate());
+                    int start = overlapCard.getStartTime();
+                    int finish;
+                    if(overlapCard.getConnect()){
+                        if(cards.size() == (index + 1)){
+                            finish = 2400;
+                        }else{
+                            finish = cards.get(index + 1).getStartTime();
+                        }
+                    }
+                    else{
+                        finish = overlapCard.getOverTime();
+                    }
+                    start = (start / 100) * 60 + (start % 100);
+                    finish = (finish / 100) * 60 + (finish % 100);
+
+                    message += "\n・次の予定と日時が重なっています。\n　　"
+                            + "日付 : " + date.substring(0, 4) + "/" + date.substring(4, 6) + "/" + date.substring(6, 8) + "\n　　"
+                            + "時刻 : " + format.format(start / 60) + ":" + format.format(start % 60) +
+                            " - " + format.format(finish / 60) + ":" + format.format(finish % 60) + "\n　　"
+                            + "内容 : " + overlapCard.getContent() + "\n　　"
+                            + "場所 : " + overlapCard.getPlace();
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(message);
+                builder.setPositiveButton("OK", null);
+                builder.show();
                 return super.onOptionsItemSelected(item);
             }
 
