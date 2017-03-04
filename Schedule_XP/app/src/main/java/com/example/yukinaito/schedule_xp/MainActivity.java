@@ -1,26 +1,28 @@
 package com.example.yukinaito.schedule_xp;
 
+import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
+import android.support.v4.content.ContextCompat;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final int REQUEST_WRITE_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //アプリケーション起動処理
-        checkState();
+        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if(!hasPermission){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+        }
     }
 
     @Override
@@ -78,7 +83,8 @@ public class MainActivity extends AppCompatActivity
             SettingMainFragment fragment = new SettingMainFragment();
             transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item4) {
-
+            Intent intent = new Intent(this, TestActivity.class);
+            startActivity(intent);
         }
 
         transaction.commit();
@@ -89,16 +95,28 @@ public class MainActivity extends AppCompatActivity
 
     //初回起動であるか判別 起動処理
     public void checkState(){
-        SharedPreferences preference = getSharedPreferences("Preference Name", MODE_PRIVATE);
+        SharedPreferences preference = getSharedPreferences("Preference", MODE_PRIVATE);
         SharedPreferences.Editor editor = preference.edit();
         if(preference.getBoolean("Launched", false) == false) {
-            try {
-                //初回起動時にてデフォルトファイルの生成
-                OutputStream out = openFileOutput("modelName.txt", MODE_PRIVATE | MODE_APPEND);
-                out.write((getResources().getString(R.string.modelName_text)).getBytes());
-            }catch(IOException e){
+            ((ScheduleApplication)this.getApplication()).getModelInfo();
+            Calendar week = Calendar.getInstance();
+            week.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+            SimpleDateFormat weekFormatter = new SimpleDateFormat("E曜日");
+            for(int i = 0; i < 7; i++){
+                ModelCard modelCard = new ModelCard(null, weekFormatter.format(week.getTime()), true);
+                ((ScheduleApplication)this.getApplication()).saveCard(modelCard);
+                week.add(Calendar.DAY_OF_MONTH, 1);
             }
             editor.putBoolean("Launched", true).commit();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode == REQUEST_WRITE_STORAGE){
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                checkState();
         }
     }
 }

@@ -25,6 +25,7 @@
         <activity android:name=".AddPlanActivity" />
         <activity android:name=".AddMustActivity" />
         <activity android:name=".AddEventActivity" />
+        <activity android:name=".TestActivity" />
     </application>
 
 </manifest>

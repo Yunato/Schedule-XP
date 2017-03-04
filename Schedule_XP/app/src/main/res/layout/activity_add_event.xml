@@ -83,6 +83,7 @@
                     android:paddingTop="25px"
                     android:paddingBottom="25px"
                     android:gravity="center|left"
+                    android:inputType="text"
                     android:textColor="@color/colorTextUndecided"
                     android:background="@drawable/enclosure_input"
                     android:layout_weight="1"/>

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,7 +67,8 @@ public class CheckEventFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region イベント日の編集画面へ遷移
-                EventPlanCard editCard = new EventPlanCard(cards.get(position).getDate(),
+                EventPlanCard editCard = new EventPlanCard(cards.get(position).getId(),
+                        cards.get(position).getDate(),
                         cards.get(position).getTitle(),
                         cards.get(position).getIndex());
                 cards.remove(position);
@@ -90,7 +92,33 @@ public class CheckEventFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region イベント日を削除
+                String id = Integer.toString(cards.get(position).getIndex());
+                ((ScheduleApplication)getActivity().getApplication()).deleteCard(cards.get(position).getId());
                 cards.remove(position);
+
+                //modelCardが削除済み かつ イベント日の参照がほかにない場合
+                boolean check = false;
+
+                for(int j = 0; j < ((ScheduleApplication) getActivity().getApplication()).getModelInfo().size(); j++){
+                    if(!((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(j).getSaved()){
+                        check = true;
+                        break;
+                    }
+                }
+                if(check){
+                    check = true;
+                    for(int j = 0; j < cards.size(); j++){
+                        if(cards.get(j).getIndex() == Integer.parseInt(id)){
+                            check = false;
+                            break;
+                        }
+                    }
+                    //trueなら他にイベント日の参照がない
+                    if(check){
+                        ((ScheduleApplication) getActivity().getApplication()).deleteCard(id);
+                    }
+                }
+
                 updateList();
                 //endregion
             }
@@ -138,7 +166,13 @@ public class CheckEventFragment extends ListFragment {
             //値のセット
             textView1.setText(date.substring(0, 4) + "/" + date.substring(4, 6) + "/" + date.substring(6, 8));
             textView2.setText(card.getTitle());
-            textView3.setText("ソースコード変更必須");
+            ArrayList<ModelCard> modelCards = ((ScheduleApplication)getActivity().getApplication()).getModelInfo();
+            for(int i = 0; i < modelCards.size(); i++){
+                if(modelCards.get(i).getId().equals(Integer.toString(card.getIndex()))){
+                    textView3.setText(modelCards.get(i).getTitle());
+                    break;
+                }
+            }
 
             return view;
         }
@@ -157,11 +191,12 @@ public class CheckEventFragment extends ListFragment {
         if(resultCode == RESULT_OK){
             if(requestCode == ADD_EDIT_PLAN){
                 //region イベント日の追加|更新時
+                String id;
                 int index = intent.getIntExtra("Index", -1);
-                if(index == cards.size()){
-                    cards.add((EventPlanCard) intent.getSerializableExtra("AddEditCard"));
+                if((id = ((EventPlanCard)intent.getSerializableExtra("AddEditCard")).getId()) == null) {
+                    ((ScheduleApplication) getActivity().getApplication()).saveCard((EventPlanCard) intent.getSerializableExtra("AddEditCard"), index);
                 }else{
-                    cards.add(index, (EventPlanCard)intent.getSerializableExtra("AddEditCard"));
+                    ((ScheduleApplication) getActivity().getApplication()).updateCard(id, (EventPlanCard) intent.getSerializableExtra("AddEditCard"), index);
                 }
                 //endregion
             }else{

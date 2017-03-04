@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -49,13 +50,23 @@ public class CheckAddWantFragment extends Fragment {
         view.findViewById(R.id.add_investment).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog(0);
+                createDialog(0, false, null);
             }
         });
         view.findViewById(R.id.add_waste).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createDialog(1);
+                createDialog(1, false, null);
+            }
+        });
+        investmentWant.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                createDialog(0, true, (WantPlanCard)((ListView)parent).getItemAtPosition(position));
+            }
+        });
+        wasteWant.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+                createDialog(1, true, (WantPlanCard)((ListView)parent).getItemAtPosition(position));
             }
         });
         //endregion
@@ -82,35 +93,7 @@ public class CheckAddWantFragment extends Fragment {
 
         updateInvestmentList();
         updateWasteList();
-    }
 
-    public void onListItemClick(ListView listView, View view, final int position, long id) {
-        //ダイアログの生成
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("したいことの操作");
-        builder.setMessage("したいことの内容を編集、またはしたいことを削除しますか？");
-        builder.setPositiveButton("編集", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //region したいことの編集ダイアログ描画
-                //endregion
-            }
-        });
-        builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //region キャンセル
-                //endregion
-            }
-        });
-        builder.setNeutralButton("削除", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //region したいことを削除
-                //endregion
-            }
-        });
-        builder.create().show();
     }
 
     private class InvestmentAdapter extends BaseAdapter {
@@ -203,10 +186,11 @@ public class CheckAddWantFragment extends Fragment {
         }
     }
 
-    public void createDialog(final int id){
+    public void createDialog(final int id, boolean flag, final WantPlanCard editCard){
         //region ダイアログの生成
         LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View layout = inflater.inflate(R.layout.dialog_createwant, (ViewGroup)getActivity().findViewById(R.id.layout_root));
+        String positive = "作成";
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if(id == 0)
@@ -214,19 +198,70 @@ public class CheckAddWantFragment extends Fragment {
         else if(id == 1)
             builder.setTitle("新規作成(浪費)");
         builder.setView(layout);
-        builder.setPositiveButton("作成", new DialogInterface.OnClickListener() {
+        if(flag){
+            positive = "更新";
+            ((EditText)layout.findViewById(R.id.input_content)).setText(editCard.getContent());
+            ((EditText)layout.findViewById(R.id.input_place)).setText(editCard.getPlace());
+            builder.setNeutralButton("削除", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //region したいことを削除
+                    ((ScheduleApplication)getActivity().getApplication()).deleteCard(editCard.getId());
+                    if(id == 0){
+                        for(int index = 0; index < investmentCards.size(); index++){
+                            if(investmentCards.get(index) == editCard){
+                                investmentCards.remove(index);
+                                break;
+                            }
+                        }
+                        updateInvestmentList();
+                    }else{
+                        for(int index = 0; index < wasteCards.size(); index++){
+                            if(wasteCards.get(index) == editCard){
+                                wasteCards.remove(index);
+                                break;
+                            }
+                        }
+                        updateWasteList();
+                    }
+                    //endregion
+                }
+            });
+        }else{
+        }
+        builder.setPositiveButton(positive, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                //region "作成"のタップ時
+                //region "作成"または"更新"のタップ時
                 //変更必要
-                WantPlanCard addCard = new WantPlanCard(((EditText)layout.findViewById(R.id.input_content)).getText().toString(),
-                        false, 0, ((EditText)layout.findViewById(R.id.input_place)).getText().toString());
-                if(id == 0){
-                    investmentCards.add(addCard);
-                    updateInvestmentList();
+                WantPlanCard addCard;
+                addCard = new WantPlanCard(((EditText)layout.findViewById(R.id.input_content)).getText().toString(),
+                        false, 0, ((EditText)layout.findViewById(R.id.input_place)).getText().toString(), -1 * (id + 1));
+                if(editCard == null){
+                    ((ScheduleApplication)getActivity().getApplication()).saveCard(addCard);
+                }else{
+                    ((ScheduleApplication)getActivity().getApplication()).updateCard(editCard.getId(), addCard);
+                    if(id == 0){
+                        for(int index = 0; index < investmentCards.size(); index++){
+                            if(investmentCards.get(index) == editCard){
+                                investmentCards.remove(index);
+                                break;
+                            }
+                        }
+                        updateInvestmentList();
+                    }else{
+                        for(int index = 0; index < wasteCards.size(); index++){
+                            if(wasteCards.get(index) == editCard){
+                                wasteCards.remove(index);
+                                break;
+                            }
+                        }
+                        updateWasteList();
+                    }
                 }
-                else{
-                    wasteCards.add(addCard);
+                if(id == 0){
+                    updateInvestmentList();
+                }else{
                     updateWasteList();
                 }
                 //endregion
@@ -255,7 +290,9 @@ public class CheckAddWantFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
                 //入力チェック 空欄でないかどうか
                 if(((EditText)layout.findViewById(R.id.input_content)).getText().toString().trim().length() != 0
-                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().trim().length() != 0)
+                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().trim().length() != 0
+                        || (editCard != null && ((EditText)layout.findViewById(R.id.input_content)).getText().toString().equals(editCard.getContent())
+                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().equals(editCard.getPlace())))
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 else
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
@@ -274,7 +311,9 @@ public class CheckAddWantFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
                 //入力チェック 空欄でないかどうか
                 if(((EditText)layout.findViewById(R.id.input_content)).getText().toString().trim().length() != 0
-                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().trim().length() != 0)
+                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().trim().length() != 0
+                        || (editCard != null && ((EditText)layout.findViewById(R.id.input_content)).getText().toString().equals(editCard.getContent())
+                        && ((EditText)layout.findViewById(R.id.input_place)).getText().toString().equals(editCard.getPlace())))
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 else
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);

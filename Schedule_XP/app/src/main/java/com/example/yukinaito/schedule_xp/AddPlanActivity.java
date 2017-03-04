@@ -173,7 +173,8 @@ public class AddPlanActivity extends AppCompatActivity {
                 //ダイアログの生成
                 String message = "追加できませんでした。以下の項目を確認してください。\n";
                 if(!check){
-                    message += "\n・表示している予定の入力欄の日付、開始時刻、終了時刻、内容、場所が入力されているか";
+                    message += "\n・表示している予定の入力欄の日付、開始時刻、終了時刻、内容、場所が入力されているか" +
+                            "\n・最下位の予定に制限(終了)時刻が入力されているか";
                 }
                 if(index < 0){
                     index = (index + 1) * -1;
@@ -217,6 +218,9 @@ public class AddPlanActivity extends AppCompatActivity {
                     ((EditText)findViewById(R.id.input_place)).getText().toString());
             if(!((EditText)findViewById(R.id.input_memo)).getText().toString().equals("")){
                 addCard.setMemo(((EditText)findViewById(R.id.input_memo)).getText().toString());
+            }
+            if(editFlag){
+                addCard.setId(Long.parseLong(((Card) getIntent().getSerializableExtra("EditCard")).getId()));
             }
 
             //intent作成
@@ -262,7 +266,11 @@ public class AddPlanActivity extends AppCompatActivity {
                 int originalOver = planCards.get(index).getOverTime();
                 if(originalStart >= startTime){
                     if(originalStart < overTime) {
-                        return -1 * index - 1;
+                        if(originalStart == startTime){
+                            continue;
+                        }else {
+                            return -1 * index - 1;
+                        }
                     }else{
                         if(planCards.size() > index + 1 && originalStart == startTime && originalStart == overTime){
                             return indexDownCheck(planCards, index + 1);

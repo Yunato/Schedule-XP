@@ -10,9 +10,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -27,6 +29,7 @@ public class SettingMainFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.fragment_listandfbutton, container, false);
         modelName = ((ScheduleApplication)getActivity().getApplication()).getModelNames();
+
         view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,7 +46,7 @@ public class SettingMainFragment extends ListFragment {
                         //region "作成"のタップ時
                         //変更必要
                         modelName.add(((EditText)layout.findViewById(R.id.input_name)).getText().toString());
-                        ((ScheduleApplication)getActivity().getApplication()).writeFile();
+                        ((ScheduleApplication)getActivity().getApplication()).saveCard(new ModelCard(null, ((EditText)layout.findViewById(R.id.input_name)).getText().toString(), true));
                         updateList();
                         //endregion
                     }
@@ -90,6 +93,70 @@ public class SettingMainFragment extends ListFragment {
         getListView().setDivider(separate_line_color);
         getListView().setDividerHeight(5);
 
+        //region リスナーの登録
+
+        //長押し時
+        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                if (position > 6) {
+                    final int delete_pos = position;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("削除");
+                    builder.setMessage("選択されたモデルを削除しますか？");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //region OKをタップしたとき
+                            int index = 7, count = 0;
+                            while (true) {
+                                if (((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getSaved()) {
+                                    if (count == position - 7) {
+                                        break;
+                                    }
+                                    count++;
+                                }
+                                index++;
+                            }
+                            modelName.remove(position);
+
+                            //イベント日リストに削除するモデルが存在するか
+                            boolean check = false;
+                            for(int j = 0; j < ((ScheduleApplication) getActivity().getApplication()).getEventCards().size(); j++){
+                                Log.d("TEST",j + " " + ((ScheduleApplication) getActivity().getApplication()).getEventCards().get(j).getIndex() + " " + ((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId());
+                                if(((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId().equals(
+                                        Integer.toString(((ScheduleApplication) getActivity().getApplication()).getEventCards().get(j).getIndex()))){
+                                    check = true;
+                                    break;
+                                }
+                            }
+
+                            //存在する check==true
+                            if(check){
+                                ((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).setSaved(false);
+                                ((ScheduleApplication) getActivity().getApplication()).updateCard(
+                                        ((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId(),
+                                        ((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index));
+                            }else{
+                                ((ScheduleApplication) getActivity().getApplication()).deleteCard(((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId());
+                            }
+                            updateList();
+                            //endregion
+                        }
+                    });
+                    builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    });
+                    builder.create().show();
+                    return true;
+                }
+                return true;
+            }
+        });
+        //endregion
+
         //Listの描画
         //変更必要
         drawItem = new ArrayAdapter<>(getActivity(), R.layout.rowdata, modelName);
@@ -107,6 +174,8 @@ public class SettingMainFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id){
         //region モデルの編集画面へ遷移
+        ((ScheduleApplication)getActivity().getApplication()).startModelFragment(position);
+
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         getActivity().setTitle("予定一覧");
         SettingModelFragment fragment = new SettingModelFragment();

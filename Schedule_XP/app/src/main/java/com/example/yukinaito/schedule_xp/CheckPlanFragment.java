@@ -68,7 +68,8 @@ public class CheckPlanFragment extends ListFragment{
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定の編集画面へ遷移
-                Card editCard = new Card(cards.get(position).getDate(),
+                Card editCard = new Card(cards.get(position).getId(),
+                        cards.get(position).getDate(),
                         cards.get(position).getStartTime(),
                         cards.get(position).getOverTime(),
                         false,
@@ -96,6 +97,7 @@ public class CheckPlanFragment extends ListFragment{
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定を削除
+                ((ScheduleApplication)getActivity().getApplication()).deleteCard(cards.get(position).getId());
                 cards.remove(position);
                 updateList();
                 //endregion
@@ -179,11 +181,12 @@ public class CheckPlanFragment extends ListFragment{
         if(resultCode == RESULT_OK){
             if(requestCode == ADD_EDIT_PLAN){
                 //region 予定の追加|更新時
+                String id;
                 int index = intent.getIntExtra("Index", -1);
-                if(index == cards.size()){
-                    cards.add((Card)intent.getSerializableExtra("AddEditCard"));
+                if((id = ((Card)intent.getSerializableExtra("AddEditCard")).getId()) == null) {
+                    ((ScheduleApplication) getActivity().getApplication()).saveCard((Card) intent.getSerializableExtra("AddEditCard"), index);
                 }else{
-                    cards.add(index, (Card)intent.getSerializableExtra("AddEditCard"));
+                    ((ScheduleApplication) getActivity().getApplication()).updateCard(id, (Card) intent.getSerializableExtra("AddEditCard"), index);
                 }
                 //endregion
             }else {

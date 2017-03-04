@@ -3,6 +3,7 @@ package com.example.yukinaito.schedule_xp;
 import java.io.Serializable;
 
 public class Card implements Serializable {
+    private String id;
     private int date;
     private int startTime;
     private int overTime;
@@ -21,12 +22,32 @@ public class Card implements Serializable {
         this.memo = null;
     }
 
+    public Card(String id, int date, int startTime, int overTime, boolean connect, String content, String place){
+        this.id = id;
+        this.date = date;
+        this.startTime = startTime;
+        this.overTime = overTime;
+        this.connect = connect;
+        this.content = content;
+        this.place = place;
+        this.memo = null;
+    }
+
+    public Card setId(long id){
+        this.id = Long.toString(id);
+        return this;
+    }
+
     public void setConnect(boolean connect){
         this.connect = connect;
     }
 
     public void setMemo(String memo){
         this.memo = memo;
+    }
+
+    public String getId(){
+        return this.id;
     }
 
     public int getDate(){return this.date;}

@@ -164,6 +164,9 @@ public class AddMustActivity extends AppCompatActivity {
             if(!((EditText)findViewById(R.id.input_memo)).getText().toString().equals("")){
                 addCard.setMemo(((EditText)findViewById(R.id.input_memo)).getText().toString());
             }
+            if(editFlag){
+                addCard.setId(Long.parseLong(((MustPlanCard) getIntent().getSerializableExtra("EditCard")).getId()));
+            }
 
             //intent作成
             Intent intent = new Intent();

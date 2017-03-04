@@ -69,7 +69,8 @@ public class CheckMustFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region すべきことの編集画面へ遷移
-                MustPlanCard editCard = new MustPlanCard(cards.get(position).getContent(),
+                MustPlanCard editCard = new MustPlanCard(cards.get(position).getId(),
+                        cards.get(position).getContent(),
                         cards.get(position).getActive(),
                         cards.get(position).getLimitDate(),
                         cards.get(position).getLimitTime(),
@@ -96,6 +97,7 @@ public class CheckMustFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region すべきことを削除
+                ((ScheduleApplication)getActivity().getApplication()).deleteCard(cards.get(position).getId());
                 cards.remove(position);
                 updateList();
                 //endregion
@@ -167,11 +169,12 @@ public class CheckMustFragment extends ListFragment {
         if(resultCode == RESULT_OK){
             if(requestCode == ADD_EDIT_PLAN){
                 //region すべきことの追加|更新時
+                String id;
                 int index = intent.getIntExtra("Index", -1);
-                if(index == cards.size()){
-                    cards.add((MustPlanCard)intent.getSerializableExtra("AddEditCard"));
+                if((id = ((MustPlanCard)intent.getSerializableExtra("AddEditCard")).getId()) == null) {
+                    ((ScheduleApplication) getActivity().getApplication()).saveCard((MustPlanCard) intent.getSerializableExtra("AddEditCard"), index);
                 }else{
-                    cards.add(index, (MustPlanCard)intent.getSerializableExtra("AddEditCard"));
+                    ((ScheduleApplication) getActivity().getApplication()).updateCard(id, (MustPlanCard) intent.getSerializableExtra("AddEditCard"), index);
                 }
                 //endregion
             }else{

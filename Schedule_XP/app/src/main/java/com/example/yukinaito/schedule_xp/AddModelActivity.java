@@ -1,6 +1,5 @@
 package com.example.yukinaito.schedule_xp;
 
-import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -13,24 +12,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 
-import org.w3c.dom.Text;
-
-import java.sql.BatchUpdateException;
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.ArrayList;
@@ -46,7 +38,7 @@ public class AddModelActivity extends AppCompatActivity {
     //データ
     private int startTime;
     private int overTime;
-    private boolean editFlag = false;
+    private ArrayList<Card> editCards = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,14 +54,14 @@ public class AddModelActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         //endregion
 
-        Log.d("TEST ac", "OK");
         int count = 1;
         //region 編集かどうか
         ArrayList<Card> editCards;
         if((editCards = (ArrayList<Card>) getIntent().getSerializableExtra("EditCard")) != null){
-            editFlag = true;
+            this.editCards = editCards;
             count = editCards.size();
-            Log.d("TEST", count + " ");
+        }else{
+            this.editCards = new ArrayList<>();
         }
         //endregion
 
@@ -88,7 +80,7 @@ public class AddModelActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final MenuInflater inflater = getMenuInflater();
-        if(editFlag)
+        if(this.editCards != null)
             inflater.inflate(R.menu.edit_menu, menu);
         else
             inflater.inflate(R.menu.add_menu, menu);
@@ -126,10 +118,16 @@ public class AddModelActivity extends AppCompatActivity {
                 deleteView.setTextColor(Color.WHITE);
                 deleteView.setId(planCount);
 
+                //消去タップ時
                 deleteView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         LinearLayout deleteLayout = (LinearLayout) layout.findViewWithTag(Integer.toString(view.getId()));
+                        for(int i = 0; i < AddModelActivity.this.editCards.size();i++){
+                            if(AddModelActivity.this.layout.getChildAt(i) == deleteLayout){
+                                AddModelActivity.this.editCards.remove(i);
+                            }
+                        }
                         layout.removeView(deleteLayout);
                     }
                 });
@@ -335,7 +333,7 @@ public class AddModelActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //戻るキーを押されたときの処理
-            if(editFlag){
+            if(this.editCards != null){
                 Intent intent = new Intent();
                 intent.putExtra("AddEditCards", getIntent().getSerializableExtra("EditCard"));
                 intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
@@ -463,9 +461,12 @@ public class AddModelActivity extends AppCompatActivity {
             int originalStart = planCards.get(index).getStartTime();
             int originalOver = planCards.get(index).getOverTime();
             if(originalStart >= startTime){
-                Log.d("TEST", originalStart + " " + overTime);
                 if(originalStart < overTime) {
-                    return -1 * index - 1;
+                    if(originalStart == startTime){
+                        continue;
+                    }else {
+                        return -1 * index - 1;
+                    }
                 }else{
                     if(planCards.size() > index + 1 && originalStart == startTime && originalStart == overTime){
                         return indexDownCheck(planCards, index + 1);
@@ -495,21 +496,39 @@ public class AddModelActivity extends AppCompatActivity {
 
     public ArrayList<Card> createAddCards(){
         ArrayList<Card> addCards = new ArrayList<>();
-        int startTime, overTime = -1;
-        String string = "\"";
+        LinearLayout baseLayout;
+        int index, startTime, overTime;
 
-        for(int index = 0; index < planCount; index++){
-            if (layout.findViewWithTag("startTime" + index) != null) {
-                startTime = Integer.parseInt(((Button)layout.findViewWithTag("startTime" + index)).getText().toString().substring(0, 2)) * 100
-                            + Integer.parseInt(((Button)layout.findViewWithTag("startTime" + index)).getText().toString().substring(3, 5));
-                if(!((Button) layout.findViewWithTag("overTime" + index)).getText().toString().equals("時刻の指定[タップ]"))
-                    overTime = Integer.parseInt(((Button)layout.findViewWithTag("overTime" + index)).getText().toString().substring(0, 2)) * 100
-                            + Integer.parseInt(((Button)layout.findViewWithTag("overTime" + index)).getText().toString().substring(3, 5));
-                Card addCard = new Card(-1, startTime, overTime, true,
-                        ((EditText)layout.findViewWithTag("content" + index)).getText().toString(),
-                        ((EditText)layout.findViewWithTag("place" + index)).getText().toString());
-                addCards.add(addCard);
+        for(index = 0; index < editCards.size(); index++){
+            addCards.add(new Card(
+                    editCards.get(index).getId(),
+                    editCards.get(index).getDate(),
+                    editCards.get(index).getStartTime(),
+                    editCards.get(index).getOverTime(),
+                    editCards.get(index).getConnect(),
+                    editCards.get(index).getContent(),
+                    editCards.get(index).getPlace()
+            ));
+        }
+
+        for(; index < layout.getChildCount() - 1; index++){
+            //layout-blockLayout-tableLayout-inputLayout
+            baseLayout = (LinearLayout)((LinearLayout)((LinearLayout)layout.getChildAt(index)).
+                    getChildAt(((LinearLayout)layout.getChildAt(index)).getChildCount() - 1)).
+                    getChildAt(1);
+            startTime = Integer.parseInt(((Button)baseLayout.getChildAt(0)).getText().toString().substring(0, 2)) * 100
+                    + Integer.parseInt(((Button)baseLayout.getChildAt(0)).getText().toString().substring(3, 5));
+            if(!((Button) baseLayout.getChildAt(1)).getText().toString().equals("時刻の指定[タップ]")){
+                overTime = Integer.parseInt(((Button)baseLayout.getChildAt(1)).getText().toString().substring(0, 2)) * 100
+                        + Integer.parseInt(((Button)baseLayout.getChildAt(1)).getText().toString().substring(3, 5));
+            }else{
+                overTime = -1;
             }
+            Card addCard = new Card(Integer.parseInt(((ScheduleApplication)this.getApplication()).getModelIndex()),
+                    startTime, overTime, true,
+                    ((EditText)baseLayout.getChildAt(2)).getText().toString(),
+                    ((EditText)baseLayout.getChildAt(3)).getText().toString());
+            addCards.add(addCard);
         }
         addCards.get(addCards.size()-1).setConnect(false);
         return addCards;

@@ -1,6 +1,5 @@
 package com.example.yukinaito.schedule_xp;
 
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,7 +73,8 @@ public class SettingModelFragment extends ListFragment {
                 ArrayList<Card> editCards = new ArrayList<>();
 
                 //region 基準となる(タップされた)予定の生成
-                Card editCard = new Card(cards.get(position).getDate(),
+                Card editCard = new Card(cards.get(position).getId(),
+                        cards.get(position).getDate(),
                         cards.get(position).getStartTime(),
                         cards.get(position).getOverTime(),
                         cards.get(position).getConnect(),
@@ -89,7 +88,8 @@ public class SettingModelFragment extends ListFragment {
                 int index = position;
                 //region 基準の予定より後の連結予定を抽出
                 while(editCard.getConnect() && index < cards.size()){
-                    editCard = new Card(cards.get(index).getDate(),
+                    editCard = new Card(cards.get(index).getId(),
+                            cards.get(index).getDate(),
                             cards.get(index).getStartTime(),
                             cards.get(index).getOverTime(),
                             cards.get(index).getConnect(),
@@ -103,7 +103,8 @@ public class SettingModelFragment extends ListFragment {
                 index = position - 1;
                 //region 基準の予定より前の連結予定を抽出
                 while(index >= 0 && cards.get(index).getConnect()){
-                    editCard = new Card(cards.get(index).getDate(),
+                    editCard = new Card(cards.get(index).getId(),
+                            cards.get(index).getDate(),
                             cards.get(index).getStartTime(),
                             cards.get(index).getOverTime(),
                             cards.get(index).getConnect(),
@@ -115,6 +116,10 @@ public class SettingModelFragment extends ListFragment {
                     index--;
                 }
                 //endregion
+
+                for(int j = 0; j < editCards.size(); j++){
+                    Log.d("TEST",editCards.get(j).getDate()+"");
+                }
 
                 //生成した予定をAddPlanActivityへ渡す
                 Intent intent = new Intent(getActivity(), AddModelActivity.class);
@@ -135,6 +140,7 @@ public class SettingModelFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //region 予定を削除
+                ((ScheduleApplication)getActivity().getApplication()).deleteCard(cards.get(position).getId());
                 cards.remove(position);
                 updateList();
                 //endregion
@@ -230,16 +236,7 @@ public class SettingModelFragment extends ListFragment {
             if(requestCode == ADD_EDIT_PLAN){
                 //region 予定の追加時
                 int index = intent.getIntExtra("Index", -1);
-                ArrayList<Card> addCards = ((ArrayList<Card>) intent.getSerializableExtra("AddEditCards"));
-                if(index == cards.size()){
-                    for(int i = 0; i < addCards.size(); i++){
-                        cards.add(addCards.get(i));
-                    }
-                }else{
-                    for(int i = 0; i < addCards.size(); i++){
-                        cards.add(index + i, addCards.get(i));
-                    }
-                }
+                ((ScheduleApplication)getActivity().getApplication()).saveCard(((ArrayList<Card>) intent.getSerializableExtra("AddEditCards")), index);
                 //endregion
             }else {
                 return;

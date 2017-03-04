@@ -190,8 +190,8 @@ public class CalendarView extends LinearLayout {
     }
 
     public void set(int year, int month, int day){
-        TapYear = year;
-        TapMonth = month;
+        TapYear = drawYear = year;
+        TapMonth = drawMonth = month;
         TapDay = day;
         set(year, month);
     }

@@ -9,10 +9,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -38,7 +40,16 @@ public class AddEventActivity extends AppCompatActivity {
         getSupportActionBar().setHomeAsUpIndicator(upArrow);
         //endregion
 
-        //編集のときはset()メソッドを呼ぶ
+        //spinnerの設定
+        Spinner spinner = (Spinner) findViewById(R.id.input_model);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinnerdate);
+        ArrayList<String> modelNames = ((ScheduleApplication)this.getApplication()).getModelNames();
+        adapter.add("モデルの選択");
+        //adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        for (int i = 0; i < modelNames.size(); i++){
+            adapter.add(modelNames.get(i));
+        }
+        spinner.setAdapter(adapter);
 
         //region 編集かどうか
         EventPlanCard editCard;
@@ -47,10 +58,23 @@ public class AddEventActivity extends AppCompatActivity {
             String date = Integer.toString(editCard.getDate());
             CalendarView calendarView = (CalendarView)findViewById(R.id.input_date);
             calendarView.set(Integer.parseInt(date.substring(0, 4)),
-                    Integer.parseInt(date.substring(4, 6)),
+                    Integer.parseInt(date.substring(4, 6)) - 1,
                     Integer.parseInt(date.substring(6, 8)));
             ((EditText)findViewById(R.id.input_title)).setText(editCard.getTitle());
-            ((Spinner)findViewById(R.id.input_model)).setSelection(editCard.getIndex());
+            ArrayList<ModelCard> modelCards = ((ScheduleApplication)this.getApplication()).getModelInfo();
+            for(int i = 0; i < modelCards.size(); i++){
+                //idが等しいモデルを探す
+                if(modelCards.get(i).getId().equals(Integer.toString(editCard.getIndex()))){
+                    //idが等しいときsavedがtrueなら保存、falseなら削除済みである
+                    if(modelCards.get(i).getSaved()){
+                        ((Spinner)findViewById(R.id.input_model)).setSelection(i + 1);
+                    }else{
+                        adapter.add(modelCards.get(i).getTitle());
+                        ((Spinner)findViewById(R.id.input_model)).setSelection(modelNames.size() + 1);
+                    }
+                    break;
+                }
+            }
         }
         //endregion
     }
@@ -123,10 +147,60 @@ public class AddEventActivity extends AppCompatActivity {
                 builder.show();
                 return super.onOptionsItemSelected(item);
             }
+
+            //modelCardのidを取得するために必要
+            int modelIndex, number = 0, count = 1;
+            while (true) {
+                if (((ScheduleApplication) this.getApplication()).getModelInfo().get(number).getSaved()) {
+                    if (count == ((Spinner)findViewById(R.id.input_model)).getSelectedItemPosition()) {
+                        modelIndex = Integer.parseInt(((ScheduleApplication)this.getApplication()).getModelInfo().get(number).getId());
+                        break;
+                    }
+                    count++;
+                }
+                number++;
+                if(((ScheduleApplication) this.getApplication()).getModelInfo().size() <= number){
+                    modelIndex = ((EventPlanCard) getIntent().getSerializableExtra("EditCard")).getIndex();
+                    break;
+                }
+            }
+
             //追加するオブジェクトを作成
             EventPlanCard addCard = new EventPlanCard(((CalendarView)findViewById(R.id.input_date)).getInfo(),
+                    ((EditText)findViewById(R.id.input_title)).getText().toString(), modelIndex);
+            /*EventPlanCard addCard = new EventPlanCard(((CalendarView)findViewById(R.id.input_date)).getInfo(),
                     ((EditText)findViewById(R.id.input_title)).getText().toString(),
-                    ((Spinner)findViewById(R.id.input_model)).getSelectedItemPosition());
+                    0);*/
+            if(editFlag){
+                addCard.setId(Long.parseLong(((EventPlanCard) getIntent().getSerializableExtra("EditCard")).getId()));
+                //region モデルが存在しないときモデルデータをDBから削除する
+                if(modelIndex != ((EventPlanCard) getIntent().getSerializableExtra("EditCard")).getIndex()){
+                    //modelCardが削除済み かつ イベント日の参照がほかにない場合
+                    boolean deleteCheck = false;
+
+                    for(int j = 0; j < ((ScheduleApplication) this.getApplication()).getModelInfo().size(); j++){
+                        if(!((ScheduleApplication) this.getApplication()).getModelInfo().get(j).getSaved()){
+                            deleteCheck = true;
+                            break;
+                        }
+                    }
+                    if(deleteCheck){
+                        deleteCheck = true;
+                        for(int j = 0; j < ((ScheduleApplication)this.getApplication()).getEventCards().size(); j++){
+                            if(((ScheduleApplication)this.getApplication()).getEventCards().get(j).getIndex() == ((EventPlanCard) getIntent().getSerializableExtra("EditCard")).getIndex()){
+                                deleteCheck = false;
+                                break;
+                            }
+                        }
+                        //trueなら他にイベント日の参照がない
+                        if(deleteCheck){
+                            ((ScheduleApplication) this.getApplication()).deleteCard(Integer.toString(((EventPlanCard) getIntent().getSerializableExtra("EditCard")).getIndex()));
+                        }
+                    }
+                }
+                //endregion
+            }
+
             //intent作成
             Intent intent = new Intent();
             intent.putExtra("AddEditCard", addCard);

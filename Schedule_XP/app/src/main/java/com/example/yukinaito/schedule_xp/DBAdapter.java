@@ -13,9 +13,9 @@ public class DBAdapter {
 
     public static final String TABLE_NAME = "cards";
     public static final String WORD_ID = "_id";
-    public static final String WORD_DATEINDEX = "dateIndex";
+    public static final String WORD_DATEINDEX = "dateindex";
     public static final String WORD_START = "start";
-    public static final String WORD_OVERTIME = "overTime";
+    public static final String WORD_OVERTIME = "overtime";
     public static final String WORD_CONNECT = "connect";
     public static final String WORD_CONTENT = "content";
     public static final String WORD_PLACE = "place";
@@ -40,9 +40,9 @@ public class DBAdapter {
             db.execSQL(
                     "CREATE TABLE " + TABLE_NAME + " ("
                             + WORD_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + WORD_DATEINDEX + " ,"
-                            + WORD_START + " ,"
-                            + WORD_OVERTIME + " ,"
+                            + WORD_DATEINDEX + " INTEGER,"
+                            + WORD_START + " INTEGER,"
+                            + WORD_OVERTIME + " INTEGER,"
                             + WORD_CONNECT + " TEXT NOT NULL,"
                             + WORD_CONTENT + " TEXT NOT NULL,"
                             + WORD_PLACE + " ,"
@@ -69,7 +69,7 @@ public class DBAdapter {
 
     //予定情報の取得
     public Cursor getPlanInfo(String getSearch, String[] field){
-        return db.query(TABLE_NAME, new String[]{WORD_DATEINDEX, WORD_START, WORD_OVERTIME, WORD_CONNECT, WORD_CONTENT, WORD_PLACE, WORD_MEMO}, getSearch, field, null, null, "_id ASC");
+        return db.query(TABLE_NAME, new String[]{WORD_ID, WORD_DATEINDEX, WORD_START, WORD_OVERTIME, WORD_CONNECT, WORD_CONTENT, WORD_PLACE, WORD_MEMO}, getSearch, field, null, null, "_id ASC");
     }
 
     //行の削除
@@ -77,8 +77,18 @@ public class DBAdapter {
         return db.delete(TABLE_NAME, WORD_ID + "=" + id, null) > 0;
     }
 
-    //行の挿入
-    public void saveWord(Card card){
+    //region 行の挿入
+    public long saveWord(ModelCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, -2);
+        values.put(WORD_START, -5);
+        values.put(WORD_OVERTIME, -1);
+        values.put(WORD_CONNECT, card.getSaved());
+        values.put(WORD_CONTENT, card.getTitle());
+        return db.insertOrThrow(TABLE_NAME, null, values);
+    }
+
+    public long saveWord(Card card){
         ContentValues values = new ContentValues();
         values.put(WORD_DATEINDEX, card.getDate());
         values.put(WORD_START, card.getStartTime());
@@ -87,10 +97,54 @@ public class DBAdapter {
         values.put(WORD_CONTENT, card.getContent());
         values.put(WORD_PLACE, card.getPlace());
         values.put(WORD_MEMO, card.getMemo());
+        return db.insertOrThrow(TABLE_NAME, null, values);
+    }
+
+    public void saveWord(WantPlanCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, -1);
+        values.put(WORD_START, card.getWhich());
+        values.put(WORD_OVERTIME, card.getRatio());
+        values.put(WORD_CONNECT, card.getActive());
+        values.put(WORD_CONTENT, card.getContent());
+        values.put(WORD_PLACE, card.getPlace());
         db.insertOrThrow(TABLE_NAME, null, values);
     }
 
-    //行の更新
+    public long saveWord(MustPlanCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, card.getLimitDate());
+        values.put(WORD_START, -3);
+        values.put(WORD_OVERTIME, card.getLimitTime());
+        values.put(WORD_CONNECT, card.getActive());
+        values.put(WORD_CONTENT, card.getContent());
+        values.put(WORD_PLACE, card.getPlace());
+        values.put(WORD_MEMO, card.getMemo());
+        return db.insertOrThrow(TABLE_NAME, null, values);
+    }
+
+    public long saveWord(EventPlanCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, card.getDate());
+        values.put(WORD_START, -4);
+        values.put(WORD_OVERTIME, card.getIndex());
+        values.put(WORD_CONNECT, false);
+        values.put(WORD_CONTENT, card.getTitle());
+        return db.insertOrThrow(TABLE_NAME, null, values);
+    }
+    //endregion
+
+    //region 行の更新
+    public void updateWord(String cardId, ModelCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, -2);
+        values.put(WORD_START, -5);
+        values.put(WORD_OVERTIME, -1);
+        values.put(WORD_CONNECT, card.getSaved());
+        values.put(WORD_CONTENT, card.getTitle());
+        db.update(TABLE_NAME, values, WORD_ID + " = " + cardId, null);
+    }
+
     public void updateWord(String cardId, Card card){
         ContentValues values = new ContentValues();
         values.put(WORD_DATEINDEX, card.getDate());
@@ -103,5 +157,39 @@ public class DBAdapter {
         db.update(TABLE_NAME, values, WORD_ID + " = " + cardId, null);
     }
 
+    public void updateWord(String cardId, WantPlanCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, -1);
+        values.put(WORD_START, card.getWhich());
+        values.put(WORD_OVERTIME, card.getRatio());
+        values.put(WORD_CONNECT, card.getActive());
+        values.put(WORD_CONTENT, card.getContent());
+        values.put(WORD_PLACE, card.getPlace());
+        db.update(TABLE_NAME, values, WORD_ID + " = " + cardId, null);
+    }
+
+    public void updateWord(String cardId, MustPlanCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, card.getLimitDate());
+        values.put(WORD_START, -3);
+        values.put(WORD_OVERTIME, card.getLimitTime());
+        values.put(WORD_CONNECT, card.getActive());
+        values.put(WORD_CONTENT, card.getContent());
+        values.put(WORD_PLACE, card.getPlace());
+        values.put(WORD_MEMO, card.getMemo());
+        db.update(TABLE_NAME, values, WORD_ID + " = " + cardId, null);
+    }
+
+    public void updateWord(String cardId, EventPlanCard card){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, card.getDate());
+        values.put(WORD_START, -4);
+        values.put(WORD_OVERTIME, card.getIndex());
+        values.put(WORD_CONNECT, false);
+        values.put(WORD_CONTENT, card.getTitle());
+        db.update(TABLE_NAME, values, WORD_ID + " = " + cardId, null);
+    }
+
+    //endregion
 }
 
