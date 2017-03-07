@@ -138,7 +138,7 @@ public class SettingMainFragment extends ListFragment {
                                         ((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId(),
                                         ((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index));
                             }else{
-                                ((ScheduleApplication) getActivity().getApplication()).deleteCard(((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId());
+                                ((ScheduleApplication) getActivity().getApplication()).checkModelIndex(((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(index).getId());
                             }
                             updateList();
                             //endregion

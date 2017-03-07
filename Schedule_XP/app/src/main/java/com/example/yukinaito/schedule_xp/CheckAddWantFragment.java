@@ -10,14 +10,19 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -119,23 +124,51 @@ public class CheckAddWantFragment extends Fragment {
             WantPlanCard card = investmentCards.get(pos);
 
             //レイアウトの生成
-            if(view == null)
+            if(view == null){
                 view = (LayoutInflater.from(context)).inflate(R.layout.list_checkwant, null);
+                ((Switch)view.findViewById(R.id.Switch1)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                        for(int i = 0; i < investmentCards.size(); i++){
+                            if(investmentCards.get(i).getId().equals(compoundButton.getTag())){
+                                investmentCards.get(i).setActive(b);
+                                ((ScheduleApplication)getActivity().getApplication()).updateCard(investmentCards.get(i).getId(), investmentCards.get(i), false);
+                                break;
+                            }
+                        }
+                    }
+                });
+                view.findViewById(R.id.ratio).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        for(int i = 0; i < investmentCards.size(); i++){
+                            if(investmentCards.get(i).getId().equals(view.getTag())){
+                                settingRatio(investmentCards.get(i));
+                                break;
+                            }
+                        }
+                    }
+                });
+            }
 
             //宣言&初期化
+            Switch switch1 = (Switch) view.findViewById(R.id.Switch1);
             TextView textView1 = (TextView) view.findViewById(R.id.content);
             TextView textView2 = (TextView) view.findViewById(R.id.place);
-            TextView textView3 = (TextView) view.findViewById(R.id.ratio);
+            Button button = (Button) view.findViewById(R.id.ratio);
 
             //この処理がないとList更新時前のデータが残る
             textView1.setText("");
             textView2.setText("");
-            textView3.setText("");
+            button.setText("");
 
             //値のセット
+            switch1.setChecked(card.getActive());
             textView1.setText(card.getContent());
             textView2.setText(card.getPlace());
-            textView3.setText(Integer.toString(card.getRatio())+"%");
+            button.setText(Integer.toString(card.getRatio()));
+            switch1.setTag(card.getId());
+            button.setTag(card.getId());
 
             return view;
         }
@@ -170,9 +203,10 @@ public class CheckAddWantFragment extends Fragment {
             //宣言&初期化
             TextView textView1 = (TextView) view.findViewById(R.id.content);
             TextView textView2 = (TextView) view.findViewById(R.id.place);
-            TextView textView3 = (TextView) view.findViewById(R.id.ratio);
+            FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.frameLayout);
 
-            textView3.setVisibility(View.GONE);
+            view.findViewById(R.id.Switch1).setVisibility(View.GONE);
+            frameLayout.setVisibility(View.GONE);
 
             //この処理がないとList更新時前のデータが残る
             textView1.setText("");
@@ -236,11 +270,11 @@ public class CheckAddWantFragment extends Fragment {
                 //変更必要
                 WantPlanCard addCard;
                 addCard = new WantPlanCard(((EditText)layout.findViewById(R.id.input_content)).getText().toString(),
-                        false, 0, ((EditText)layout.findViewById(R.id.input_place)).getText().toString(), -1 * (id + 1));
+                        false, 1, ((EditText)layout.findViewById(R.id.input_place)).getText().toString(), -1 * (id + 1));
                 if(editCard == null){
                     ((ScheduleApplication)getActivity().getApplication()).saveCard(addCard);
                 }else{
-                    ((ScheduleApplication)getActivity().getApplication()).updateCard(editCard.getId(), addCard);
+                    ((ScheduleApplication)getActivity().getApplication()).updateCard(editCard.getId(), addCard, true);
                     if(id == 0){
                         for(int index = 0; index < investmentCards.size(); index++){
                             if(investmentCards.get(index) == editCard){
@@ -317,6 +351,85 @@ public class CheckAddWantFragment extends Fragment {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 else
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            }
+        });
+        //endregion
+    }
+
+    public void settingRatio(final WantPlanCard editCard){
+        //region ダイアログの生成
+        LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final View layout = inflater.inflate(R.layout.dialog_editratio, (ViewGroup)getActivity().findViewById(R.id.root));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setView(layout);
+        builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //region "更新"のタップ時
+                editCard.setRatio(Integer.parseInt(((EditText)layout.findViewById(R.id.input_ratio)).getText().toString()));
+                ((ScheduleApplication)getActivity().getApplication()).updateCard(editCard.getId(), editCard, true);
+                for(int index = 0; index < investmentCards.size(); index++){
+                    if(investmentCards.get(index) == editCard){
+                        investmentCards.remove(index);
+                        break;
+                    }
+                }
+                updateInvestmentList();
+                //endregion
+            }
+        });
+        builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //region "キャンセル"のタップ時
+                //endregion
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        ((EditText)layout.findViewById(R.id.input_ratio)).setText(Integer.toString(editCard.getRatio()));
+        ((EditText)layout.findViewById(R.id.input_ratio)).addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                //入力チェック 空欄でないかどうか
+                if(((EditText)layout.findViewById(R.id.input_ratio)).getText().toString().toString().equals("0") ||
+                        ((EditText)layout.findViewById(R.id.input_ratio)).getText().toString().trim().length() == 0){
+                    ((EditText)layout.findViewById(R.id.input_ratio)).setText("1");
+                }
+                Log.d("TEST", ((EditText)layout.findViewById(R.id.input_ratio)).getText().toString() + " " + Integer.toString(editCard.getRatio()));
+                Log.d("TEST", Boolean.toString(((EditText)layout.findViewById(R.id.input_ratio)).getText().toString().equals(Integer.toString(editCard.getRatio()))));
+                if(!((EditText)layout.findViewById(R.id.input_ratio)).getText().toString().equals(Integer.toString(editCard.getRatio()))){
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                }
+                else{
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                }
+            }
+        });
+        (layout.findViewById(R.id.down)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int count = Integer.parseInt(((EditText)layout.findViewById(R.id.input_ratio)).getText().toString());
+                if(count > 1){
+                    ((EditText)layout.findViewById(R.id.input_ratio)).setText(Integer.toString(count - 1));
+                }
+            }
+        });
+        (layout.findViewById(R.id.up)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int count = Integer.parseInt(((EditText)layout.findViewById(R.id.input_ratio)).getText().toString());
+                ((EditText)layout.findViewById(R.id.input_ratio)).setText(Integer.toString(count + 1));
             }
         });
         //endregion

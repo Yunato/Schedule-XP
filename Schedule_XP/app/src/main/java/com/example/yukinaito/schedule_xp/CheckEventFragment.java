@@ -100,8 +100,8 @@ public class CheckEventFragment extends ListFragment {
                 boolean check = false;
 
                 for(int j = 0; j < ((ScheduleApplication) getActivity().getApplication()).getModelInfo().size(); j++){
-                    if(!((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(j).getSaved()){
-                        check = true;
+                    if(((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(j).getId().equals(id)){
+                        check = !((ScheduleApplication) getActivity().getApplication()).getModelInfo().get(j).getSaved();
                         break;
                     }
                 }

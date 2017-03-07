@@ -38,6 +38,8 @@
             android:layout_height="wrap_content"
             android:textSize="45sp"
             android:textColor="#424242"
+            android:ellipsize="end"
+            android:lines="1"
             android:paddingLeft="40px"
             android:paddingTop="10px"
             android:paddingRight="40px"

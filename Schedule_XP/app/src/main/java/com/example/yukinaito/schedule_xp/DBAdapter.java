@@ -100,7 +100,7 @@ public class DBAdapter {
         return db.insertOrThrow(TABLE_NAME, null, values);
     }
 
-    public void saveWord(WantPlanCard card){
+    public long saveWord(WantPlanCard card){
         ContentValues values = new ContentValues();
         values.put(WORD_DATEINDEX, -1);
         values.put(WORD_START, card.getWhich());
@@ -108,7 +108,8 @@ public class DBAdapter {
         values.put(WORD_CONNECT, card.getActive());
         values.put(WORD_CONTENT, card.getContent());
         values.put(WORD_PLACE, card.getPlace());
-        db.insertOrThrow(TABLE_NAME, null, values);
+        values.put(WORD_MEMO, card.getSum());
+        return db.insertOrThrow(TABLE_NAME, null, values);
     }
 
     public long saveWord(MustPlanCard card){
@@ -188,6 +189,12 @@ public class DBAdapter {
         values.put(WORD_CONNECT, false);
         values.put(WORD_CONTENT, card.getTitle());
         db.update(TABLE_NAME, values, WORD_ID + " = " + cardId, null);
+    }
+
+    public void updateDate(int sum){
+        ContentValues values = new ContentValues();
+        values.put(WORD_DATEINDEX, sum);
+        db.update(TABLE_NAME, values, WORD_ID + " = 8", null);
     }
 
     //endregion

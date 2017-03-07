@@ -38,6 +38,7 @@ public class AddModelActivity extends AppCompatActivity {
     //データ
     private int startTime;
     private int overTime;
+    private boolean editFlag = false;
     private ArrayList<Card> editCards = null;
 
     @Override
@@ -58,6 +59,7 @@ public class AddModelActivity extends AppCompatActivity {
         //region 編集かどうか
         ArrayList<Card> editCards;
         if((editCards = (ArrayList<Card>) getIntent().getSerializableExtra("EditCard")) != null){
+            editFlag = true;
             this.editCards = editCards;
             count = editCards.size();
         }else{
@@ -80,7 +82,7 @@ public class AddModelActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         final MenuInflater inflater = getMenuInflater();
-        if(this.editCards != null)
+        if(editFlag)
             inflater.inflate(R.menu.edit_menu, menu);
         else
             inflater.inflate(R.menu.add_menu, menu);
@@ -333,7 +335,7 @@ public class AddModelActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             //戻るキーを押されたときの処理
-            if(this.editCards != null){
+            if(editFlag){
                 Intent intent = new Intent();
                 intent.putExtra("AddEditCards", getIntent().getSerializableExtra("EditCard"));
                 intent.putExtra("Index", getIntent().getIntExtra("Index", -1));
@@ -500,15 +502,23 @@ public class AddModelActivity extends AppCompatActivity {
         int index, startTime, overTime;
 
         for(index = 0; index < editCards.size(); index++){
+            baseLayout = (LinearLayout)((LinearLayout)((LinearLayout)layout.getChildAt(index)).
+                    getChildAt(((LinearLayout)layout.getChildAt(index)).getChildCount() - 1)).
+                    getChildAt(1);
+            startTime = Integer.parseInt(((Button)baseLayout.getChildAt(0)).getText().toString().substring(0, 2)) * 100
+                    + Integer.parseInt(((Button)baseLayout.getChildAt(0)).getText().toString().substring(3, 5));
+            if(!((Button) baseLayout.getChildAt(1)).getText().toString().equals("時刻の指定[タップ]")){
+                overTime = Integer.parseInt(((Button)baseLayout.getChildAt(1)).getText().toString().substring(0, 2)) * 100
+                        + Integer.parseInt(((Button)baseLayout.getChildAt(1)).getText().toString().substring(3, 5));
+            }else{
+                overTime = -1;
+            }
             addCards.add(new Card(
                     editCards.get(index).getId(),
-                    editCards.get(index).getDate(),
-                    editCards.get(index).getStartTime(),
-                    editCards.get(index).getOverTime(),
-                    editCards.get(index).getConnect(),
-                    editCards.get(index).getContent(),
-                    editCards.get(index).getPlace()
-            ));
+                    Integer.parseInt(((ScheduleApplication)this.getApplication()).getModelIndex()),
+                    startTime, overTime, true,
+                    ((EditText)baseLayout.getChildAt(2)).getText().toString(),
+                    ((EditText)baseLayout.getChildAt(3)).getText().toString()));
         }
 
         for(; index < layout.getChildCount() - 1; index++){

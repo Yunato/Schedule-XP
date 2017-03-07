@@ -71,7 +71,9 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         if (id == R.id.menu_item0) {
-            // Handle the camera action
+            setTitle("本日の予定");
+            ShowScheduleFragment fragment = new ShowScheduleFragment();
+            transaction.replace(R.id.content_main, fragment);
         } else if (id == R.id.menu_item1) {
             setTitle("予定の確認・追加");
             CheckMainFragment fragment = new CheckMainFragment();
@@ -107,6 +109,8 @@ public class MainActivity extends AppCompatActivity
                 ((ScheduleApplication)this.getApplication()).saveCard(modelCard);
                 week.add(Calendar.DAY_OF_MONTH, 1);
             }
+            Card addCard = new Card(0, 0, 0, false, "dateindexは、したいことに費やした合計時間", "null");
+            ((ScheduleApplication)this.getApplication()).saveData(addCard);
             editor.putBoolean("Launched", true).commit();
         }
     }

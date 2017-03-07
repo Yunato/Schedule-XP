@@ -3,7 +3,8 @@
     android:id="@+id/Layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ffffff">
+    android:background="#ffffff"
+    android:descendantFocusability = "blocksDescendants">
 
     <LinearLayout
         android:id="@+id/switchLayout"
@@ -32,7 +33,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_toRightOf="@+id/switchLayout"
-        android:layout_toLeftOf="@+id/ratio"
+        android:layout_toLeftOf="@+id/frameLayout"
         android:background="@drawable/line_left">
 
         <TextView
@@ -42,6 +43,8 @@
             android:layout_weight="1"
             android:textSize="20sp"
             android:textColor="#424242"
+            android:ellipsize="end"
+            android:lines="1"
             android:paddingLeft="10px"
             android:paddingTop="10px"
             android:paddingRight="10px"
@@ -56,6 +59,8 @@
             android:layout_weight="1"
             android:textSize="20sp"
             android:textColor="#424242"
+            android:ellipsize="end"
+            android:lines="1"
             android:paddingLeft="10px"
             android:paddingTop="10px"
             android:paddingRight="10px"
@@ -64,19 +69,38 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/ratio"
+    <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_alignBottom="@+id/Layout2"
-        android:layout_alignParentEnd="true"
-        android:gravity="center"
-        android:textSize="45sp"
-        android:textColor="#424242"
-        android:paddingLeft="10px"
-        android:paddingTop="10px"
-        android:paddingRight="10px"
-        android:paddingBottom="10px"
-        android:background="@drawable/line_left"/>
+        android:layout_alignParentEnd="true">
+
+        <!--サイズ合わせ-->
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="追加"
+            android:textSize="22sp"
+            android:paddingLeft="15px"
+            android:paddingTop="30px"
+            android:paddingRight="15px"
+            android:paddingBottom="30px"
+            android:visibility="invisible"/>
+
+        <Button
+            android:id="@+id/ratio"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="45sp"
+            android:textColor="#424242"
+            android:paddingLeft="10px"
+            android:paddingTop="10px"
+            android:paddingRight="10px"
+            android:paddingBottom="10px"
+            android:background="@drawable/line_left"/>
+
+    </FrameLayout>
 
 </RelativeLayout>

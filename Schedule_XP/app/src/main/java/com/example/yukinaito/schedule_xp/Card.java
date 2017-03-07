@@ -38,6 +38,14 @@ public class Card implements Serializable {
         return this;
     }
 
+    public void setStartTime(int startTime){
+        this.startTime = startTime;
+    }
+
+    public void setOverTime(int overTime){
+        this.overTime = overTime;
+    }
+
     public void setConnect(boolean connect){
         this.connect = connect;
     }
